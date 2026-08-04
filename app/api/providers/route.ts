@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       emergency: Boolean(row.emergency),
       verified: Boolean(row.verified),
       image: String(row.initials ?? "LS"),
-      cover: String(row.coverUrl ?? "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=900&q=80"),
+      cover: row.profilePhotoId ? `/api/providers/photo/${row._id}` : "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=900&q=80",
       description: String(row.description ?? "Local service professional."),
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
