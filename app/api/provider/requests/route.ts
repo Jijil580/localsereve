@@ -44,6 +44,8 @@ export async function GET() {
         urgency: row.urgency,
         status: row.status,
         quoteCount: Number(row.quoteCount ?? 0),
+        whatsappNumber: row.allowWhatsApp ? String(row.whatsappNumber ?? "") : "",
+        responses: Array.isArray(row.responses) ? row.responses.filter((reply: { providerId?: ObjectId }) => String(reply.providerId ?? "") === String(profile._id)).map((reply: Record<string, unknown>) => ({ ...reply, providerId: String(reply.providerId ?? "") })) : [],
         createdAt: row.createdAt,
       })),
     });

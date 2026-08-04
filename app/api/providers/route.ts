@@ -43,6 +43,7 @@ export async function GET(request: Request) {
       description: String(row.description ?? "Local service professional."),
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
+      whatsapp: String(row.phone ?? ""),
     }));
     return Response.json({ data, meta: { limit, count: data.length } });
   } catch (error) {

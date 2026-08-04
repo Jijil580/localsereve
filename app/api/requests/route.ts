@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const db = await getMongoDb();
     const rows = await db.collection("serviceRequests").find({ customerId: new ObjectId(session.id) }).sort({ createdAt: -1 }).limit(100).toArray();
-    return Response.json({ data: rows.map(row => ({ ...row, _id: String(row._id), customerId: String(row.customerId) })) });
+    return Response.json({ data: rows.map(row => ({ ...row, _id: String(row._id), customerId: String(row.customerId), responses: Array.isArray(row.responses) ? row.responses.map((reply: Record<string, unknown>) => ({ ...reply, providerId: String(reply.providerId ?? "") })) : [] })) });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load requests" }, { status: 500 }); }
 }
 
@@ -27,9 +27,11 @@ export async function POST(request: Request) {
     const preferredDate = text(body.preferredDate, 20);
     const preferredTime = text(body.preferredTime, 30);
     const urgency = text(body.urgency, 30) || "Flexible";
+    const whatsappDigits = text(body.whatsappNumber, 20).replace(/\D/g, "");
+    const allowWhatsApp = body.allowWhatsApp === true && whatsappDigits.length >= 10 && whatsappDigits.length <= 15;
     if (!service || description.length < 10 || address.length < 5 || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate)) return Response.json({ error: "Complete the service, description, address and preferred date" }, { status: 400 });
     const now = new Date();
-    const record = { requestNumber: `REQ-${Date.now().toString(36).toUpperCase()}`, customerId: new ObjectId(session.id), customerName: session.fullName, service, description, address, preferredDate, preferredTime, urgency, status: "open", quoteCount: 0, createdAt: now, updatedAt: now };
+    const record = { requestNumber: `REQ-${Date.now().toString(36).toUpperCase()}`, customerId: new ObjectId(session.id), customerName: session.fullName, service, description, address, preferredDate, preferredTime, urgency, allowWhatsApp, whatsappNumber: allowWhatsApp ? whatsappDigits : "", responses: [], status: "open", quoteCount: 0, createdAt: now, updatedAt: now };
     const db = await getMongoDb();
     await db.collection("serviceRequests").createIndex({ customerId: 1, createdAt: -1 });
     const result = await db.collection("serviceRequests").insertOne(record);
