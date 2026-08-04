@@ -45,3 +45,5 @@ next-env.d.ts
 /.sites-stage/
 /localserve-sites.tar.gz
 /.vercel/
+
+.env*.local
