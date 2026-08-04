@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { translations } from "./i18n";
 
 type View = "home" | "search" | "requests" | "messages" | "dashboard";
+type SessionUser = { id: string; fullName: string; email: string; role: "customer" | "provider" | "admin" };
 type Provider = {
   id: number; name: string; business: string; service: string; rating: number; reviews: number;
   distance: number; experience: number; price: number; available: boolean; emergency?: boolean;
@@ -40,7 +41,15 @@ export default function LocalServeApp() {
   const [language, setLanguage] = useState<keyof typeof translations>("EN");
   const [role, setRole] = useState<"customer" | "provider" | "admin">("customer");
   const [messages, setMessages] = useState(["Hello! I need help with a switchboard.", "Sure — I can visit today after 4 PM."]);
+  const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
   const t = translations[language];
+
+  useEffect(() => {
+    fetch("/api/auth/session", { credentials: "include" })
+      .then(response => response.ok ? response.json() : { user: null })
+      .then(data => setCurrentUser(data.user ?? null))
+      .catch(() => setCurrentUser(null));
+  }, []);
 
   const results = useMemo(() => {
     const q = query.toLowerCase();
@@ -50,6 +59,11 @@ export default function LocalServeApp() {
 
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2600); }
   function goSearch(service?: string) { if (service && service !== "All services") setQuery(service); setView("search"); window.scrollTo({top:0, behavior:"smooth"}); }
+  function openProtected(nextView: View) { if (!currentUser) return setModal("auth"); setView(nextView); }
+  async function signOut() {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    setCurrentUser(null); setView("home"); notify("You have been signed out.");
+  }
   function useLocation() {
     if (!navigator.geolocation) return notify("Location is not supported on this device.");
     navigator.geolocation.getCurrentPosition(() => notify("Location updated to your current position."), () => notify("Location permission was not granted."));
@@ -62,14 +76,14 @@ export default function LocalServeApp() {
         <nav className="desktop-nav" aria-label="Main navigation">
           <button className={view === "home" ? "active" : ""} onClick={() => setView("home")}>Home</button>
           <button className={view === "search" ? "active" : ""} onClick={() => goSearch()}>Find services</button>
-          <button className={view === "requests" ? "active" : ""} onClick={() => setView("requests")}>My requests</button>
-          <button className={view === "messages" ? "active" : ""} onClick={() => setView("messages")}>Messages <span className="nav-dot">2</span></button>
+          <button className={view === "requests" ? "active" : ""} onClick={() => openProtected("requests")}>My requests</button>
+          <button className={view === "messages" ? "active" : ""} onClick={() => openProtected("messages")}>Messages {currentUser && <span className="nav-dot">2</span>}</button>
         </nav>
         <div className="header-actions">
           <button className="location-mini" onClick={useLocation}>⌖ <span>Kochi</span></button>
           <button className="language" onClick={() => setLanguage(language === "EN" ? "HI" : language === "HI" ? "ML" : "EN")}>{language}</button>
-          <button className="ghost-btn desktop-only" onClick={() => {setRole("provider"); setView("dashboard")}}>For professionals</button>
-          <button className="primary-btn small" onClick={() => setModal("auth")}>Sign in</button>
+          <button className="ghost-btn desktop-only" onClick={() => {setRole("provider"); currentUser ? setView("dashboard") : setModal("auth")}}>For professionals</button>
+          {currentUser ? <><button className="account-chip" onClick={() => {setRole(currentUser.role);setView("dashboard")}}><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><b>{currentUser.fullName.split(" ")[0]}</b></button><button className="signout-btn" onClick={signOut}>Sign out</button></> : <button className="primary-btn small" onClick={() => setModal("auth")}>Sign in</button>}
         </div>
       </header>
 
@@ -119,9 +133,9 @@ export default function LocalServeApp() {
 
       <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">L</span><span>Local<span>Serve</span></span></div><p>Trusted local services, one tap away.</p></div><div><b>Customers</b><a>Find services</a><a>Post a request</a><a>Safety</a></div><div><b>Professionals</b><a>Join LocalServe</a><a>Plans & pricing</a><a>Provider help</a></div><div><b>Company</b><a>About</a><a>Contact</a><a>Privacy & terms</a></div><div className="footer-bottom">© 2026 LocalServe. Made for local communities. <span>English · हिन्दी · മലയാളം</span></div></footer>
 
-      <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂","Home","home"],["⌕","Search","search"],["＋","Requests","requests"],["✉","Messages","messages"],["◉","Profile","dashboard"]].map(([icon,label,id]) => <button className={view===id ? "active" : ""} onClick={() => setView(id as View)} key={id}><span>{icon}</span>{label}</button>)}</nav>
+      <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂","Home","home"],["⌕","Search","search"],["＋","Requests","requests"],["✉","Messages","messages"],["◉","Profile","dashboard"]].map(([icon,label,id]) => <button className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
-      {modal && <AppModal type={modal} provider={selected} onClose={() => setModal(null)} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
+      {modal && <AppModal type={modal} provider={selected} onClose={() => setModal(null)} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);setModal(null);notify(`Welcome, ${user.fullName.split(" ")[0]}!`);setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
       {toast && <div className="toast" role="status">✓ {toast}</div>}
     </div>
   );
@@ -143,4 +157,26 @@ function Dashboard({role,setRole,onAction}:{role:string;setRole:(r:any)=>void;on
 
 function ProviderDrawer({provider:p,saved,onClose,onBook,onSave}:{provider:Provider;saved:boolean;onClose:()=>void;onBook:()=>void;onSave:()=>void}) { return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><aside className="provider-drawer"><button className="modal-close" onClick={onClose}>×</button><div className="drawer-cover"><img src={p.cover} alt={`${p.business} portfolio`}/></div><div className="drawer-content"><div className="profile-main"><div className="avatar large">{p.image}</div><div><h2>{p.business} <span className="verified">✓</span></h2><p>{p.name} · {p.service}</p><span className="status-pill green">AVAILABLE TODAY</span></div></div><div className="profile-stats"><div><b>★ {p.rating}</b><span>{p.reviews} reviews</span></div><div><b>{p.jobs}</b><span>Jobs done</span></div><div><b>{p.experience} yrs</b><span>Experience</span></div><div><b>{p.distance} km</b><span>Distance</span></div></div><h3>About</h3><p>{p.description} Serving homes and businesses across {p.locality}. Every job includes clear estimates, tidy workmanship and a service guarantee.</p><div className="tags"><span>English</span><span>हिन्दी</span><span>മലയാളം</span><span>Home visit</span><span>UPI accepted</span></div><h3>Popular services</h3><div className="service-price"><span><b>Inspection & diagnosis</b><small>30–45 minutes</small></span><b>₹{p.price}</b></div><div className="service-price"><span><b>Standard service visit</b><small>Materials charged separately</small></span><b>From ₹799</b></div><h3>Recent work</h3><div className="portfolio-row"><img src={p.cover} alt="Recent project"/><img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=500&q=80" alt="Completed project"/></div><div className="drawer-actions"><button onClick={onSave}>{saved?"♥ Saved":"♡ Save"}</button><button>WhatsApp</button><button className="primary-btn" onClick={onBook}>Book service</button></div></div></aside></div> }
 
-function AppModal({type,provider,onClose,onSuccess}:{type:string;provider:Provider|null;onClose:()=>void;onSuccess:(m:string)=>void}) { const [step,setStep]=useState(1); const submit=(e:FormEvent)=>{e.preventDefault();onSuccess(type==="auth"?"Welcome to LocalServe!":type==="request"?"Your request is live. Nearby providers will be notified.":"Booking request sent. The provider will confirm shortly.")}; return <div className="overlay"><div className="modal"><button className="modal-close" onClick={onClose}>×</button>{type==="auth"?<form onSubmit={submit}><span className="kicker">WELCOME TO LOCALSERVE</span><h2>Sign in to continue</h2><p className="muted">Book trusted professionals and manage every job in one place.</p><label>Mobile number<input required type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number"/></label><button type="submit" className="primary-btn wide">Continue with OTP</button><div className="divider"><span>or</span></div><button type="button" className="google">G&nbsp;&nbsp; Continue with Google</button><p className="legal">By continuing, you agree to our Terms and Privacy Policy.</p></form>:<form onSubmit={submit}><span className="kicker">{type==="request"?"POST A REQUEST":"BOOK A SERVICE"}</span><h2>{type==="request"?"Tell us what you need":`Book ${provider?.business||"professional"}`}</h2><div className="stepper"><span className="active">1</span><i></i><span className={step>1?"active":""}>2</span><i></i><span className={step>2?"active":""}>3</span></div>{step===1&&<><label>Service category<select required defaultValue={provider?.service||""}><option value="" disabled>Select a service</option>{categories.slice(0,-1).map(x=><option key={x[1]}>{x[1]}</option>)}</select></label><label>Describe the work<textarea required minLength={10} placeholder="Tell the professional what needs to be done..."/></label><label className="upload">＋ Add photos or video<input type="file" accept="image/*,video/*" multiple/></label></>}{step===2&&<><label>Service address<input required placeholder="House / apartment, street"/></label><div className="form-row"><label>Preferred date<input required type="date"/></label><label>Preferred time<select><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></div><label>Urgency<select><option>Flexible</option><option>Within 24 hours</option><option>Emergency</option></select></label></>}{step===3&&<div className="booking-review"><div><span>Service</span><b>{provider?.service||"Selected service"}</b></div><div><span>Visit charge</span><b>₹{provider?.price||299}</b></div><div><span>Payment</span><b>After service</b></div><p>Final price may change after inspection. You can review and approve any quotation before work begins.</p></div>}<div className="modal-actions">{step>1&&<button type="button" onClick={()=>setStep(step-1)}>Back</button>}{step<3?<button type="button" className="primary-btn" onClick={()=>setStep(step+1)}>Continue</button>:<button type="submit" className="primary-btn">Confirm request</button>}</div></form>}</div></div> }
+function AppModal({type,provider,onClose,onSuccess,onAuthenticated}:{type:string;provider:Provider|null;onClose:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void}) {
+  const [step,setStep]=useState(1);
+  const submit=(e:FormEvent)=>{e.preventDefault();onSuccess(type==="request"?"Your request is live. Nearby providers will be notified.":"Booking request sent. The provider will confirm shortly.")};
+  return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button>{type==="auth"?<AuthForm onAuthenticated={onAuthenticated}/>:<form onSubmit={submit}><span className="kicker">{type==="request"?"POST A REQUEST":"BOOK A SERVICE"}</span><h2>{type==="request"?"Tell us what you need":`Book ${provider?.business||"professional"}`}</h2><div className="stepper"><span className="active">1</span><i></i><span className={step>1?"active":""}>2</span><i></i><span className={step>2?"active":""}>3</span></div>{step===1&&<><label>Service category<select required defaultValue={provider?.service||""}><option value="" disabled>Select a service</option>{categories.slice(0,-1).map(x=><option key={x[1]}>{x[1]}</option>)}</select></label><label>Describe the work<textarea required minLength={10} placeholder="Tell the professional what needs to be done..."/></label><label className="upload">＋ Add photos or video<input type="file" accept="image/*,video/*" multiple/></label></>}{step===2&&<><label>Service address<input required placeholder="House / apartment, street"/></label><div className="form-row"><label>Preferred date<input required type="date"/></label><label>Preferred time<select><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></div><label>Urgency<select><option>Flexible</option><option>Within 24 hours</option><option>Emergency</option></select></label></>}{step===3&&<div className="booking-review"><div><span>Service</span><b>{provider?.service||"Selected service"}</b></div><div><span>Visit charge</span><b>₹{provider?.price||299}</b></div><div><span>Payment</span><b>After service</b></div><p>Final price may change after inspection. You can review and approve any quotation before work begins.</p></div>}<div className="modal-actions">{step>1&&<button type="button" onClick={()=>setStep(step-1)}>Back</button>}{step<3?<button type="button" className="primary-btn" onClick={()=>setStep(step+1)}>Continue</button>:<button type="submit" className="primary-btn">Confirm request</button>}</div></form>}</div></div>
+}
+
+function AuthForm({onAuthenticated}:{onAuthenticated:(user:SessionUser)=>void}) {
+  const [mode,setMode]=useState<"login"|"register">("login");
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+  async function submitAuth(event:FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setBusy(true); setError("");
+    const data=Object.fromEntries(new FormData(event.currentTarget).entries());
+    try {
+      const response=await fetch(`/api/auth/${mode==="login"?"login":"register"}`,{method:"POST",headers:{"content-type":"application/json"},credentials:"include",body:JSON.stringify(data)});
+      const result=await response.json();
+      if(!response.ok) throw new Error(result.error||"Something went wrong");
+      onAuthenticated(result.user);
+    } catch (problem) { setError(problem instanceof Error?problem.message:"Unable to continue"); }
+    finally { setBusy(false); }
+  }
+  return <form onSubmit={submitAuth} className="auth-form"><span className="kicker">WELCOME TO LOCALSERVE</span><h2>{mode==="login"?"Sign in to your account":"Create your LocalServe account"}</h2><p className="muted">{mode==="login"?"Manage bookings, quotes and messages securely.":"Join as a customer or start receiving nearby service enquiries."}</p><div className="auth-tabs"><button type="button" className={mode==="login"?"active":""} onClick={()=>{setMode("login");setError("")}}>Sign in</button><button type="button" className={mode==="register"?"active":""} onClick={()=>{setMode("register");setError("")}}>Create account</button></div>{mode==="register"&&<><label>Full name<input name="fullName" required minLength={2} autoComplete="name" placeholder="Your full name"/></label><div className="form-row"><label>Email address<input name="email" required type="email" autoComplete="email" placeholder="you@example.com"/></label><label>Mobile number<input name="phone" required type="tel" pattern="[0-9 +()-]{10,18}" autoComplete="tel" placeholder="10-digit number"/></label></div><label>I want to join as<select name="role" defaultValue="customer"><option value="customer">Customer — book services</option><option value="provider">Service professional — receive work</option></select></label></>}{mode==="login"&&<label>Email or mobile number<input name="identifier" required autoComplete="username" placeholder="Email or mobile number"/></label>}<label>Password<input name="password" required type="password" minLength={8} autoComplete={mode==="login"?"current-password":"new-password"} placeholder="At least 8 characters"/></label>{mode==="register"&&<p className="password-hint">Use uppercase, lowercase and at least one number.</p>}{error&&<div className="auth-error" role="alert">{error}</div>}<button type="submit" className="primary-btn wide" disabled={busy}>{busy?"Please wait…":mode==="login"?"Sign in securely":"Create account"}</button><p className="legal">By continuing, you agree to our Terms and Privacy Policy. Your password is securely hashed and never stored as plain text.</p></form>
+}
