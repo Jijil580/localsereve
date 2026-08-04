@@ -13,7 +13,8 @@ export async function GET(request: Request) {
   const latitude = Number(url.searchParams.get("lat"));
   const longitude = Number(url.searchParams.get("lng"));
   const hasLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
-  const query: Record<string, unknown> = { averageRating: { $gte: minRating }, status: "active", published: true, verificationStatus: "approved" };
+  const query: Record<string, unknown> = { status: "active", published: true, verificationStatus: "approved" };
+  if (minRating > 0) query.averageRating = { $gte: minRating };
   if (search) {
     const pattern = { $regex: escapeRegex(search), $options: "i" };
     query.$or = [{ businessName: pattern }, { name: pattern }, { service: pattern }, { locality: pattern }];
