@@ -8,6 +8,6 @@ export async function GET() {
   try {
     const db = await getMongoDb();
     const rows = await db.collection("providers").find({}, { projection: { paymentDetails: 0 } }).sort({ submittedAt: -1, updatedAt: -1 }).limit(200).toArray();
-    return Response.json({ data: rows.map(row => ({ ...row, _id: String(row._id), userId: String(row.userId), profilePhotoId: row.profilePhotoId ? String(row.profilePhotoId) : null, idCardFrontId: row.idCardFrontId ? String(row.idCardFrontId) : null, idCardBackId: row.idCardBackId ? String(row.idCardBackId) : null })) });
+    return Response.json({ data: rows.map(row => ({ ...row, verificationStatus: row.verificationStatus ?? "pending", _id: String(row._id), userId: String(row.userId), profilePhotoId: row.profilePhotoId ? String(row.profilePhotoId) : null, idCardFrontId: row.idCardFrontId ? String(row.idCardFrontId) : null, idCardBackId: row.idCardBackId ? String(row.idCardBackId) : null })) });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load submissions" }, { status: 500 }); }
 }

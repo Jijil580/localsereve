@@ -9,7 +9,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   const { id } = await context.params;
   if (!ObjectId.isValid(id)) return new Response("Not found", { status: 404 });
   const db = await getMongoDb();
-  const provider = await db.collection("providers").findOne({ _id: new ObjectId(id), status: "active", published: true }, { projection: { profilePhotoId: 1 } });
+  const provider = await db.collection("providers").findOne({ _id: new ObjectId(id), status: "active", published: true, verificationStatus: "approved" }, { projection: { profilePhotoId: 1 } });
   if (!(provider?.profilePhotoId instanceof ObjectId)) return new Response("Not found", { status: 404 });
   const stored = await readProviderFile(db, provider.profilePhotoId);
   if (!stored) return new Response("Not found", { status: 404 });

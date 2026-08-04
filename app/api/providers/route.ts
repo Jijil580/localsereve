@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const verified = url.searchParams.get("verified") === "true";
   const minRating = Math.min(5, Math.max(0, Number(url.searchParams.get("rating") ?? 0)));
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? 20)));
-  const query: Record<string, unknown> = { averageRating: { $gte: minRating }, status: "active", published: true };
+  const query: Record<string, unknown> = { averageRating: { $gte: minRating }, status: "active", published: true, verificationStatus: "approved" };
   if (search) query.$text = { $search: search };
   if (verified) query.verified = true;
   try {
