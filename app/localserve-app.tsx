@@ -6,7 +6,7 @@ import { translations } from "./i18n";
 type View = "home" | "search" | "requests" | "messages" | "dashboard";
 type SessionUser = { id: string; fullName: string; email: string; role: "customer" | "provider" | "admin" };
 type Provider = {
-  id: number; name: string; business: string; service: string; rating: number; reviews: number;
+  id: string; name: string; business: string; service: string; rating: number; reviews: number;
   distance: number; experience: number; price: number; available: boolean; emergency?: boolean;
   verified: boolean; image: string; cover: string; description: string; jobs: number; locality: string;
 };
@@ -20,8 +20,6 @@ const categories = [
   ["💻", "Tech Repair", "Browse service"], ["⋯", "All services", "Explore categories"],
 ];
 
-const providers: Provider[] = [];
-
 export default function LocalServeApp() {
   const [view, setView] = useState<View>("home");
   const [query, setQuery] = useState("");
@@ -29,9 +27,10 @@ export default function LocalServeApp() {
   const [sort, setSort] = useState("recommended");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [availableOnly, setAvailableOnly] = useState(false);
-  const [saved, setSaved] = useState<number[]>([2]);
+  const [saved, setSaved] = useState<string[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [selected, setSelected] = useState<Provider | null>(null);
-  const [modal, setModal] = useState<"booking" | "request" | "auth" | null>(null);
+  const [modal, setModal] = useState<"booking" | "request" | "auth" | "profile" | null>(null);
   const [toast, setToast] = useState("");
   const [language, setLanguage] = useState<keyof typeof translations>("EN");
   const [role, setRole] = useState<"customer" | "provider" | "admin">("customer");
@@ -41,9 +40,18 @@ export default function LocalServeApp() {
   useEffect(() => {
     fetch("/api/auth/session", { credentials: "include" })
       .then(response => response.ok ? response.json() : { user: null })
-      .then(data => setCurrentUser(data.user ?? null))
+      .then(data => { setCurrentUser(data.user ?? null); if (data.user?.role) setRole(data.user.role); })
       .catch(() => setCurrentUser(null));
+    refreshProviders();
   }, []);
+
+  async function refreshProviders() {
+    try {
+      const response = await fetch("/api/providers?limit=50");
+      const result = await response.json();
+      if (response.ok) setProviders(result.data ?? []);
+    } catch { setProviders([]); }
+  }
 
   const results = useMemo(() => {
     const q = query.toLowerCase();
@@ -109,25 +117,25 @@ export default function LocalServeApp() {
 
           <section className="section provider-section">
             <div className="section-head"><div><span className="kicker">HIGHLY RATED</span><h2>{t.nearby}</h2><p>Handpicked based on ratings, reliability and distance.</p></div><button onClick={() => goSearch()}>See all professionals →</button></div>
-            <div className="provider-empty"><span>⌕</span><h3>No providers have published profiles yet</h3><p>New verified professionals will appear here as they complete onboarding.</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>Become the first professional</button></div>
+            {providers.length ? <div className="provider-grid">{providers.slice(0,3).map(p => <ProviderCard key={p.id} provider={p} saved={saved.includes(p.id)} onSave={() => setSaved(s => s.includes(p.id) ? s.filter(x=>x!==p.id) : [...s,p.id])} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>No providers have published profiles yet</h3><p>New verified professionals will appear here as they complete onboarding.</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>Become the first professional</button></div>}
           </section>
 
           <section className="how-section"><div className="how-copy"><span className="kicker light">SIMPLE & SECURE</span><h2>From search to service,<br/>we make it easy.</h2><p>Book confidently with verified professionals and transparent updates at every step.</p><button className="light-btn" onClick={() => setModal("request")}>Post a service request</button></div><div className="steps">{[["01","Tell us what you need","Search or post your requirement in under a minute."],["02","Choose a professional","Compare profiles, prices, portfolios and verified reviews."],["03","Book and relax","Track the job, pay securely and rate the service."]].map(([n,h,p]) => <div className="step" key={n}><span>{n}</span><div><h3>{h}</h3><p>{p}</p></div></div>)}</div></section>
 
-          <section className="cta-band"><div><span className="kicker">GROW YOUR BUSINESS</span><h2>Skilled professional? Meet your next customer.</h2><p>Create a free profile, showcase your work and receive nearby enquiries.</p></div><button onClick={() => {setRole("provider");setView("dashboard")}}>Join as a professional →</button></section>
+          <section className="cta-band"><div><span className="kicker">GROW YOUR BUSINESS</span><h2>Skilled professional? Meet your next customer.</h2><p>Create a free profile, showcase your work and receive nearby enquiries.</p></div><button onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>Join as a professional →</button></section>
         </>}
 
         {view === "search" && <SearchView query={query} setQuery={setQuery} radius={radius} setRadius={setRadius} sort={sort} setSort={setSort} verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly} availableOnly={availableOnly} setAvailableOnly={setAvailableOnly} results={results} saved={saved} setSaved={setSaved} setSelected={setSelected} setModal={setModal} />}
         {view === "requests" && <RequestsView onPost={() => setModal("request")} />}
         {view === "messages" && <CleanMessagesView onFind={goSearch} />}
-        {view === "dashboard" && currentUser && <CleanDashboard role={role} user={currentUser} onAction={notify} />}
+        {view === "dashboard" && currentUser && <ProviderDashboard role={role} user={currentUser} onAction={notify} onSetup={()=>setModal("profile")} />}
       </main>
 
       <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">L</span><span>Local<span>Serve</span></span></div><p>Trusted local services, one tap away.</p></div><div><b>Customers</b><a>Find services</a><a>Post a request</a><a>Safety</a></div><div><b>Professionals</b><a>Join LocalServe</a><a>Plans & pricing</a><a>Provider help</a></div><div><b>Company</b><a>About</a><a>Contact</a><a>Privacy & terms</a></div><div className="footer-bottom">© 2026 LocalServe. Made for local communities. <span>English · हिन्दी · മലയാളം</span></div></footer>
 
       <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂","Home","home"],["⌕","Search","search"],["＋","Requests","requests"],["✉","Messages","messages"],["◉","Profile","dashboard"]].map(([icon,label,id]) => <button className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
-      {modal && <AppModal type={modal} provider={selected} onClose={() => setModal(null)} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);setModal(null);notify(`Welcome, ${user.fullName.split(" ")[0]}!`);setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
+      {modal && <AppModal type={modal} provider={selected} user={currentUser} onClose={() => setModal(null)} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);setModal(null);notify(`Welcome, ${user.fullName.split(" ")[0]}!`);setView("dashboard")}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Your professional profile is published.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
       {toast && <div className="toast" role="status">✓ {toast}</div>}
     </div>
   );
@@ -138,7 +146,7 @@ function ProviderCard({provider:p,saved,onSave,onView,onBook}:{provider:Provider
 }
 
 function SearchView(props:any) {
-  return <div className="search-page"><div className="search-top"><span className="kicker">DISCOVER PROFESSIONALS</span><h1>Find the right expert nearby</h1><div className="search-bar-page"><input value={props.query} onChange={(e:any)=>props.setQuery(e.target.value)} placeholder="Search service, provider or business"/><button>⌖ Kochi, Kerala</button><button className="primary-btn">Search</button></div></div><div className="search-layout"><aside className="filters"><div className="filter-title"><h3>Filters</h3><button onClick={()=>{props.setRadius(60);props.setVerifiedOnly(false);props.setAvailableOnly(false)}}>Reset</button></div><label><span>Distance <b>{props.radius} km</b></span><input type="range" min="5" max="60" step="5" value={props.radius} onChange={e=>props.setRadius(+e.target.value)}/></label><fieldset><legend>Trust & availability</legend><label className="check"><input type="checkbox" checked={props.verifiedOnly} onChange={e=>props.setVerifiedOnly(e.target.checked)}/><span>Verified providers only</span></label><label className="check"><input type="checkbox" checked={props.availableOnly} onChange={e=>props.setAvailableOnly(e.target.checked)}/><span>Available today</span></label><label className="check"><input type="checkbox"/><span>Emergency service</span></label><label className="check"><input type="checkbox"/><span>Home visit</span></label></fieldset><fieldset><legend>Minimum rating</legend><div className="rating-filter">{["4.5+","4.0+","3.5+"].map(x=><button key={x}>★ {x}</button>)}</div></fieldset><fieldset><legend>Price range</legend><div className="two-inputs"><input placeholder="₹ Min"/><input placeholder="₹ Max"/></div></fieldset></aside><section className="results"><div className="results-head"><div><h2>{props.results.length} professionals found</h2><p>Within {props.radius} km of Kochi</p></div><select value={props.sort} onChange={e=>props.setSort(e.target.value)} aria-label="Sort results"><option value="recommended">Recommended</option><option value="nearest">Nearest first</option><option value="rating">Highest rated</option><option value="price">Lowest price</option></select></div>{props.results.length ? <div className="result-list">{props.results.map((p:Provider)=><ProviderCard key={p.id} provider={p} saved={props.saved.includes(p.id)} onSave={()=>props.setSaved((s:number[])=>s.includes(p.id)?s.filter(x=>x!==p.id):[...s,p.id])} onView={()=>props.setSelected(p)} onBook={()=>{props.setSelected(p);props.setModal("booking")}}/>)}</div>:<div className="empty"><span>⌕</span><h3>No professionals found</h3><p>Try a wider distance or fewer filters.</p><button className="primary-btn" onClick={()=>props.setRadius(60)}>Search within 60 km</button></div>}</section></div></div>;
+  return <div className="search-page"><div className="search-top"><span className="kicker">DISCOVER PROFESSIONALS</span><h1>Find the right expert nearby</h1><div className="search-bar-page"><input value={props.query} onChange={(e:any)=>props.setQuery(e.target.value)} placeholder="Search service, provider or business"/><button>⌖ Kochi, Kerala</button><button className="primary-btn">Search</button></div></div><div className="search-layout"><aside className="filters"><div className="filter-title"><h3>Filters</h3><button onClick={()=>{props.setRadius(60);props.setVerifiedOnly(false);props.setAvailableOnly(false)}}>Reset</button></div><label><span>Distance <b>{props.radius} km</b></span><input type="range" min="5" max="60" step="5" value={props.radius} onChange={e=>props.setRadius(+e.target.value)}/></label><fieldset><legend>Trust & availability</legend><label className="check"><input type="checkbox" checked={props.verifiedOnly} onChange={e=>props.setVerifiedOnly(e.target.checked)}/><span>Verified providers only</span></label><label className="check"><input type="checkbox" checked={props.availableOnly} onChange={e=>props.setAvailableOnly(e.target.checked)}/><span>Available today</span></label><label className="check"><input type="checkbox"/><span>Emergency service</span></label><label className="check"><input type="checkbox"/><span>Home visit</span></label></fieldset><fieldset><legend>Minimum rating</legend><div className="rating-filter">{["4.5+","4.0+","3.5+"].map(x=><button key={x}>★ {x}</button>)}</div></fieldset><fieldset><legend>Price range</legend><div className="two-inputs"><input placeholder="₹ Min"/><input placeholder="₹ Max"/></div></fieldset></aside><section className="results"><div className="results-head"><div><h2>{props.results.length} professionals found</h2><p>Within {props.radius} km of Kochi</p></div><select value={props.sort} onChange={e=>props.setSort(e.target.value)} aria-label="Sort results"><option value="recommended">Recommended</option><option value="nearest">Nearest first</option><option value="rating">Highest rated</option><option value="price">Lowest price</option></select></div>{props.results.length ? <div className="result-list">{props.results.map((p:Provider)=><ProviderCard key={p.id} provider={p} saved={props.saved.includes(p.id)} onSave={()=>props.setSaved((s:string[])=>s.includes(p.id)?s.filter(x=>x!==p.id):[...s,p.id])} onView={()=>props.setSelected(p)} onBook={()=>{props.setSelected(p);props.setModal("booking")}}/>)}</div>:<div className="empty"><span>⌕</span><h3>No professionals found</h3><p>Try a wider distance or fewer filters.</p><button className="primary-btn" onClick={()=>props.setRadius(60)}>Search within 60 km</button></div>}</section></div></div>;
 }
 
 function RequestsView({onPost}:{onPost:()=>void}) { return <div className="dash-page"><div className="page-heading"><div><span className="kicker">SERVICE REQUESTS</span><h1>My requests</h1><p>Your posted work, quotations and bookings will appear here.</p></div><button className="primary-btn" onClick={onPost}>＋ Post a new request</button></div><div className="request-summary"><div><span>0</span>Active requests</div><div><span>0</span>Quotes received</div><div><span>0</span>Upcoming bookings</div></div><div className="clean-empty"><span>＋</span><h3>No service requests yet</h3><p>Post your first request and nearby professionals will be able to send quotations.</p><button className="primary-btn" onClick={onPost}>Post your first request</button></div></div> }
@@ -147,9 +155,10 @@ function RequestsView({onPost}:{onPost:()=>void}) { return <div className="dash-
 
 function ProviderDrawer({provider:p,saved,onClose,onBook,onSave}:{provider:Provider;saved:boolean;onClose:()=>void;onBook:()=>void;onSave:()=>void}) { return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><aside className="provider-drawer"><button className="modal-close" onClick={onClose}>×</button><div className="drawer-cover"><img src={p.cover} alt={`${p.business} portfolio`}/></div><div className="drawer-content"><div className="profile-main"><div className="avatar large">{p.image}</div><div><h2>{p.business} <span className="verified">✓</span></h2><p>{p.name} · {p.service}</p><span className="status-pill green">AVAILABLE TODAY</span></div></div><div className="profile-stats"><div><b>★ {p.rating}</b><span>{p.reviews} reviews</span></div><div><b>{p.jobs}</b><span>Jobs done</span></div><div><b>{p.experience} yrs</b><span>Experience</span></div><div><b>{p.distance} km</b><span>Distance</span></div></div><h3>About</h3><p>{p.description} Serving homes and businesses across {p.locality}. Every job includes clear estimates, tidy workmanship and a service guarantee.</p><div className="tags"><span>English</span><span>हिन्दी</span><span>മലയാളം</span><span>Home visit</span><span>UPI accepted</span></div><h3>Popular services</h3><div className="service-price"><span><b>Inspection & diagnosis</b><small>30–45 minutes</small></span><b>₹{p.price}</b></div><div className="service-price"><span><b>Standard service visit</b><small>Materials charged separately</small></span><b>From ₹799</b></div><h3>Recent work</h3><div className="portfolio-row"><img src={p.cover} alt="Recent project"/><img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=500&q=80" alt="Completed project"/></div><div className="drawer-actions"><button onClick={onSave}>{saved?"♥ Saved":"♡ Save"}</button><button>WhatsApp</button><button className="primary-btn" onClick={onBook}>Book service</button></div></div></aside></div> }
 
-function AppModal({type,provider,onClose,onSuccess,onAuthenticated}:{type:string;provider:Provider|null;onClose:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void}) {
+function AppModal({type,provider,user,onClose,onSuccess,onAuthenticated,onProfileSaved}:{type:string;provider:Provider|null;user:SessionUser|null;onClose:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void;onProfileSaved:(u:SessionUser)=>void}) {
   const [step,setStep]=useState(1);
   const submit=(e:FormEvent)=>{e.preventDefault();onSuccess(type==="request"?"Your request is live. Nearby providers will be notified.":"Booking request sent. The provider will confirm shortly.")};
+  if(type==="profile" && user) return <div className="overlay"><div className="modal profile-modal"><button className="modal-close" onClick={onClose}>×</button><ProviderProfileForm user={user} onSaved={onProfileSaved}/></div></div>;
   return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button>{type==="auth"?<AuthForm onAuthenticated={onAuthenticated}/>:<form onSubmit={submit}><span className="kicker">{type==="request"?"POST A REQUEST":"BOOK A SERVICE"}</span><h2>{type==="request"?"Tell us what you need":`Book ${provider?.business||"professional"}`}</h2><div className="stepper"><span className="active">1</span><i></i><span className={step>1?"active":""}>2</span><i></i><span className={step>2?"active":""}>3</span></div>{step===1&&<><label>Service category<select required defaultValue={provider?.service||""}><option value="" disabled>Select a service</option>{categories.slice(0,-1).map(x=><option key={x[1]}>{x[1]}</option>)}</select></label><label>Describe the work<textarea required minLength={10} placeholder="Tell the professional what needs to be done..."/></label><label className="upload">＋ Add photos or video<input type="file" accept="image/*,video/*" multiple/></label></>}{step===2&&<><label>Service address<input required placeholder="House / apartment, street"/></label><div className="form-row"><label>Preferred date<input required type="date"/></label><label>Preferred time<select><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></div><label>Urgency<select><option>Flexible</option><option>Within 24 hours</option><option>Emergency</option></select></label></>}{step===3&&<div className="booking-review"><div><span>Service</span><b>{provider?.service||"Selected service"}</b></div><div><span>Visit charge</span><b>₹{provider?.price||299}</b></div><div><span>Payment</span><b>After service</b></div><p>Final price may change after inspection. You can review and approve any quotation before work begins.</p></div>}<div className="modal-actions">{step>1&&<button type="button" onClick={()=>setStep(step-1)}>Back</button>}{step<3?<button type="button" className="primary-btn" onClick={()=>setStep(step+1)}>Continue</button>:<button type="submit" className="primary-btn">Confirm request</button>}</div></form>}</div></div>
 }
 
@@ -193,4 +202,39 @@ function CleanDashboard({role,user,onAction}:{role:SessionUser["role"];user:Sess
       ? ["No platform activity yet","New customers, providers and bookings will appear here automatically."]
       : ["Post your first service request","Describe the work you need and nearby professionals will be able to send quotations."];
   return <div className="dash-page"><div className="page-heading"><div><span className="kicker">{role.toUpperCase()} DASHBOARD</span><h1>{role === "admin" ? "Platform overview" : `Welcome, ${firstName}!`}</h1><p>{description}</p></div><button className="primary-btn" onClick={()=>onAction(role === "provider" ? "Provider profile setup is coming next." : role === "admin" ? "There is no activity report to download yet." : "Use Post a request to create your first request.")}>{role === "provider" ? "Set up profile" : role === "admin" ? "Platform status" : "Post a request"}</button></div><div className="stat-grid">{stats.map(([value,label],index)=><div className="stat-card" key={label}><i>{["↗","◫","₹","★"][index]}</i><b>{value}</b><span>{label}</span><small>No activity yet</small></div>)}</div><div className="dashboard-grid"><section className="panel"><div className="panel-head"><h3>Recent activity</h3></div><div className="clean-empty compact"><span>○</span><h3>No activity yet</h3><p>Real account activity will appear here.</p></div></section><section className="panel"><div className="panel-head"><h3>Get started</h3></div><div className="clean-empty compact"><span>＋</span><h3>{prompt[0]}</h3><p>{prompt[1]}</p></div></section></div></div>;
+}
+
+function ProviderDashboard({role,user,onAction,onSetup}:{role:SessionUser["role"];user:SessionUser;onAction:(s:string)=>void;onSetup:()=>void}) {
+  if (role !== "provider") return <CleanDashboard role={role} user={user} onAction={onAction}/>;
+  const firstName = user.fullName.trim().split(/\s+/)[0] || "there";
+  const stats = [["0","New enquiries"],["0","Upcoming jobs"],["₹0","Earnings"],["—","No ratings yet"]];
+  return <div className="dash-page"><div className="page-heading"><div><span className="kicker">PROVIDER DASHBOARD</span><h1>Welcome, {firstName}!</h1><p>Publish and maintain your professional profile to receive nearby enquiries.</p></div><button className="primary-btn" onClick={onSetup}>Set up profile</button></div><div className="stat-grid">{stats.map(([value,label],index)=><div className="stat-card" key={label}><i>{["↗","◫","₹","★"][index]}</i><b>{value}</b><span>{label}</span><small>No activity yet</small></div>)}</div><div className="dashboard-grid"><section className="panel"><div className="panel-head"><h3>Recent activity</h3></div><div className="clean-empty compact"><span>○</span><h3>No enquiries yet</h3><p>Customer enquiries will appear here after your profile is published.</p></div></section><section className="panel"><div className="panel-head"><h3>Professional profile</h3></div><div className="clean-empty compact"><span>＋</span><h3>Complete your profile</h3><p>Add your service, experience, pricing and coverage area.</p><button className="primary-btn" onClick={onSetup}>Set up profile</button></div></section></div></div>;
+}
+
+function ProviderProfileForm({user,onSaved}:{user:SessionUser;onSaved:(user:SessionUser)=>void}) {
+  const [profile,setProfile]=useState<any>(null);
+  const [loading,setLoading]=useState(true);
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+  useEffect(()=>{
+    fetch("/api/providers/me",{credentials:"include"}).then(async response=>{
+      const result=await response.json();
+      if(!response.ok) throw new Error(result.error||"Unable to load profile");
+      setProfile(result.profile||{});
+    }).catch(problem=>setError(problem instanceof Error?problem.message:"Unable to load profile")).finally(()=>setLoading(false));
+  },[]);
+  async function save(event:FormEvent<HTMLFormElement>) {
+    event.preventDefault();setBusy(true);setError("");
+    const form=new FormData(event.currentTarget);
+    const payload={businessName:form.get("businessName"),service:form.get("service"),experienceYears:form.get("experienceYears"),startingPrice:form.get("startingPrice"),locality:form.get("locality"),phone:form.get("phone"),description:form.get("description"),coverUrl:form.get("coverUrl"),available:form.get("available")==="on",emergency:form.get("emergency")==="on"};
+    try {
+      const response=await fetch("/api/providers/me",{method:"PUT",headers:{"content-type":"application/json"},credentials:"include",body:JSON.stringify(payload)});
+      const result=await response.json();
+      if(!response.ok) throw new Error(result.error||"Unable to save profile");
+      onSaved(result.user);
+    } catch(problem) { setError(problem instanceof Error?problem.message:"Unable to save profile"); }
+    finally { setBusy(false); }
+  }
+  if(loading) return <div className="profile-loading">Loading your profile…</div>;
+  return <form className="provider-profile-form" onSubmit={save}><span className="kicker">PROFESSIONAL PROFILE</span><h2>{profile?._id?"Update your profile":"Set up your profile"}</h2><p className="muted">This information will be visible to customers after you publish it.</p><label>Your name<input value={user.fullName} disabled/></label><label>Business or professional name<input name="businessName" required minLength={2} maxLength={100} defaultValue={profile?.businessName||""} placeholder="Example: Jiji Electrical Services"/></label><div className="form-row"><label>Main service<select name="service" required defaultValue={profile?.service||""}><option value="" disabled>Select service</option>{categories.slice(0,-1).map(item=><option key={item[1]} value={item[1]}>{item[1]}</option>)}</select></label><label>Years of experience<input name="experienceYears" required type="number" min="0" max="60" defaultValue={profile?.experienceYears??0}/></label></div><div className="form-row"><label>Starting price (₹)<input name="startingPrice" required type="number" min="0" max="1000000" defaultValue={profile?.startingPrice??299}/></label><label>Phone number<input name="phone" required type="tel" minLength={10} maxLength={24} defaultValue={profile?.phone||""} placeholder="Contact number"/></label></div><label>Service area<input name="locality" required minLength={2} maxLength={100} defaultValue={profile?.locality||"Kochi, Kerala"} placeholder="Area, city"/></label><label>About your services<textarea name="description" required minLength={30} maxLength={800} defaultValue={profile?.description||""} placeholder="Describe your skills, typical jobs and what customers can expect."/></label><label>Portfolio cover image URL (optional)<input name="coverUrl" type="url" defaultValue={profile?.coverUrl||""} placeholder="https://…"/></label><div className="profile-checks"><label><input name="available" type="checkbox" defaultChecked={profile?.available??true}/> Available for new work</label><label><input name="emergency" type="checkbox" defaultChecked={profile?.emergency??false}/> Emergency service offered</label></div>{error&&<div className="auth-error" role="alert">{error}</div>}<button className="primary-btn wide" type="submit" disabled={busy}>{busy?"Publishing…":profile?._id?"Save profile changes":"Publish profile"}</button></form>;
 }
