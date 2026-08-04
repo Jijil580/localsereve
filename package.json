@@ -14,8 +14,10 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@types/leaflet": "^1.9.22",
     "@vercel/functions": "^3.7.7",
     "drizzle-orm": "0.45.2",
+    "leaflet": "^1.9.4",
     "mongodb": "^6.18.0",
     "next": "16.2.6",
     "react": "19.2.6",

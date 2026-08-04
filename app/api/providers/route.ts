@@ -8,12 +8,18 @@ export async function GET(request: Request) {
   const verified = url.searchParams.get("verified") === "true";
   const minRating = Math.min(5, Math.max(0, Number(url.searchParams.get("rating") ?? 0)));
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? 20)));
+  const latitude = Number(url.searchParams.get("lat"));
+  const longitude = Number(url.searchParams.get("lng"));
+  const hasLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
   const query: Record<string, unknown> = { averageRating: { $gte: minRating }, status: "active", published: true, verificationStatus: "approved" };
   if (search) query.$text = { $search: search };
   if (verified) query.verified = true;
   try {
     const db = await getMongoDb();
-    const rows = await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
+    if (hasLocation) await db.collection("providers").createIndex({ location: "2dsphere" });
+    const rows = hasLocation
+      ? await db.collection("providers").aggregate([{ $geoNear: { near: { type: "Point", coordinates: [longitude, latitude] }, key: "location", distanceField: "distanceMeters", spherical: true, maxDistance: 100_000, query } }, { $sort: { averageRating: -1, completedJobs: -1 } }, { $limit: limit }, { $project: { privateDocuments: 0, paymentDetails: 0 } }]).toArray()
+      : await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
     const data = rows.map(row => ({
       id: String(row._id),
       name: String(row.name ?? "Local professional"),
@@ -21,7 +27,7 @@ export async function GET(request: Request) {
       service: String(row.service ?? "Local service"),
       rating: Number(row.averageRating ?? 0),
       reviews: Number(row.reviewCount ?? 0),
-      distance: Number(row.distanceKm ?? 5),
+      distance: row.distanceMeters !== undefined ? Number((Number(row.distanceMeters) / 1000).toFixed(1)) : null,
       experience: Number(row.experienceYears ?? 0),
       price: Number(row.startingPrice ?? 0),
       available: Boolean(row.available),

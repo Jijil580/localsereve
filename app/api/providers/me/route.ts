@@ -34,10 +34,14 @@ export async function PUT(request: Request) {
     const phone = text(body.get("phone"), 24);
     const experienceYears = Math.min(60, Math.max(0, Number(body.get("experienceYears"))));
     const startingPrice = Math.min(1_000_000, Math.max(0, Number(body.get("startingPrice"))));
-    if (businessName.length < 2 || !service || locality.length < 2 || description.length < 30 || phone.length < 10 || !Number.isFinite(experienceYears) || !Number.isFinite(startingPrice)) {
+    const latitude = Number(body.get("latitude"));
+    const longitude = Number(body.get("longitude"));
+    const validLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
+    if (businessName.length < 2 || !service || locality.length < 2 || description.length < 30 || phone.length < 10 || !Number.isFinite(experienceYears) || !Number.isFinite(startingPrice) || !validLocation) {
       return Response.json({ error: "Complete all required profile fields with valid information" }, { status: 400 });
     }
     const db = await getMongoDb();
+    await db.collection("providers").createIndex({ location: "2dsphere" });
     const userId = new ObjectId(session.id);
     const existing = await db.collection("providers").findOne({ userId });
     const profilePhoto = body.get("profilePhoto");
@@ -64,7 +68,7 @@ export async function PUT(request: Request) {
     await db.collection("providers").updateOne(
       { userId },
       {
-        $set: { name: session.fullName, businessName, service, locality, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, published: false, verified: false, status: "pending", verificationStatus: "pending", rejectionReason: "", submittedAt: now, initials, updatedAt: now },
+        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, published: false, verified: false, status: "pending", verificationStatus: "pending", rejectionReason: "", submittedAt: now, initials, updatedAt: now },
         $setOnInsert: { userId, averageRating: 0, reviewCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
       },
       { upsert: true },
