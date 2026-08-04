@@ -2,6 +2,8 @@ import { getMongoDb } from "../../../lib/mongodb";
 
 export const runtime = "nodejs";
 
+function escapeRegex(value: string) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const search = url.searchParams.get("q")?.trim().slice(0, 80) ?? "";
@@ -12,7 +14,10 @@ export async function GET(request: Request) {
   const longitude = Number(url.searchParams.get("lng"));
   const hasLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
   const query: Record<string, unknown> = { averageRating: { $gte: minRating }, status: "active", published: true, verificationStatus: "approved" };
-  if (search) query.$text = { $search: search };
+  if (search) {
+    const pattern = { $regex: escapeRegex(search), $options: "i" };
+    query.$or = [{ businessName: pattern }, { name: pattern }, { service: pattern }, { locality: pattern }];
+  }
   if (verified) query.verified = true;
   try {
     const db = await getMongoDb();
