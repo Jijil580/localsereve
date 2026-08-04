@@ -6,7 +6,7 @@ import { translations } from "./i18n";
 type View = "home" | "search" | "requests" | "messages" | "dashboard";
 type SessionUser = { id: string; fullName: string; email: string; role: "customer" | "provider" | "admin" };
 type MapLocation = { latitude: number; longitude: number; label?: string };
-type ServiceRequest = { _id:string;requestNumber:string;service:string;description:string;address:string;preferredDate:string;preferredTime:string;urgency:string;status:string;quoteCount:number;createdAt:string };
+type ServiceRequest = { _id:string;requestNumber:string;customerName?:string;service:string;description:string;address:string;preferredDate:string;preferredTime:string;urgency:string;status:string;quoteCount:number;createdAt:string };
 type Provider = {
   id: string; name: string; business: string; service: string; rating: number; reviews: number;
   distance: number | null; experience: number; price: number; available: boolean; emergency?: boolean;
@@ -241,10 +241,23 @@ function CleanDashboard({role,user,onAction,onRequest}:{role:SessionUser["role"]
 }
 
 function ProviderDashboard({role,user,onAction,onRequest,onSetup,onView}:{role:SessionUser["role"];user:SessionUser;onAction:(s:string)=>void;onRequest:()=>void;onSetup:()=>void;onView:()=>void}) {
+  const [enquiries,setEnquiries]=useState<ServiceRequest[]>([]);
+  const [loadingEnquiries,setLoadingEnquiries]=useState(role==="provider");
+  const [enquiryError,setEnquiryError]=useState("");
+  const [profileReady,setProfileReady]=useState(true);
+  useEffect(()=>{
+    if(role!=="provider"){setLoadingEnquiries(false);return}
+    setLoadingEnquiries(true);setEnquiryError("");
+    fetch("/api/provider/requests",{credentials:"include"}).then(async response=>{
+      const result=await response.json();if(!response.ok)throw new Error(result.error||"Unable to load enquiries");
+      setEnquiries(result.data||[]);setProfileReady(result.profileReady!==false);
+    }).catch(problem=>setEnquiryError(problem instanceof Error?problem.message:"Unable to load enquiries")).finally(()=>setLoadingEnquiries(false));
+  },[role]);
   if (role !== "provider") return <CleanDashboard role={role} user={user} onAction={onAction} onRequest={onRequest}/>;
   const firstName = user.fullName.trim().split(/\s+/)[0] || "there";
-  const stats = [["0","New enquiries"],["0","Upcoming jobs"],["₹0","Earnings"],["—","No ratings yet"]];
-  return <div className="dash-page"><div className="page-heading"><div><span className="kicker">PROVIDER DASHBOARD</span><h1>Welcome, {firstName}!</h1><p>Publish and maintain your professional profile to receive nearby enquiries.</p></div><div className="page-heading-actions"><button className="ghost-btn" onClick={onView}>View profile</button><button className="primary-btn" onClick={onSetup}>Set up profile</button></div></div><div className="stat-grid">{stats.map(([value,label],index)=><div className="stat-card" key={label}><i>{["↗","◫","₹","★"][index]}</i><b>{value}</b><span>{label}</span><small>No activity yet</small></div>)}</div><div className="dashboard-grid"><section className="panel"><div className="panel-head"><h3>Recent activity</h3></div><div className="clean-empty compact"><span>○</span><h3>No enquiries yet</h3><p>Customer enquiries will appear here after your profile is published.</p></div></section><section className="panel"><div className="panel-head"><h3>Professional profile</h3><button onClick={onView}>View profile</button></div><div className="clean-empty compact"><span>＋</span><h3>Manage your profile</h3><p>Review the information customers will see or submit changes for verification.</p><button className="primary-btn" onClick={onSetup}>Edit profile</button></div></section></div></div>;
+  const urgent=enquiries.filter(item=>item.urgency==="Emergency"||item.urgency==="Within 24 hours").length;
+  const stats = [[String(enquiries.length),"New enquiries"],[String(urgent),"Urgent requests"],["₹0","Earnings"],["—","No ratings yet"]];
+  return <div className="dash-page"><div className="page-heading"><div><span className="kicker">PROVIDER DASHBOARD</span><h1>Welcome, {firstName}!</h1><p>View customer requests that match your approved service.</p></div><div className="page-heading-actions"><button className="ghost-btn" onClick={onView}>View profile</button><button className="primary-btn" onClick={onSetup}>Set up profile</button></div></div><div className="stat-grid">{stats.map(([value,label],index)=><div className="stat-card" key={label}><i>{["↗","◫","₹","★"][index]}</i><b>{value}</b><span>{label}</span><small>{index<2&&enquiries.length?"Live customer requests":"No activity yet"}</small></div>)}</div><div className="dashboard-grid provider-dashboard-grid"><section className="panel provider-enquiries"><div className="panel-head"><h3>Matching customer requests</h3><span>{enquiries.length} open</span></div>{loadingEnquiries?<div className="clean-empty compact"><h3>Loading enquiries…</h3></div>:enquiryError?<div className="auth-error">{enquiryError}</div>:!profileReady?<div className="clean-empty compact"><span>○</span><h3>Profile approval required</h3><p>Complete your profile and wait for admin approval to receive matching requests.</p></div>:enquiries.length===0?<div className="clean-empty compact"><span>○</span><h3>No matching enquiries yet</h3><p>New customer requests for your approved service will appear here automatically.</p></div>:<div className="provider-enquiry-list">{enquiries.map(item=><article className="provider-enquiry-card" key={item._id}><div><span className={`status-pill ${item.urgency==="Emergency"?"red":"amber"}`}>{item.urgency||"Flexible"}</span><h3>{item.service} request</h3><p>{item.description}</p></div><dl><div><dt>Customer</dt><dd>{item.customerName||"LocalServe customer"}</dd></div><div><dt>Location</dt><dd>{item.address}</dd></div><div><dt>Preferred</dt><dd>{item.preferredDate} · {item.preferredTime}</dd></div><div><dt>Request</dt><dd>{item.requestNumber}</dd></div></dl></article>)}</div>}</section><section className="panel"><div className="panel-head"><h3>Professional profile</h3><button onClick={onView}>View profile</button></div><div className="clean-empty compact"><span>＋</span><h3>Manage your profile</h3><p>Review the information customers see or submit changes for verification.</p><button className="primary-btn" onClick={onSetup}>Edit profile</button></div></section></div></div>;
 }
 
 function ProviderProfileForm({user,onSaved}:{user:SessionUser;onSaved:(user:SessionUser)=>void}) {
