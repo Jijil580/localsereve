@@ -10,9 +10,11 @@ export async function GET(request: Request) {
   const verified = url.searchParams.get("verified") === "true";
   const minRating = Math.min(5, Math.max(0, Number(url.searchParams.get("rating") ?? 0)));
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? 20)));
-  const latitude = Number(url.searchParams.get("lat"));
-  const longitude = Number(url.searchParams.get("lng"));
-  const hasLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
+  const latitudeText = url.searchParams.get("lat");
+  const longitudeText = url.searchParams.get("lng");
+  const latitude = Number(latitudeText);
+  const longitude = Number(longitudeText);
+  const hasLocation = latitudeText !== null && longitudeText !== null && Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
   const query: Record<string, unknown> = { status: "active", published: true, verificationStatus: "approved" };
   if (minRating > 0) query.averageRating = { $gte: minRating };
   if (search) {
