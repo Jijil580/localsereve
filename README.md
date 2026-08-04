@@ -16,9 +16,9 @@ Open the local URL printed by the development server. The demo content is intent
 
 ## Architecture
 
-- Vinext/Next.js, React, TypeScript and Tailwind CSS
-- Cloudflare D1 through Drizzle ORM for relational application data
-- R2 binding for portfolio media and verification documents
+- Next.js, React, TypeScript and Tailwind CSS
+- MongoDB Atlas for persistent marketplace data
+- Cloud object storage for portfolio media and verification documents
 - Server-side identity checks for protected write APIs
 - Responsive single-product interface with accessible forms and keyboard focus states
 - English, Hindi and Malayalam translation module
@@ -29,6 +29,6 @@ The relational schema covers users, addresses, provider profiles, categories, se
 
 Configure maps/geocoding, SMS/OTP, email, WhatsApp and a PCI-compliant payment gateway through hosted environment variables. Never store card numbers or identity documents in the database; store private files in protected object storage and retain only access-controlled metadata.
 
-## Deployment
+## Vercel deployment
 
-Run `npm run build`. The included hosting manifest declares the `DB` database and `MEDIA` object-storage bindings. Deploy through OpenAI Sites so migrations and runtime bindings are applied consistently.
+Import the GitHub repository in Vercel or run `vercel --prod`. Configure `MONGODB_URI`, `MONGODB_DB` and `AUTH_SECRET` in Vercel before enabling live write operations. Run `npm run build` before deployment.
