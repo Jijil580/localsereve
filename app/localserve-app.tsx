@@ -149,9 +149,10 @@ export default function NearlioApp() {
             </div>
             <div className="hero-collage" aria-label="Verified Nearlio service professionals">
               <article className="collage-card collage-electrician"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=700&q=85" alt="Electrician at work"/><span><b>Electrician</b><small>4.9 ★</small></span></article>
-              <article className="collage-card collage-main"><img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=850&q=85" alt="Friendly local service professional"/><span><b>Home services</b><small>4.8 ★</small></span></article>
-              <article className="collage-card collage-carpenter"><img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=700&q=85" alt="Carpenter completing a local project"/><span><b>Carpenter</b><small>4.7 ★</small></span></article>
-              <article className="collage-card collage-plaster"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=700&q=85" alt="Construction professional"/><span><b>Building work</b><small>4.8 ★</small></span></article>
+              <article className="collage-card collage-main"><img src="/near-lio-carpenter.jpg" alt="Carpenter planing a wooden cabinet"/><span><b>Carpenter</b><small>4.8 ★</small></span></article>
+              <article className="collage-card collage-tile"><img src="/near-lio-tile-worker.jpg" alt="Tile worker installing wall tiles"/><span><b>Tile worker</b><small>4.8 ★</small></span></article>
+              <article className="collage-card collage-plaster"><img src="/near-lio-plastering-worker.jpg" alt="Plastering worker smoothing an interior wall"/><span><b>Plastering</b><small>4.7 ★</small></span></article>
+              <article className="collage-card collage-photographer"><img src="/near-lio-photographer.jpg" alt="Professional cameraman filming an event"/><span><b>Photographer</b><small>4.9 ★</small></span></article>
               <div className="happy-customers"><b>10,000+</b><span>Happy customers</span></div>
             </div>
           </section>
