@@ -63,3 +63,17 @@ test("provider recent work uses only authenticated gallery uploads", async () =>
   assert.match(providersRoute, /\/api\/providers\/portfolio\//);
   assert.match(files, /"recent-work"/);
 });
+
+test("mobile users can sign out and change the provider search location", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /className="mobile-signout" onClick=\{signOut\}/);
+  assert.match(app, />Logout<\/button>/);
+  assert.match(app, /className="search-location-mobile" onClick=\{props\.openLocation\}/);
+  assert.match(app, /SEARCHING NEAR/);
+  assert.match(styles, /\.mobile-nav\.signed-in\{grid-template-columns:repeat\(6,1fr\)\}/);
+  assert.match(styles, /\.search-location-mobile\{display:flex/);
+});
