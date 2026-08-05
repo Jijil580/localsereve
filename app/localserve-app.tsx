@@ -16,14 +16,26 @@ type Provider = {
 
 function whatsappUrl(phone:string|undefined,message:string){const digits=(phone||"").replace(/\D/g,"");const international=digits.length===10?`91${digits}`:digits;return `https://wa.me/${international}?text=${encodeURIComponent(message)}`}
 
-const categories = [
-  ["⚡", "Electrician", "Browse service"], ["🔧", "Plumber", "Browse service"],
-  ["❄️", "AC Repair", "Browse service"], ["🧹", "Home Cleaning", "Browse service"],
-  ["🪚", "Carpenter", "Browse service"], ["🎨", "Painter", "Browse service"],
-  ["📷", "Photographer", "Browse service"], ["🌿", "Gardening", "Browse service"],
-  ["🚗", "Mechanic", "Browse service"], ["🧱", "Renovation", "Browse service"],
-  ["💻", "Tech Repair", "Browse service"], ["⋯", "All services", "Explore categories"],
+const serviceNames = [
+  "Plumber", "Electrician", "Carpenter", "Mason", "Painter", "Plastering worker", "Tile worker", "Marble and granite worker",
+  "Flooring specialist", "False-ceiling worker", "Welder", "Fabrication worker", "Aluminium fabricator", "Glass worker", "Roofing worker",
+  "Waterproofing specialist", "Interior designer", "Interior work contractor", "Civil contractor", "Building contractor", "Architect",
+  "Structural engineer", "Surveyor", "Home renovation contractor", "Demolition worker", "Borewell service", "Water-tank cleaning",
+  "Drain cleaning", "Septic-tank cleaning", "Pest-control service", "House-cleaning service", "Office-cleaning service",
+  "Sofa and carpet cleaning", "Gardening and landscaping", "Tree cutting", "Lawn maintenance", "Security guard", "CCTV installation",
+  "Home-automation technician", "Appliance repair", "Refrigerator repair", "Washing-machine repair", "Air-conditioner installation and repair",
+  "Television repair", "Computer and laptop repair", "Mobile-phone repair", "Inverter and UPS service", "Solar-panel installation and service",
+  "Generator service", "Internet and Wi-Fi technician", "DTH and antenna installation", "RO and water-purifier service", "Mechanic", "Car mechanic",
+  "Bike mechanic", "Car wash", "Vehicle towing", "Driver", "Taxi service", "Goods-vehicle service", "Packers and movers", "Delivery service",
+  "Photographer", "Videographer", "Drone photographer", "Wedding photographer", "Photo and video editor", "Event planner", "Wedding decorator",
+  "Stage decorator", "Catering service", "Cook or chef", "Makeup artist", "Beautician", "Hair stylist", "Mehendi artist", "Tailor",
+  "Laundry and ironing", "Babysitter", "Elder-care assistant", "Home nurse", "Physiotherapist", "Fitness trainer", "Yoga trainer", "Tutor",
+  "Music teacher", "Dance teacher", "Language teacher", "Graphic designer", "Web developer", "Digital marketing professional", "Accountant",
+  "Tax consultant", "Legal consultant", "Document-writing service", "Printing service", "Signboard maker", "Other local services",
 ];
+const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carpenter:"🪚",Mason:"🧱",Painter:"🎨","Plastering worker":"🏠","Tile worker":"◫","Marble and granite worker":"◇","Flooring specialist":"▦","False-ceiling worker":"⌂",Welder:"⚙"};
+const categories = [...serviceNames.map(name => [categoryIcons[name]||"🛠", name, "Browse service"]), ["⋯", "All services", "Explore categories"]];
+const featuredCategories = [...categories.slice(0,11), categories[categories.length-1]];
 
 export default function LocalServeApp() {
   const [view, setView] = useState<View>("home");
@@ -134,7 +146,7 @@ export default function LocalServeApp() {
 
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">EXPLORE SERVICES</span><h2>What do you need help with?</h2></div><button onClick={() => goSearch()}>View all services →</button></div>
-            <div className="category-grid">{categories.map(([icon,name,count]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{name}</b><small>{count}</small><i>›</i></button>)}</div>
+            <div className="category-grid">{featuredCategories.map(([icon,name,count]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{name}</b><small>{count}</small><i>›</i></button>)}</div>
           </section>
 
           <section className="section provider-section">
