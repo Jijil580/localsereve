@@ -47,7 +47,25 @@ function ServiceAutocomplete({value,onChange,onSelect,placeholder,ariaLabel}:{va
   return <div className="service-autocomplete"><input value={value} onChange={event=>{onChange(event.target.value);setOpen(true);setActive(0)}} onFocus={()=>setOpen(true)} onBlur={()=>setTimeout(()=>setOpen(false),120)} onKeyDown={event=>{if(event.key==="ArrowDown"){event.preventDefault();setOpen(true);setActive(index=>Math.min(index+1,suggestions.length-1))}else if(event.key==="ArrowUp"){event.preventDefault();setActive(index=>Math.max(index-1,0))}else if(event.key==="Enter"&&open&&suggestions[active]){event.preventDefault();choose(suggestions[active])}else if(event.key==="Escape")setOpen(false)}} placeholder={placeholder} aria-label={ariaLabel} role="combobox" aria-autocomplete="list" aria-expanded={open&&suggestions.length>0}/>{open&&suggestions.length>0&&<div className="service-suggestions" role="listbox">{suggestions.map((service,index)=><button type="button" role="option" aria-selected={index===active} className={index===active?"active":""} key={service} onMouseDown={event=>event.preventDefault()} onClick={()=>choose(service)}><span>{categoryIcons[service]||"🛠"}</span><b>{service}</b><small>{value.trim().toLowerCase()===service.toLowerCase()?"Exact match":"Suggested service"}</small></button>)}</div>}</div>
 }
 
+const introServices = [
+  ["/near-lio-carpenter.jpg", "Carpenter"],
+  ["/near-lio-tile-worker.jpg", "Tile worker"],
+  ["/near-lio-plastering-worker.jpg", "Plastering"],
+  ["/near-lio-photographer.jpg", "Photographer"],
+];
+
+function OpeningIntro({onFinish}:{onFinish:()=>void}) {
+  return <section className="opening-intro" role="status" aria-label="Welcome to Nearlio by Lumier">
+    <div className="intro-service-images" aria-hidden="true">{introServices.map(([image,label],index)=><figure className={`intro-shot intro-shot-${index+1}`} key={label}><img src={image} alt=""/><figcaption>{label}</figcaption></figure>)}</div>
+    <div className="intro-vignette" aria-hidden="true"/>
+    <div className="intro-brand-lockup"><span className="intro-brand-mark">N</span><div><strong>Near<span>lio</span></strong><small>by Lumier</small></div><p>Where Local Experts Meet Local Customers</p></div>
+    <div className="intro-service-rail" aria-hidden="true"><div>{["Plumber","Electrician","Carpenter","Painter","Tile worker","Cleaning","AC repair","Photographer","Mechanic","Home nurse","Tutor","Web developer"].map((service,index)=><span key={`${service}-${index}`}>{service}</span>)}</div></div>
+    <button type="button" className="intro-skip" onClick={onFinish}>Skip</button>
+  </section>;
+}
+
 export default function NearlioApp() {
+  const [introVisible, setIntroVisible] = useState(true);
   const [view, setView] = useState<View>("home");
   const [query, setQuery] = useState("");
   const [radius, setRadius] = useState(20);
@@ -65,6 +83,11 @@ export default function NearlioApp() {
   const [postAuthAction,setPostAuthAction]=useState<View|"request"|null>(null);
   const [customerLocation, setCustomerLocation] = useState<MapLocation | null>(null);
   const t = translations[language];
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIntroVisible(false), 4200);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     fetch("/api/auth/session", { credentials: "include" })
@@ -117,6 +140,7 @@ export default function NearlioApp() {
 
   return (
     <div className="app-shell">
+      {introVisible&&<OpeningIntro onFinish={()=>setIntroVisible(false)}/>}
       <header className="topbar">
         <button className="brand" onClick={() => setView("home")} aria-label="Nearlio by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>lio</span></span><small>by Lumier</small></span></button>
         <nav className="desktop-nav" aria-label="Main navigation">

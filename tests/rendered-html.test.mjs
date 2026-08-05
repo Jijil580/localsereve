@@ -77,3 +77,20 @@ test("mobile users can sign out and change the provider search location", async 
   assert.match(styles, /\.mobile-nav\.signed-in\{grid-template-columns:repeat\(6,1fr\)\}/);
   assert.match(styles, /\.search-location-mobile\{display:flex/);
 });
+
+test("opening uses a mobile-first Nearlio service montage", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /OpeningIntro/);
+  assert.match(app, /Welcome to Nearlio by Lumier/);
+  assert.match(app, /near-lio-carpenter\.jpg/);
+  assert.match(app, /near-lio-tile-worker\.jpg/);
+  assert.match(app, /near-lio-photographer\.jpg/);
+  assert.match(app, />Skip<\/button>/);
+  assert.match(styles, /\.intro-service-images\{[^}]*grid-template-columns:1fr 1fr/);
+  assert.match(styles, /@media\(min-width:761px\)/);
+  assert.match(styles, /prefers-reduced-motion:reduce/);
+});
