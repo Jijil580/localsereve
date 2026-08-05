@@ -32,3 +32,17 @@ test("registration and login enforce and record terms acceptance", async () => {
   }
   assert.match(terms, /2026-08-05-v1/);
 });
+
+test("footer destinations and launch pricing are wired to actions", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+
+  for (const destination of ["about", "contact", "safety", "pricing", "provider-help", "terms"]) {
+    assert.match(app, new RegExp(`setModal\\(\\"${destination}\\"\\)`));
+  }
+  assert.match(app, /onClick=\{openRequest\}>Post a request/);
+  assert.match(app, /demo@lumiertechnologies\.com/);
+  assert.match(app, /first 12 months free/i);
+  assert.match(app, /₹199/);
+  assert.match(app, /Work gallery and extra profile space/);
+  assert.match(app, /Priority growth support from Lumier/);
+});
