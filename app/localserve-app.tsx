@@ -118,7 +118,7 @@ export default function NearlioApp() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <button className="brand" onClick={() => setView("home")} aria-label="Nearlio home"><span className="brand-mark">N</span><span>Near<span>lio</span></span></button>
+        <button className="brand" onClick={() => setView("home")} aria-label="Nearlio by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>lio</span></span><small>by Lumier</small></span></button>
         <nav className="desktop-nav" aria-label="Main navigation">
           <button className={view === "home" ? "active" : ""} onClick={() => setView("home")}>Home</button>
           <button className={view === "search" ? "active" : ""} onClick={() => goSearch()}>Find services</button>
@@ -179,7 +179,7 @@ export default function NearlioApp() {
         {view === "dashboard" && currentUser && <ProviderDashboard role={role} user={currentUser} onAction={notify} onRequest={openRequest} onSetup={()=>setModal("profile")} onView={()=>setModal("profile-view")} />}
       </main>
 
-      <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">N</span><span>Near<span>lio</span></span></div><p>Where Local Experts Meet Local Customers.</p><small className="powered-by">Powered by <b>Lumier Technologies</b></small></div><div><b>Customers</b><a>Find services</a><a>Post a request</a><a>Safety</a></div><div><b>Professionals</b><a>Join Nearlio</a><a>Plans & pricing</a><a>Provider help</a></div><div><b>Company</b><a>About</a><a>Contact</a><a>Privacy & terms</a></div><div className="footer-bottom">© 2026 Nearlio. Where Local Experts Meet Local Customers. <span>Powered by Lumier Technologies · English · हिन्दी · മലയാളം</span></div></footer>
+      <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>lio</span></span><small>by Lumier</small></span></div><p>Where Local Experts Meet Local Customers.</p><small className="powered-by">Powered by <b>Lumier Technologies</b></small></div><div><b>Customers</b><a>Find services</a><a>Post a request</a><a>Safety</a></div><div><b>Professionals</b><a>Join Nearlio</a><a>Plans & pricing</a><a>Provider help</a></div><div><b>Company</b><a>About</a><a>Contact</a><a>Privacy & terms</a></div><div className="footer-bottom">© 2026 Nearlio. Where Local Experts Meet Local Customers. <span>Powered by Lumier Technologies · English · हिन्दी · മലയാളം</span></div></footer>
 
       <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂","Home","home"],["⌕","Search","search"],["＋","Requests","requests"],["✉","Messages","messages"],["◉","Profile","dashboard"]].map(([icon,label,id]) => <button className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
