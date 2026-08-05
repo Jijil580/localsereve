@@ -85,7 +85,7 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   ]);
 
   assert.match(app, /OpeningIntro/);
-  assert.match(app, /Welcome to Nearlio by Lumier/);
+  assert.match(app, /Nearlio introduction, chapter/);
   assert.match(app, /near-lio-carpenter\.jpg/);
   assert.match(app, /near-lio-tile-worker\.jpg/);
   assert.match(app, /near-lio-photographer\.jpg/);
@@ -95,9 +95,12 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   assert.match(app, /SIMPLE FROM START TO FINISH/);
   assert.match(app, /SAFETY AND VERIFICATION/);
   assert.match(app, /REQUEST AND RESPOND/);
-  assert.match(app, /setIntroVisible\(false\), 90000/);
+  assert.match(app, /setIntroVisible\(false\), 60000/);
+  assert.match(app, /setTimeout\(nextChapter,10000\)/);
+  assert.match(app, /Tap for next/);
+  assert.match(app, /closest\("button"\)/);
   assert.match(styles, /\.intro-chapter-6/);
-  assert.match(styles, /intro-progress-fill 15s/);
+  assert.match(styles, /intro-progress-fill 10s/);
   assert.match(styles, /grid-template-columns:repeat\(6,1fr\)/);
   assert.match(styles, /@media\(min-width:761px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
