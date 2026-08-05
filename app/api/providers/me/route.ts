@@ -47,20 +47,29 @@ export async function PUT(request: Request) {
     const profilePhoto = body.get("profilePhoto");
     const idCardFront = body.get("idCardFront");
     const idCardBack = body.get("idCardBack");
+    const recentWork = body.getAll("recentWork").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const removePortfolio = body.get("removePortfolio") === "on";
     const hasProfilePhoto = profilePhoto instanceof File && profilePhoto.size > 0;
     const hasIdFront = idCardFront instanceof File && idCardFront.size > 0;
     const hasIdBack = idCardBack instanceof File && idCardBack.size > 0;
     if (!hasProfilePhoto && !existing?.profilePhotoId) return Response.json({ error: "Upload a clear profile photo" }, { status: 400 });
     if (!hasIdFront && !existing?.idCardFrontId) return Response.json({ error: "Upload the front of a government-issued ID card" }, { status: 400 });
+    if (recentWork.length > 4) return Response.json({ error: "Upload no more than 4 recent work images" }, { status: 400 });
+    if (recentWork.reduce((total, file) => total + file.size, 0) > 3_500_000) return Response.json({ error: "Recent work images must be smaller than 3.5 MB combined" }, { status: 400 });
 
     const now = new Date();
     const initials = session.fullName.split(/\s+/).filter(Boolean).map(part => part[0]).slice(0, 2).join("").toUpperCase() || "LS";
     const uploaded: ObjectId[] = [];
     const fileUpdates: Record<string, ObjectId> = {};
+    let portfolioImageIds: ObjectId[] | undefined;
     try {
       if (hasProfilePhoto) { fileUpdates.profilePhotoId = await saveProviderFile(db, profilePhoto, "profile-photo", userId); uploaded.push(fileUpdates.profilePhotoId); }
       if (hasIdFront) { fileUpdates.idCardFrontId = await saveProviderFile(db, idCardFront, "id-front", userId); uploaded.push(fileUpdates.idCardFrontId); }
       if (hasIdBack) { fileUpdates.idCardBackId = await saveProviderFile(db, idCardBack, "id-back", userId); uploaded.push(fileUpdates.idCardBackId); }
+      if (recentWork.length) {
+        portfolioImageIds = [];
+        for (const file of recentWork) { const id = await saveProviderFile(db, file, "recent-work", userId); portfolioImageIds.push(id); uploaded.push(id); }
+      } else if (removePortfolio) portfolioImageIds = [];
     } catch (error) {
       await Promise.all(uploaded.map(id => deleteProviderFile(db, id)));
       throw error;
@@ -68,7 +77,7 @@ export async function PUT(request: Request) {
     await db.collection("providers").updateOne(
       { userId },
       {
-        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, published: false, verified: false, status: "pending", verificationStatus: "pending", rejectionReason: "", submittedAt: now, initials, updatedAt: now },
+        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: false, verified: false, status: "pending", verificationStatus: "pending", rejectionReason: "", submittedAt: now, initials, updatedAt: now },
         $setOnInsert: { userId, averageRating: 0, reviewCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
       },
       { upsert: true },
@@ -76,6 +85,7 @@ export async function PUT(request: Request) {
     if (hasProfilePhoto) await deleteProviderFile(db, existing?.profilePhotoId);
     if (hasIdFront) await deleteProviderFile(db, existing?.idCardFrontId);
     if (hasIdBack) await deleteProviderFile(db, existing?.idCardBackId);
+    if (portfolioImageIds!==undefined && Array.isArray(existing?.portfolioImageIds)) await Promise.all(existing.portfolioImageIds.map(id => deleteProviderFile(db, id)));
     await db.collection("users").updateOne({ _id: userId }, { $set: { role: "provider", updatedAt: now } });
     const user: SessionUser = { ...session, role: "provider" };
     await createSession(user);

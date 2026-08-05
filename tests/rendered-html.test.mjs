@@ -46,3 +46,20 @@ test("footer destinations and launch pricing are wired to actions", async () => 
   assert.match(app, /Work gallery and extra profile space/);
   assert.match(app, /Priority growth support from Lumier/);
 });
+
+test("provider recent work uses only authenticated gallery uploads", async () => {
+  const [app, profileRoute, providersRoute, files] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/providers/me/route.ts"),
+    readSource("app/api/providers/route.ts"),
+    readSource("lib/provider-files.ts"),
+  ]);
+
+  assert.match(app, /name="recentWork"/);
+  assert.match(app, /p\.portfolio\.length>0/);
+  assert.doesNotMatch(app, /photo-1503387762-592deb58ef4e/);
+  assert.match(profileRoute, /recentWork/);
+  assert.match(profileRoute, /portfolioImageIds/);
+  assert.match(providersRoute, /\/api\/providers\/portfolio\//);
+  assert.match(files, /"recent-work"/);
+});

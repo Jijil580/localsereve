@@ -4,7 +4,7 @@ import { Db, GridFSBucket, ObjectId } from "mongodb";
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_FILE_BYTES = 4 * 1024 * 1024;
 
-export async function saveProviderFile(db: Db, file: File, kind: "profile-photo" | "id-front" | "id-back", userId: ObjectId) {
+export async function saveProviderFile(db: Db, file: File, kind: "profile-photo" | "id-front" | "id-back" | "recent-work", userId: ObjectId) {
   if (!ALLOWED_TYPES.has(file.type)) throw new Error("Upload JPG, PNG or WebP images only");
   if (!file.size || file.size > MAX_FILE_BYTES) throw new Error("Each image must be smaller than 4 MB");
   const bucket = new GridFSBucket(db, { bucketName: "providerUploads" });

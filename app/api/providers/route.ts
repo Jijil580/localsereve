@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
       whatsapp: String(row.phone ?? ""),
+      portfolio: Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0,4).map((_id: unknown,index: number) => `/api/providers/portfolio/${row._id}/${index}`) : [],
     }));
     return Response.json({ data, meta: { limit, count: data.length } });
   } catch (error) {
