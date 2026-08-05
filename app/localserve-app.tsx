@@ -56,8 +56,10 @@ function OpeningIntro({onFinish}:{onFinish:()=>void}) {
       <article className="intro-chapter intro-chapter-2"><img src="/near-lio-tile-worker.jpg" alt="Local tile professional at work"/><div className="intro-chapter-shade"/><div className="intro-story"><em>02 · HOW TO USE NEARLIO</em><h2>Search nearby.<br/>Choose confidently.</h2><p>Set your location, explore services and compare verified professional profiles near you.</p><div className="intro-pills"><span>⌖ Set location</span><span>⌕ Search a service</span><span>✓ View profiles</span></div></div></article>
       <article className="intro-chapter intro-chapter-3"><img src="/near-lio-plastering-worker.jpg" alt="Verified local plastering professional"/><div className="intro-chapter-shade"/><div className="intro-story"><em>03 · BENEFITS FOR EVERYONE</em><h2>Trusted work.<br/>Better connections.</h2><p>Customers find skilled help faster. Professionals receive nearby enquiries and grow their reputation.</p><div className="intro-benefits"><span><b>✓</b> Verified profiles</span><span><b>⌖</b> Distance-based results</span><span><b>↗</b> Direct replies</span></div></div></article>
       <article className="intro-chapter intro-chapter-4"><img src="/near-lio-photographer.jpg" alt="Local photographer serving a customer"/><div className="intro-chapter-shade"/><div className="intro-story intro-final"><em>04 · SIMPLE FROM START TO FINISH</em><h2>Find. Connect.<br/>Get it done.</h2><div className="intro-steps"><span><b>1</b>Tell us what you need</span><span><b>2</b>Choose a local expert</span><span><b>3</b>Book with confidence</span></div><strong className="intro-ready">Nearlio is ready for you.</strong></div></article>
+      <article className="intro-chapter intro-chapter-5"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&amp;fit=crop&amp;w=1200&amp;q=85" alt="Electrician completing a professional safety check"/><div className="intro-chapter-shade"/><div className="intro-story"><em>05 · SAFETY AND VERIFICATION</em><h2>Reviewed before<br/>customers connect.</h2><p>Providers submit their profile, service location and identity details for independent Nearlio admin review.</p><div className="intro-benefits"><span><b>◉</b> Identity review</span><span><b>✓</b> Admin approval</span><span><b>♢</b> Private documents</span></div></div></article>
+      <article className="intro-chapter intro-chapter-6"><img src="/og.png" alt="Nearlio connecting local experts with local customers"/><div className="intro-chapter-shade"/><div className="intro-story intro-final"><em>06 · REQUEST AND RESPOND</em><h2>One request.<br/>Nearby replies.</h2><p>Post what you need, receive provider responses and continue through Nearlio or consent-based WhatsApp.</p><div className="intro-steps"><span><b>1</b>Post your requirement</span><span><b>2</b>Review nearby replies</span><span><b>3</b>Choose who to contact</span></div><strong className="intro-ready">Start with Nearlio today.</strong></div></article>
     </div>
-    <div className="intro-progress" aria-hidden="true">{[1,2,3,4].map(number=><span className={`intro-progress-${number}`} key={number}><i/></span>)}</div>
+    <div className="intro-progress" aria-hidden="true">{[1,2,3,4,5,6].map(number=><span className={`intro-progress-${number}`} key={number}><i/></span>)}</div>
     <button type="button" className="intro-skip" onClick={onFinish}>Skip</button>
   </section>;
 }
@@ -83,7 +85,7 @@ export default function NearlioApp() {
   const t = translations[language];
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIntroVisible(false), 10000);
+    const timer = window.setTimeout(() => setIntroVisible(false), 90000);
     return () => window.clearTimeout(timer);
   }, []);
 
