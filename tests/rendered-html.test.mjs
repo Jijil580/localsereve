@@ -133,3 +133,12 @@ test("mobile homepage places the animated professionals before search", async ()
   assert.match(styles, /\.hero-reference \.hero-copy\{order:2/);
   assert.match(styles, /Trusted local professionals/);
 });
+
+test("interlock and hollow-brick services are searchable categories", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+
+  assert.match(app, /"Interlock paving"/);
+  assert.match(app, /"Hollow-brick work"/);
+  assert.match(app, /"hollobricks"/);
+  assert.match(app, /serviceAliases/);
+});

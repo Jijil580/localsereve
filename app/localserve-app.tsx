@@ -18,7 +18,7 @@ type Provider = {
 function whatsappUrl(phone:string|undefined,message:string){const digits=(phone||"").replace(/\D/g,"");const international=digits.length===10?`91${digits}`:digits;return `https://wa.me/${international}?text=${encodeURIComponent(message)}`}
 
 const serviceNames = [
-  "Plumber", "Electrician", "Carpenter", "Mason", "Painter", "Plastering worker", "Tile worker", "Marble and granite worker",
+  "Plumber", "Electrician", "Carpenter", "Mason", "Interlock paving", "Hollow-brick work", "Painter", "Plastering worker", "Tile worker", "Marble and granite worker",
   "Flooring specialist", "False-ceiling worker", "Welder", "Fabrication worker", "Aluminium fabricator", "Glass worker", "Roofing worker",
   "Waterproofing specialist", "Interior designer", "Interior work contractor", "Civil contractor", "Building contractor", "Architect",
   "Structural engineer", "Surveyor", "Home renovation contractor", "Demolition worker", "Borewell service", "Water-tank cleaning",
@@ -34,12 +34,13 @@ const serviceNames = [
   "Music teacher", "Dance teacher", "Language teacher", "Graphic designer", "Web developer", "Digital marketing professional", "Accountant",
   "Tax consultant", "Legal consultant", "Document-writing service", "Printing service", "Signboard maker", "Other local services",
 ];
-const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carpenter:"🪚",Mason:"🧱",Painter:"🎨","Plastering worker":"🏠","Tile worker":"◫","Marble and granite worker":"◇","Flooring specialist":"▦","False-ceiling worker":"⌂",Welder:"⚙"};
+const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carpenter:"🪚",Mason:"🧱","Interlock paving":"▦","Hollow-brick work":"▤",Painter:"🎨","Plastering worker":"🏠","Tile worker":"◫","Marble and granite worker":"◇","Flooring specialist":"▦","False-ceiling worker":"⌂",Welder:"⚙"};
 const categories = [...serviceNames.map(name => [categoryIcons[name]||"🛠", name, "Browse service"]), ["⋯", "All services", "Explore categories"]];
 const featuredCategories = [...categories.slice(0,9), categories[categories.length-1]];
+const serviceAliases:Record<string,string[]>={"Interlock paving":["interlock","interlocking paver","paving blocks"],"Hollow-brick work":["hollow brick","hollobricks","hollow blocks"]};
 
 function editDistance(left:string,right:string){const previous=Array.from({length:right.length+1},(_,index)=>index);for(let row=1;row<=left.length;row++){let diagonal=previous[0];previous[0]=row;for(let column=1;column<=right.length;column++){const above=previous[column];previous[column]=Math.min(previous[column]+1,previous[column-1]+1,diagonal+(left[row-1]===right[column-1]?0:1));diagonal=above}}return previous[right.length]}
-function matchingServices(value:string){const needle=value.trim().toLowerCase();if(!needle)return[];return serviceNames.map(name=>{const normalized=name.toLowerCase();const words=normalized.split(/\s+|[-/]/);const direct=normalized.includes(needle)?0:normalized.startsWith(needle)?1:Math.min(editDistance(needle,normalized),...words.map(word=>editDistance(needle,word)));return{name,score:direct}}).filter(item=>item.score<=Math.max(2,Math.floor(needle.length*.4))).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7).map(item=>item.name)}
+function matchingServices(value:string){const needle=value.trim().toLowerCase();if(!needle)return[];return serviceNames.map(name=>{const normalized=name.toLowerCase();const terms=[normalized,...normalized.split(/\s+|[-/]/),...(serviceAliases[name]||[])];const direct=terms.some(term=>term.includes(needle))?0:Math.min(...terms.map(term=>editDistance(needle,term)));return{name,score:direct}}).filter(item=>item.score<=Math.max(2,Math.floor(needle.length*.4))).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7).map(item=>item.name)}
 
 function ServiceAutocomplete({value,onChange,onSelect,placeholder,ariaLabel}:{value:string;onChange:(value:string)=>void;onSelect?:(value:string)=>void;placeholder:string;ariaLabel:string}){
   const [open,setOpen]=useState(false);const [active,setActive]=useState(0);const suggestions=useMemo(()=>matchingServices(value),[value]);
