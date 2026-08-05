@@ -94,3 +94,17 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   assert.match(styles, /@media\(min-width:761px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
 });
+
+test("motion continues through the main mobile experience", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /className="home-service-motion"/);
+  assert.match(app, /IntersectionObserver/);
+  assert.match(app, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /page-service-flow/);
+  assert.match(styles, /page-card-float/);
+  assert.match(styles, /\.motion-reveal\.motion-in/);
+});

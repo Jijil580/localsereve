@@ -53,6 +53,7 @@ const introServices = [
   ["/near-lio-plastering-worker.jpg", "Plastering"],
   ["/near-lio-photographer.jpg", "Photographer"],
 ];
+const homeMotionServices = ["Plumber","Electrician","Carpenter","Painter","Tile worker","Cleaning","AC repair","Photographer","Mechanic","Home nurse","Tutor","Web developer"];
 
 function OpeningIntro({onFinish}:{onFinish:()=>void}) {
   return <section className="opening-intro" role="status" aria-label="Welcome to Nearlio by Lumier">
@@ -88,6 +89,17 @@ export default function NearlioApp() {
     const timer = window.setTimeout(() => setIntroVisible(false), 4200);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if(introVisible)return;
+    const elements = document.querySelectorAll<HTMLElement>(".section,.how-section,.cta-band,.search-top,.search-layout,.dash-page,.chat-page,footer");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduced){elements.forEach(element=>element.classList.add("motion-in"));return;}
+    elements.forEach(element=>element.classList.add("motion-reveal"));
+    const observer = new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("motion-in");observer.unobserve(entry.target)}}),{threshold:.08,rootMargin:"0px 0px -35px"});
+    elements.forEach(element=>observer.observe(element));
+    return ()=>observer.disconnect();
+  }, [view,introVisible]);
 
   useEffect(() => {
     fetch("/api/auth/session", { credentials: "include" })
@@ -181,6 +193,8 @@ export default function NearlioApp() {
               <div className="happy-customers"><b>10,000+</b><span>Happy customers</span></div>
             </div>
           </section>
+
+          <div className="home-service-motion" aria-label="Popular Nearlio services"><div>{[...homeMotionServices,...homeMotionServices].map((service,index)=><span key={`${service}-${index}`}>✦ {service}</span>)}</div></div>
 
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">EXPLORE SERVICES</span><h2>What do you need help with?</h2></div><button onClick={() => goSearch()}>View all services →</button></div>
