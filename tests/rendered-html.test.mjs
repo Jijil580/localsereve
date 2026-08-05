@@ -90,7 +90,12 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   assert.match(app, /near-lio-tile-worker\.jpg/);
   assert.match(app, /near-lio-photographer\.jpg/);
   assert.match(app, />Skip<\/button>/);
-  assert.match(styles, /\.intro-service-images\{[^}]*grid-template-columns:1fr 1fr/);
+  assert.match(app, /HOW TO USE NEARLIO/);
+  assert.match(app, /BENEFITS FOR EVERYONE/);
+  assert.match(app, /SIMPLE FROM START TO FINISH/);
+  assert.match(app, /setIntroVisible\(false\), 10000/);
+  assert.match(styles, /\.intro-chapter-4/);
+  assert.match(styles, /intro-progress-fill 2\.5s/);
   assert.match(styles, /@media\(min-width:761px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
 });

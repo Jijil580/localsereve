@@ -47,20 +47,17 @@ function ServiceAutocomplete({value,onChange,onSelect,placeholder,ariaLabel}:{va
   return <div className="service-autocomplete"><input value={value} onChange={event=>{onChange(event.target.value);setOpen(true);setActive(0)}} onFocus={()=>setOpen(true)} onBlur={()=>setTimeout(()=>setOpen(false),120)} onKeyDown={event=>{if(event.key==="ArrowDown"){event.preventDefault();setOpen(true);setActive(index=>Math.min(index+1,suggestions.length-1))}else if(event.key==="ArrowUp"){event.preventDefault();setActive(index=>Math.max(index-1,0))}else if(event.key==="Enter"&&open&&suggestions[active]){event.preventDefault();choose(suggestions[active])}else if(event.key==="Escape")setOpen(false)}} placeholder={placeholder} aria-label={ariaLabel} role="combobox" aria-autocomplete="list" aria-expanded={open&&suggestions.length>0}/>{open&&suggestions.length>0&&<div className="service-suggestions" role="listbox">{suggestions.map((service,index)=><button type="button" role="option" aria-selected={index===active} className={index===active?"active":""} key={service} onMouseDown={event=>event.preventDefault()} onClick={()=>choose(service)}><span>{categoryIcons[service]||"🛠"}</span><b>{service}</b><small>{value.trim().toLowerCase()===service.toLowerCase()?"Exact match":"Suggested service"}</small></button>)}</div>}</div>
 }
 
-const introServices = [
-  ["/near-lio-carpenter.jpg", "Carpenter"],
-  ["/near-lio-tile-worker.jpg", "Tile worker"],
-  ["/near-lio-plastering-worker.jpg", "Plastering"],
-  ["/near-lio-photographer.jpg", "Photographer"],
-];
 const homeMotionServices = ["Plumber","Electrician","Carpenter","Painter","Tile worker","Cleaning","AC repair","Photographer","Mechanic","Home nurse","Tutor","Web developer"];
 
 function OpeningIntro({onFinish}:{onFinish:()=>void}) {
   return <section className="opening-intro" role="status" aria-label="Welcome to Nearlio by Lumier">
-    <div className="intro-service-images" aria-hidden="true">{introServices.map(([image,label],index)=><figure className={`intro-shot intro-shot-${index+1}`} key={label}><img src={image} alt=""/><figcaption>{label}</figcaption></figure>)}</div>
-    <div className="intro-vignette" aria-hidden="true"/>
-    <div className="intro-brand-lockup"><span className="intro-brand-mark">N</span><div><strong>Near<span>lio</span></strong><small>by Lumier</small></div><p>Where Local Experts Meet Local Customers</p></div>
-    <div className="intro-service-rail" aria-hidden="true"><div>{["Plumber","Electrician","Carpenter","Painter","Tile worker","Cleaning","AC repair","Photographer","Mechanic","Home nurse","Tutor","Web developer"].map((service,index)=><span key={`${service}-${index}`}>{service}</span>)}</div></div>
+    <div className="intro-chapters">
+      <article className="intro-chapter intro-chapter-1"><img src="/near-lio-carpenter.jpg" alt="Carpenter completing skilled woodwork"/><div className="intro-chapter-shade"/><div className="intro-story intro-story-brand"><span className="intro-brand-mark">N</span><div><strong>Near<span>lio</span></strong><small>by Lumier</small></div><p>Where Local Experts Meet Local Customers</p></div></article>
+      <article className="intro-chapter intro-chapter-2"><img src="/near-lio-tile-worker.jpg" alt="Local tile professional at work"/><div className="intro-chapter-shade"/><div className="intro-story"><em>02 · HOW TO USE NEARLIO</em><h2>Search nearby.<br/>Choose confidently.</h2><p>Set your location, explore services and compare verified professional profiles near you.</p><div className="intro-pills"><span>⌖ Set location</span><span>⌕ Search a service</span><span>✓ View profiles</span></div></div></article>
+      <article className="intro-chapter intro-chapter-3"><img src="/near-lio-plastering-worker.jpg" alt="Verified local plastering professional"/><div className="intro-chapter-shade"/><div className="intro-story"><em>03 · BENEFITS FOR EVERYONE</em><h2>Trusted work.<br/>Better connections.</h2><p>Customers find skilled help faster. Professionals receive nearby enquiries and grow their reputation.</p><div className="intro-benefits"><span><b>✓</b> Verified profiles</span><span><b>⌖</b> Distance-based results</span><span><b>↗</b> Direct replies</span></div></div></article>
+      <article className="intro-chapter intro-chapter-4"><img src="/near-lio-photographer.jpg" alt="Local photographer serving a customer"/><div className="intro-chapter-shade"/><div className="intro-story intro-final"><em>04 · SIMPLE FROM START TO FINISH</em><h2>Find. Connect.<br/>Get it done.</h2><div className="intro-steps"><span><b>1</b>Tell us what you need</span><span><b>2</b>Choose a local expert</span><span><b>3</b>Book with confidence</span></div><strong className="intro-ready">Nearlio is ready for you.</strong></div></article>
+    </div>
+    <div className="intro-progress" aria-hidden="true">{[1,2,3,4].map(number=><span className={`intro-progress-${number}`} key={number}><i/></span>)}</div>
     <button type="button" className="intro-skip" onClick={onFinish}>Skip</button>
   </section>;
 }
@@ -86,7 +83,7 @@ export default function NearlioApp() {
   const t = translations[language];
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIntroVisible(false), 4200);
+    const timer = window.setTimeout(() => setIntroVisible(false), 10000);
     return () => window.clearTimeout(timer);
   }, []);
 
