@@ -1,5 +1,5 @@
-import LocalServeApp from "./localserve-app";
+import NearlioApp from "./localserve-app";
 
 export default function Home() {
-  return <LocalServeApp />;
+  return <NearlioApp />;
 }

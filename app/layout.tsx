@@ -8,14 +8,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = incoming.get("host") ?? "localhost:3000";
   const protocol = incoming.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const base = new URL(`${protocol}://${host}`);
-  const description = "Find, compare and book verified local service professionals with transparent pricing and trusted reviews.";
+  const description = "Where Local Experts Meet Local Customers.";
   return {
     metadataBase: base,
-    title: "LocalServe — Trusted local professionals near you",
+    title: "Nearlio – Where Local Experts Meet Local Customers",
     description,
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
-    openGraph: { title: "LocalServe", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "LocalServe — trusted local professionals near you" }] },
-    twitter: { card: "summary_large_image", title: "LocalServe", description, images: [new URL("/og.png", base).toString()] },
+    openGraph: { title: "Nearlio", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "Nearlio – Where Local Experts Meet Local Customers" }] },
+    twitter: { card: "summary_large_image", title: "Nearlio", description, images: [new URL("/og.png", base).toString()] },
   };
 }
 

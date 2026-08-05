@@ -1,6 +1,8 @@
-# LocalServe
+# Nearlio
 
-LocalServe is a responsive marketplace for discovering, comparing and booking nearby service professionals. This first production-shaped release includes customer discovery, provider profiles, filters, saved providers, service requests, quotations, booking status, messaging, multilingual UI foundations and customer/provider/admin dashboards.
+**Where Local Experts Meet Local Customers**
+
+Nearlio is a responsive marketplace for discovering, comparing and booking nearby service professionals. This first production-shaped release includes customer discovery, provider profiles, filters, saved providers, service requests, quotations, booking status, messaging, multilingual UI foundations and customer/provider/admin dashboards.
 
 ## Local development
 
