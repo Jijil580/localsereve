@@ -35,7 +35,7 @@ const serviceNames = [
 ];
 const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carpenter:"🪚",Mason:"🧱",Painter:"🎨","Plastering worker":"🏠","Tile worker":"◫","Marble and granite worker":"◇","Flooring specialist":"▦","False-ceiling worker":"⌂",Welder:"⚙"};
 const categories = [...serviceNames.map(name => [categoryIcons[name]||"🛠", name, "Browse service"]), ["⋯", "All services", "Explore categories"]];
-const featuredCategories = [...categories.slice(0,11), categories[categories.length-1]];
+const featuredCategories = [...categories.slice(0,9), categories[categories.length-1]];
 
 export default function NearlioApp() {
   const [view, setView] = useState<View>("home");
@@ -125,24 +125,27 @@ export default function NearlioApp() {
 
       <main>
         {view === "home" && <>
-          <section className="hero">
+          <section className="hero hero-reference">
             <div className="hero-copy">
-              <div className="eyebrow"><span>✓</span> Verified local professionals</div>
-              <h1>{t.find}<span>.</span></h1>
-              <p>Book skilled local professionals for every job — with transparent pricing, verified reviews and reliable support.</p>
-              <form className="hero-search" onSubmit={e => {e.preventDefault(); goSearch()}}>
-                <label className="search-field"><span>⌕</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder={t.search} aria-label="Service search" /></label>
-                <button type="button" className="location-field" onClick={useLocation}><span>⌖</span><span><small>LOCATION</small>{customerLocation?.label||t.location}</span></button>
-                <button className="search-submit">Search</button>
+              <div className="eyebrow"><span>✓</span> Trusted professionals, just around you</div>
+              <h1>Find trusted local professionals <span>near you.</span></h1>
+              <p>From small repairs to big projects, find verified experts for every service you need.</p>
+              <form className="hero-search hero-search-expanded" onSubmit={e => {e.preventDefault(); goSearch()}}>
+                <label className="search-field"><span>⌕</span><span><small>SERVICE</small><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Plumber, electrician, carpenter…" aria-label="Service search" /></span></label>
+                <button type="button" className="location-field" onClick={useLocation}><span>⌖</span><span><small>YOUR LOCATION</small>{customerLocation?.label||t.location}</span></button>
+                <label className="hero-radius"><span>◴</span><span><small>RADIUS</small><select value={radius} onChange={event=>setRadius(Number(event.target.value))} aria-label="Search radius"><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="60">60 km</option></select></span></label>
+                <button className="search-submit">Search now</button>
               </form>
-              <div className="popular-searches"><span>Popular:</span>{["Electrician","AC repair","Cleaning","Plumber"].map(x => <button key={x} onClick={() => goSearch(x)}>{x}</button>)}</div>
+              <div className="hero-proof-row"><div><span>✓</span><b>Verified<br/>professionals</b></div><div><span>₹</span><b>Upfront<br/>pricing</b></div><div><span>★</span><b>Real customer<br/>reviews</b></div><div><span>↯</span><b>Quick & easy<br/>booking</b></div></div>
             </div>
-            <div className="hero-visual" aria-label="Trusted service professional">
-              <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1000&q=85" alt="Local service professionals at work" />
+            <div className="hero-collage" aria-label="Verified Nearlio service professionals">
+              <article className="collage-card collage-electrician"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=700&q=85" alt="Electrician at work"/><span><b>Electrician</b><small>4.9 ★</small></span></article>
+              <article className="collage-card collage-main"><img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=850&q=85" alt="Friendly local service professional"/><span><b>Home services</b><small>4.8 ★</small></span></article>
+              <article className="collage-card collage-carpenter"><img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=700&q=85" alt="Carpenter completing a local project"/><span><b>Carpenter</b><small>4.7 ★</small></span></article>
+              <article className="collage-card collage-plaster"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=700&q=85" alt="Construction professional"/><span><b>Building work</b><small>4.8 ★</small></span></article>
+              <div className="happy-customers"><b>10,000+</b><span>Happy customers</span></div>
             </div>
           </section>
-
-          <section className="trust-strip"><div><b>✓</b><span>Verified profiles</span></div><div><b>★</b><span>Transparent ratings</span></div><div><b>⌁</b><span>Secure bookings</span></div><div><b>◉</b><span>Account protection</span></div></section>
 
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">EXPLORE SERVICES</span><h2>What do you need help with?</h2></div><button onClick={() => goSearch()}>View all services →</button></div>
