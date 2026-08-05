@@ -101,8 +101,11 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   assert.match(app, /setTimeout\(nextChapter,10000\)/);
   assert.match(app, /Tap for next/);
   assert.match(app, /closest\("button"\)/);
+  assert.match(app, /className="intro-watermark">Powered by <b>Lumier Technologies<\/b>/);
   assert.match(styles, /\.intro-chapter-6/);
   assert.match(styles, /intro-progress-fill 10s/);
+  assert.match(styles, /\.intro-watermark\{/);
+  assert.match(styles, /text-shadow:/);
   assert.match(styles, /grid-template-columns:repeat\(6,1fr\)/);
   assert.match(styles, /@media\(min-width:761px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
