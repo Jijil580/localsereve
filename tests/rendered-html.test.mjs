@@ -116,3 +116,12 @@ test("motion continues through the main mobile experience", async () => {
   assert.match(styles, /page-card-float/);
   assert.match(styles, /\.motion-reveal\.motion-in/);
 });
+
+test("mobile homepage places the animated professionals before search", async () => {
+  const styles = await readSource("app/globals.css");
+
+  assert.match(styles, /\.hero-reference\{display:flex!important;flex-direction:column\}/);
+  assert.match(styles, /\.hero-reference \.hero-collage\{order:1/);
+  assert.match(styles, /\.hero-reference \.hero-copy\{order:2/);
+  assert.match(styles, /Trusted local professionals/);
+});

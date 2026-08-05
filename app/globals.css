@@ -115,6 +115,14 @@ html{-webkit-text-size-adjust:100%}body{-webkit-font-smoothing:antialiased;text-
 @media(min-width:761px){.home-service-motion span{min-height:46px;padding:0 24px;font-size:11px}.hero-collage .collage-card:hover{animation-play-state:paused;transform:translateY(-5px) scale(1.02)}}
 @media(prefers-reduced-motion:reduce){.home-service-motion>div,.hero-collage .collage-card,.happy-customers,.motion-in .category-card,.motion-in .provider-card{animation:none}.motion-reveal{opacity:1;transform:none;transition:none}}
 
+@media(max-width:760px){
+  .hero-reference{display:flex!important;flex-direction:column}
+  .hero-reference .hero-collage{order:1;min-height:390px;border-bottom:1px solid #dce8e1;background:radial-gradient(circle at 50% 45%,#e7f5ed 0,#d8eee1 52%,#edf7f1 100%)}
+  .hero-reference .hero-copy{order:2;padding-top:32px}
+  .hero-reference .hero-collage:after{content:"Trusted local professionals";position:absolute;z-index:7;left:14px;top:14px;padding:8px 11px;border-radius:99px;background:rgba(255,255,255,.9);box-shadow:0 5px 18px rgba(23,61,43,.12);color:var(--green-dark);font-size:9px;font-weight:900;letter-spacing:.04em;backdrop-filter:blur(8px)}
+}
+@media(max-width:390px){.hero-reference .hero-collage{min-height:350px}.hero-reference .hero-copy{padding-top:28px}}
+
 @media(hover:none){.category-card:hover,.provider-card:hover{transform:none}.primary-btn,.search-submit,.category-card,.provider-card{-webkit-tap-highlight-color:transparent}}
 
 .portfolio-upload{margin-top:18px;border:1px solid #cfe1d7;background:#f5faf7;border-radius:13px;padding:15px}.portfolio-upload>div{display:flex;flex-direction:column;gap:4px}.portfolio-upload>div b{font-size:12px}.portfolio-upload>div span{font-size:10px;color:var(--muted)}.portfolio-upload>label{border:1px dashed #8eb8a3;border-radius:10px;padding:13px!important;margin-top:12px!important;background:#fff;color:var(--green)}.portfolio-upload label em{font-size:9px;color:var(--muted);font-style:normal}.portfolio-upload .remove-portfolio{display:flex;flex-direction:row;align-items:center;border:0;padding:0!important;background:transparent;color:#8a3434;font-size:10px}.portfolio-upload .remove-portfolio input{width:17px;height:17px;accent-color:#a33}.portfolio-row{grid-template-columns:repeat(2,minmax(0,1fr))}.portfolio-row img{height:150px}.portfolio-row img:first-child:nth-last-child(1){grid-column:1/-1;height:210px}@media(max-width:520px){.portfolio-upload{padding:13px}.portfolio-row img{height:125px}.portfolio-row img:first-child:nth-last-child(1){height:180px}}
