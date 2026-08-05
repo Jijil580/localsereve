@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { translations } from "./i18n";
+import { TERMS_VERSION } from "../lib/terms";
 
 type View = "home" | "search" | "requests" | "messages" | "dashboard";
 type SessionUser = { id: string; fullName: string; email: string; role: "customer" | "provider" | "admin" };
@@ -234,6 +235,7 @@ function AuthForm({onAuthenticated}:{onAuthenticated:(user:SessionUser)=>void}) 
   const [mode,setMode]=useState<"login"|"register">("login");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
+  const [showTerms,setShowTerms]=useState(false);
   async function submitAuth(event:FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
     const data=Object.fromEntries(new FormData(event.currentTarget).entries());
@@ -245,7 +247,43 @@ function AuthForm({onAuthenticated}:{onAuthenticated:(user:SessionUser)=>void}) 
     } catch (problem) { setError(problem instanceof Error?problem.message:"Unable to continue"); }
     finally { setBusy(false); }
   }
-  return <form onSubmit={submitAuth} className="auth-form"><span className="kicker">WELCOME TO NEARLIO</span><h2>{mode==="login"?"Sign in to your account":"Create your Nearlio account"}</h2><p className="muted">{mode==="login"?"Manage bookings, quotes and messages securely.":"Join as a customer or start receiving nearby service enquiries."}</p><div className="auth-tabs"><button type="button" className={mode==="login"?"active":""} onClick={()=>{setMode("login");setError("")}}>Sign in</button><button type="button" className={mode==="register"?"active":""} onClick={()=>{setMode("register");setError("")}}>Create account</button></div>{mode==="register"&&<><label>Full name<input name="fullName" required minLength={2} autoComplete="name" placeholder="Your full name"/></label><div className="form-row"><label>Email address<input name="email" required type="email" autoComplete="email" placeholder="you@example.com"/></label><label>Mobile number<input name="phone" required type="tel" pattern="[0-9 +()-]{10,18}" autoComplete="tel" placeholder="10-digit number"/></label></div><label>I want to join as<select name="role" defaultValue="customer"><option value="customer">Customer — book services</option><option value="provider">Service professional — receive work</option></select></label></>}{mode==="login"&&<label>Email or mobile number<input name="identifier" required autoComplete="username" placeholder="Email or mobile number"/></label>}<label>Password<input name="password" required type="password" minLength={8} autoComplete={mode==="login"?"current-password":"new-password"} placeholder="At least 8 characters"/></label>{mode==="register"&&<p className="password-hint">Use uppercase, lowercase and at least one number.</p>}{error&&<div className="auth-error" role="alert">{error}</div>}<button type="submit" className="primary-btn wide" disabled={busy}>{busy?"Please wait…":mode==="login"?"Sign in securely":"Create account"}</button><p className="legal">By continuing, you agree to our Terms and Privacy Policy. Your password is securely hashed and never stored as plain text.</p></form>
+  const consentId=`terms-consent-${mode}`;
+  return <>
+    <form onSubmit={submitAuth} className="auth-form">
+      <span className="kicker">WELCOME TO NEARLIO</span>
+      <h2>{mode==="login"?"Sign in to your account":"Create your Nearlio account"}</h2>
+      <p className="muted">{mode==="login"?"Manage bookings, quotes and messages securely.":"Join as a customer or start receiving nearby service enquiries."}</p>
+      <div className="auth-tabs"><button type="button" className={mode==="login"?"active":""} onClick={()=>{setMode("login");setError("")}}>Sign in</button><button type="button" className={mode==="register"?"active":""} onClick={()=>{setMode("register");setError("")}}>Create account</button></div>
+      {mode==="register"&&<><label>Full name<input name="fullName" required minLength={2} autoComplete="name" placeholder="Your full name"/></label><div className="form-row"><label>Email address<input name="email" required type="email" autoComplete="email" placeholder="you@example.com"/></label><label>Mobile number<input name="phone" required type="tel" pattern="[0-9 +()-]{10,18}" autoComplete="tel" placeholder="10-digit number"/></label></div><label>I want to join as<select name="role" defaultValue="customer"><option value="customer">Customer — book services</option><option value="provider">Service professional — receive work</option></select></label></>}
+      {mode==="login"&&<label>Email or mobile number<input name="identifier" required autoComplete="username" placeholder="Email or mobile number"/></label>}
+      <label>Password<input name="password" required type="password" minLength={8} autoComplete={mode==="login"?"current-password":"new-password"} placeholder="At least 8 characters"/></label>
+      {mode==="register"&&<p className="password-hint">Use uppercase, lowercase and at least one number.</p>}
+      <div className="terms-consent"><input id={consentId} name="acceptedTerms" type="checkbox" required/><label htmlFor={consentId}>I agree to the Nearlio User Terms and Privacy Notice, including the rules against unwanted messages and misuse of contact details.</label><button type="button" onClick={()=>setShowTerms(true)}>Read terms</button></div>
+      {error&&<div className="auth-error" role="alert">{error}</div>}
+      <button type="submit" className="primary-btn wide" disabled={busy}>{busy?"Please wait…":mode==="login"?"Agree & sign in":"Agree & create account"}</button>
+      <p className="legal">Your password is securely hashed and never stored as plain text.</p>
+    </form>
+    {showTerms&&<UserTerms onClose={()=>setShowTerms(false)}/>} 
+  </>
+}
+
+function UserTerms({onClose}:{onClose:()=>void}) {
+  return <section className="terms-sheet" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div className="terms-sheet-head"><div><span className="kicker">NEARLIO USER AGREEMENT</span><h2 id="terms-title">User Terms & Privacy Notice</h2><p>Effective 5 August 2026 · Version {TERMS_VERSION}</p></div><button type="button" onClick={onClose} aria-label="Close terms">×</button></div>
+    <div className="terms-content">
+      <div className="terms-alert"><b>Respect every user’s privacy.</b><span>Contact details may be used only for the service request or booking that made them available.</span></div>
+      <h3>1. Who may use Nearlio</h3><p>You must be at least 18 years old, provide accurate account information and keep your password secure. You are responsible for activity under your account.</p>
+      <h3>2. Marketplace role</h3><p>Nearlio helps local customers and independent service professionals find and contact each other. Providers are not Nearlio employees. Customers and providers must agree directly on scope, price, materials, timing and payment before work starts.</p>
+      <h3>3. Contact and messaging rules</h3><ul><li>Contact another user only about a genuine service enquiry, quotation, booking or active job.</li><li>Do not send spam, promotions, repeated messages after someone asks you to stop, or messages unrelated to the requested service.</li><li>No harassment, threats, abusive, discriminatory, sexual, romantic or otherwise unwanted messages or calls.</li><li>Do not copy, sell, publish, scrape or share another person’s phone number, email, address, identity document or profile data.</li><li>WhatsApp or phone contact is allowed only when the user has chosen to share that contact method. Stop immediately if consent is withdrawn.</li></ul>
+      <h3>4. Honest and safe use</h3><p>Do not impersonate others, create fake requests or reviews, misrepresent qualifications, submit unlawful content, demand advance money dishonestly, bypass safety controls or use Nearlio for fraud. Providers must perform only work they are qualified and legally permitted to perform.</p>
+      <h3>5. Privacy notice</h3><p>Nearlio processes account details, contact information, approximate or selected location, requests, bookings, messages, profile information and provider verification documents to operate and secure the marketplace. Only information needed for matching and completing a service should be shared. Identity documents and exact coordinates are not intended for public display. Nearlio does not treat acceptance of these terms as consent to unrelated promotional messaging.</p>
+      <h3>6. External communication and payments</h3><p>WhatsApp, phone calls and payments outside Nearlio are provided by third parties and carry additional risk. Verify the other user, keep written estimates and receipts, and never share passwords, OTPs, card PINs or banking credentials.</p>
+      <h3>7. Reports and enforcement</h3><p>Users should report harassment, spam, fraud, unsafe conduct or privacy misuse to Nearlio administration and preserve relevant evidence. Nearlio may restrict messaging, reject provider verification, suspend or remove accounts and cooperate with lawful authorities when reasonably necessary to protect users or the platform.</p>
+      <h3>8. Service disputes and emergencies</h3><p>Nearlio does not guarantee a provider’s work, availability or quoted price. Users remain responsible for deciding whether to hire or accept a job. Nearlio is not an emergency service; contact the appropriate emergency authority when anyone is in immediate danger.</p>
+      <h3>9. Changes and law</h3><p>Nearlio may update these terms when the service or legal requirements change and will request acceptance of a new version where appropriate. These terms are governed by applicable laws of India. Nothing here limits rights that cannot lawfully be excluded.</p>
+    </div>
+    <div className="terms-sheet-actions"><button type="button" className="primary-btn" onClick={onClose}>I understand</button></div>
+  </section>
 }
 
 function CleanMessagesView({onFind}:{onFind:()=>void}) {
