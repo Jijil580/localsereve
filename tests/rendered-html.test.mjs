@@ -87,28 +87,55 @@ test("opening uses a mobile-first Nearlio service montage", async () => {
   ]);
 
   assert.match(app, /OpeningIntro/);
-  assert.match(app, /Nearlio introduction, chapter/);
+  assert.match(app, /Nearlio welcome, part/);
   assert.match(app, /near-lio-carpenter\.jpg/);
   assert.match(app, /near-lio-tile-worker\.jpg/);
-  assert.match(app, /near-lio-photographer\.jpg/);
   assert.match(app, />Skip<\/button>/);
-  assert.match(app, /HOW TO USE NEARLIO/);
-  assert.match(app, /BENEFITS FOR EVERYONE/);
-  assert.match(app, /SIMPLE FROM START TO FINISH/);
-  assert.match(app, /SAFETY AND VERIFICATION/);
-  assert.match(app, /REQUEST AND RESPOND/);
-  assert.match(app, /setIntroVisible\(false\), 60000/);
-  assert.match(app, /setTimeout\(nextChapter,10000\)/);
-  assert.match(app, /Tap for next/);
+  assert.match(app, /FIND HELP NEARBY/);
+  assert.match(app, /REQUEST AND CONNECT/);
+  assert.match(app, /nearlio-intro-seen/);
+  assert.match(app, /chapter===2\?1700:1650/);
+  assert.match(app, /Next →/);
   assert.match(app, /closest\("button"\)/);
   assert.match(app, /className="intro-watermark">Powered by <b>Lumier Technologies<\/b>/);
-  assert.match(styles, /\.intro-chapter-6/);
-  assert.match(styles, /intro-progress-fill 10s/);
+  assert.match(styles, /animation-duration:1\.65s/);
   assert.match(styles, /\.intro-watermark\{/);
   assert.match(styles, /text-shadow:/);
-  assert.match(styles, /grid-template-columns:repeat\(6,1fr\)/);
+  assert.match(styles, /grid-template-columns:repeat\(3,1fr\)!important/);
   assert.match(styles, /@media\(min-width:761px\)/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
+});
+
+test("production request workflow persists quotes and status transitions", async () => {
+  const [app, requestRoute, statusRoute, responseRoute] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/requests/route.ts"),
+    readSource("app/api/requests/[id]/route.ts"),
+    readSource("app/api/provider/requests/[id]/respond/route.ts"),
+  ]);
+  assert.match(app, /Select provider/);
+  assert.match(app, /Mark job completed/);
+  assert.match(app, /Estimated price/);
+  assert.match(requestRoute, /statusHistory/);
+  assert.match(statusRoute, /in_progress/);
+  assert.match(statusRoute, /assignedProviderId/);
+  assert.match(responseRoute, /quoteAmount/);
+  assert.match(responseRoute, /availability/);
+});
+
+test("Nearlio is installable and avoids invented marketplace totals", async () => {
+  const [app, layout, manifest, worker] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/layout.tsx"),
+    readSource("app/manifest.ts"),
+    readSource("public/sw.js"),
+  ]);
+  assert.doesNotMatch(app, /10,000\+/);
+  assert.doesNotMatch(app, /Happy customers/);
+  assert.match(app, /No customer reviews yet/);
+  assert.match(layout, /manifest\.webmanifest/);
+  assert.match(manifest, /display: "standalone"/);
+  assert.match(worker, /CACHE_NAME/);
 });
 
 test("motion continues through the main mobile experience", async () => {

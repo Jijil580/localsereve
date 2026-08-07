@@ -24,10 +24,10 @@ export async function GET() {
     }
 
     const escapedService = profile.service.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const rows = await db.collection("serviceRequests").find({
-      service: { $regex: `^${escapedService}$`, $options: "i" },
-      status: { $in: ["open", "quoted"] },
-    }).sort({ createdAt: -1 }).limit(100).toArray();
+    const rows = await db.collection("serviceRequests").find({ $or: [
+      { service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $in: ["open", "quoted"] }, $or: [{ preferredProviderId: profile._id }, { preferredProviderId: null }, { preferredProviderId: { $exists: false } }] },
+      { assignedProviderId: profile._id, status: { $in: ["accepted", "in_progress"] } },
+    ] }).sort({ createdAt: -1 }).limit(100).toArray();
 
     return Response.json({
       profileReady: true,
@@ -43,6 +43,8 @@ export async function GET() {
         preferredTime: row.preferredTime,
         urgency: row.urgency,
         status: row.status,
+        assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "",
+        assignedProviderName: row.assignedProviderName,
         quoteCount: Number(row.quoteCount ?? 0),
         whatsappNumber: row.allowWhatsApp ? String(row.whatsappNumber ?? "") : "",
         responses: Array.isArray(row.responses) ? row.responses.filter((reply: { providerId?: ObjectId }) => String(reply.providerId ?? "") === String(profile._id)).map((reply: Record<string, unknown>) => ({ ...reply, providerId: String(reply.providerId ?? "") })) : [],

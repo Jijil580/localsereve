@@ -13,6 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: base,
     title: "Nearlio – Where Local Experts Meet Local Customers",
     description,
+    applicationName: "Nearlio",
+    manifest: "/manifest.webmanifest",
+    appleWebApp: { capable: true, statusBarStyle: "default", title: "Nearlio" },
+    formatDetection: { telephone: false },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
     openGraph: { title: "Nearlio", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "Nearlio – Where Local Experts Meet Local Customers" }] },
     twitter: { card: "summary_large_image", title: "Nearlio", description, images: [new URL("/og.png", base).toString()] },
@@ -26,6 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head><meta name="theme-color" content="#0d7c59"/><link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous"/></head>
       <body className="antialiased">
         {children}
       </body>
