@@ -6,12 +6,12 @@ const sourceRoot = new URL("../", import.meta.url);
 const readSource = (path) => readFile(new URL(path, sourceRoot), "utf8");
 
 test("Nearlio exposes an explicit terms consent flow", async () => {
-  const app = await readSource("app/localserve-app.tsx");
+  const [app, i18n] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/i18n.ts")]);
 
   assert.match(app, /name="acceptedTerms"/);
   assert.match(app, /type="checkbox" required/);
-  assert.match(app, /Read terms/);
-  assert.match(app, /unwanted messages and misuse of contact details/i);
+  assert.match(app, /\{t\.readTerms\}/);
+  assert.match(i18n, /unwanted messages and misuse of contact details/i);
   assert.match(app, /Contact and messaging rules/);
   assert.match(app, /No harassment, threats, abusive, discriminatory, sexual, romantic or otherwise unwanted messages or calls/);
   assert.match(app, /TERMS_VERSION/);
@@ -39,7 +39,7 @@ test("footer destinations and launch pricing are wired to actions", async () => 
   for (const destination of ["about", "contact", "safety", "pricing", "provider-help", "terms"]) {
     assert.match(app, new RegExp(`setModal\\(\\"${destination}\\"\\)`));
   }
-  assert.match(app, /onClick=\{openRequest\}>Post a request/);
+  assert.match(app, /onClick=\{openRequest\}>\{t\.postRequest\}/);
   assert.match(app, /demo@lumiertechnologies\.com/);
   assert.match(app, /first 12 months free/i);
   assert.match(app, /₹199/);
@@ -72,10 +72,10 @@ test("mobile users can manage account and change provider search location", asyn
 
   assert.match(app, /className="account-menu" role="menu"/);
   assert.match(app, /className="account-logout" onClick=\{signOut\}/);
-  assert.match(app, />Log out<\/b>/);
+  assert.match(app, />\{t\.logOut\}<\/b>/);
   assert.doesNotMatch(app, /className="mobile-signout"/);
   assert.match(app, /className="search-location-mobile" onClick=\{props\.openLocation\}/);
-  assert.match(app, /SEARCHING NEAR/);
+  assert.match(app, /\{t\.searchingNear\}/);
   assert.match(styles, /\.account-menu/);
   assert.match(styles, /\.search-location-mobile\{display:flex/);
 });
@@ -124,15 +124,16 @@ test("production request workflow persists quotes and status transitions", async
 });
 
 test("Nearlio is installable and avoids invented marketplace totals", async () => {
-  const [app, layout, manifest, worker] = await Promise.all([
+  const [app, layout, manifest, worker, i18n] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/layout.tsx"),
     readSource("app/manifest.ts"),
     readSource("public/sw.js"),
+    readSource("app/i18n.ts"),
   ]);
   assert.doesNotMatch(app, /10,000\+/);
   assert.doesNotMatch(app, /Happy customers/);
-  assert.match(app, /No customer reviews yet/);
+  assert.match(i18n, /No customer reviews yet/);
   assert.match(layout, /manifest\.webmanifest/);
   assert.match(manifest, /display: "standalone"/);
   assert.match(worker, /CACHE_NAME/);
@@ -168,4 +169,20 @@ test("interlock and hollow-brick services are searchable categories", async () =
   assert.match(app, /"Hollow-brick work"/);
   assert.match(app, /"hollobricks"/);
   assert.match(app, /serviceAliases/);
+});
+
+test("English and Malayalam language modes persist and localize service search", async () => {
+  const [app, i18n, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/i18n.ts"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /nearlio-language/);
+  assert.match(app, /document\.documentElement\.lang/);
+  assert.match(app, /<option value="ML">മലയാളം<\/option>/);
+  assert.match(app, /malayalamServiceNames\[name\]/);
+  assert.match(i18n, /വിശ്വസ്തരായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്തൂ/);
+  assert.match(i18n, /"Electrician":"ഇലക്ട്രീഷ്യൻ"/);
+  assert.match(styles, /html\[data-language="ML"\]/);
 });
