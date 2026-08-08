@@ -180,9 +180,11 @@ test("English and Malayalam language modes persist and localize service search",
 
   assert.match(app, /nearlio-language/);
   assert.match(app, /document\.documentElement\.lang/);
-  assert.match(app, /<option value="ML">മലയാളം<\/option>/);
+  assert.match(app, /onClick=\{\(\)=>setLanguage\("ML"\)\}>മലയാളം<\/button>/);
   assert.match(app, /malayalamServiceNames\[name\]/);
   assert.match(i18n, /വിശ്വസ്തരായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്തൂ/);
   assert.match(i18n, /"Electrician":"ഇലക്ട്രീഷ്യൻ"/);
   assert.match(styles, /html\[data-language="ML"\]/);
+  assert.match(styles, /grid-template-areas:"brand account" "location language"/);
+  assert.doesNotMatch(styles, /location-mini\{display:none!important\}/);
 });

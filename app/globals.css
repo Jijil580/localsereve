@@ -161,12 +161,24 @@ body{background:#f7f9f8;color:#142720}.topbar{background:rgba(255,255,255,.985);
 
 /* Accessible, persistent English / Malayalam switch */
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.language-switch{position:relative;display:flex;align-items:center}
-.language-switch:before{content:"文";position:absolute;left:10px;pointer-events:none;color:var(--green);font-size:12px;font-weight:800}
-.language-switch select{height:38px;min-width:98px;border:1px solid #dfe7e2;border-radius:9px;background:#f5f7f6;color:var(--ink);font-size:11px;font-weight:800;padding:0 26px 0 29px;cursor:pointer}
+.language-switch{display:flex;align-items:center;gap:2px;height:40px;padding:3px;border:1px solid #dfe7e2;border-radius:10px;background:#f5f7f6;white-space:nowrap}
+.language-switch>span{display:grid;place-items:center;width:25px;color:var(--green);font-size:12px;font-weight:800}
+.language-switch button{height:32px;border:0;border-radius:7px;background:transparent;color:#627069;font-size:10px;font-weight:800;padding:0 8px;box-shadow:none}
+.language-switch button.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 7px rgba(20,39,32,.1)}
 html[data-language="ML"] body,html[data-language="ML"] button,html[data-language="ML"] input,html[data-language="ML"] select,html[data-language="ML"] textarea{font-family:"Nirmala UI","Noto Sans Malayalam",Arial,sans-serif}
 html[data-language="ML"] .hero h1,html[data-language="ML"] .section-head h2,html[data-language="ML"] .how-section h2{line-height:1.22;letter-spacing:-.02em}
-@media(max-width:760px){.language-switch select{min-width:76px;width:76px;height:40px;padding-left:25px;font-size:10px}.language-switch:before{left:8px}.header-actions{gap:5px}}
-@media(max-width:390px){.language-switch select{min-width:66px;width:66px;padding-right:18px}.location-mini{display:none!important}}
+@media(max-width:760px){
+  .topbar{height:auto;min-height:110px;padding:9px 14px 8px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand account" "location language";column-gap:8px;row-gap:7px}
+  .topbar>.brand{grid-area:brand;justify-self:start}
+  .header-actions{display:contents}
+  .header-actions>.location-mini{grid-area:location;width:100%;height:40px;min-width:0;padding:0 11px;display:flex;align-items:center;justify-content:flex-start;gap:7px;font-size:15px}
+  .header-actions>.location-mini span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+  .language-switch{grid-area:language;justify-self:end}
+  .language-switch>span{width:20px}
+  .language-switch button{padding-inline:7px}
+  .account-menu-wrap,.header-actions>.primary-btn.small{grid-area:account;justify-self:end}
+  .header-actions>.ghost-btn{display:none}
+}
+@media(max-width:360px){.topbar{padding-inline:10px}.language-switch>span{display:none}.language-switch button{padding-inline:6px}.header-actions>.location-mini{padding-inline:9px}}
 
 .portfolio-upload{margin-top:18px;border:1px solid #cfe1d7;background:#f5faf7;border-radius:13px;padding:15px}.portfolio-upload>div{display:flex;flex-direction:column;gap:4px}.portfolio-upload>div b{font-size:12px}.portfolio-upload>div span{font-size:10px;color:var(--muted)}.portfolio-upload>label{border:1px dashed #8eb8a3;border-radius:10px;padding:13px!important;margin-top:12px!important;background:#fff;color:var(--green)}.portfolio-upload label em{font-size:9px;color:var(--muted);font-style:normal}.portfolio-upload .remove-portfolio{display:flex;flex-direction:row;align-items:center;border:0;padding:0!important;background:transparent;color:#8a3434;font-size:10px}.portfolio-upload .remove-portfolio input{width:17px;height:17px;accent-color:#a33}.portfolio-row{grid-template-columns:repeat(2,minmax(0,1fr))}.portfolio-row img{height:150px}.portfolio-row img:first-child:nth-last-child(1){grid-column:1/-1;height:210px}@media(max-width:520px){.portfolio-upload{padding:13px}.portfolio-row img{height:125px}.portfolio-row img:first-child:nth-last-child(1){height:180px}}
