@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Nearlio – Local Services Near You",
-    short_name: "Nearlio",
+    name: "LumNearo – Local Services Near You",
+    short_name: "LumNearo",
     description: "Find approved local professionals, post service requests and follow replies near you.",
     start_url: "/",
     display: "standalone",

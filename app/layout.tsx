@@ -11,15 +11,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = "Where Local Experts Meet Local Customers.";
   return {
     metadataBase: base,
-    title: "Nearlio – Where Local Experts Meet Local Customers",
+    title: "LumNearo – Where Local Experts Meet Local Customers",
     description,
-    applicationName: "Nearlio",
+    applicationName: "LumNearo",
     manifest: "/manifest.webmanifest",
-    appleWebApp: { capable: true, statusBarStyle: "default", title: "Nearlio" },
+    appleWebApp: { capable: true, statusBarStyle: "default", title: "LumNearo" },
     formatDetection: { telephone: false },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
-    openGraph: { title: "Nearlio", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "Nearlio – Where Local Experts Meet Local Customers" }] },
-    twitter: { card: "summary_large_image", title: "Nearlio", description, images: [new URL("/og.png", base).toString()] },
+    openGraph: { title: "LumNearo", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "LumNearo – Where Local Experts Meet Local Customers" }] },
+    twitter: { card: "summary_large_image", title: "LumNearo", description, images: [new URL("/og.png", base).toString()] },
   };
 }
 

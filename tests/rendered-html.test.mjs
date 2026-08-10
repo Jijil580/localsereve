@@ -5,7 +5,7 @@ import test from "node:test";
 const sourceRoot = new URL("../", import.meta.url);
 const readSource = (path) => readFile(new URL(path, sourceRoot), "utf8");
 
-test("Nearlio exposes an explicit terms consent flow", async () => {
+test("LumNearo exposes an explicit terms consent flow", async () => {
   const [app, i18n] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/i18n.ts")]);
 
   assert.match(app, /name="acceptedTerms"/);
@@ -80,14 +80,14 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.search-location-mobile\{display:flex/);
 });
 
-test("opening uses a mobile-first Nearlio service montage", async () => {
+test("opening uses a mobile-first LumNearo service montage", async () => {
   const [app, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
   ]);
 
   assert.match(app, /OpeningIntro/);
-  assert.match(app, /Nearlio welcome, part/);
+  assert.match(app, /LumNearo welcome, part/);
   assert.match(app, /near-lio-carpenter\.jpg/);
   assert.match(app, /near-lio-tile-worker\.jpg/);
   assert.match(app, />Skip<\/button>/);
@@ -123,7 +123,7 @@ test("production request workflow persists quotes and status transitions", async
   assert.match(responseRoute, /availability/);
 });
 
-test("Nearlio is installable and avoids invented marketplace totals", async () => {
+test("LumNearo is installable and avoids invented marketplace totals", async () => {
   const [app, layout, manifest, worker, i18n] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/layout.tsx"),
