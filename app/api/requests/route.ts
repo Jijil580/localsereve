@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const db = await getMongoDb();
     const rows = await db.collection("serviceRequests").find({ customerId: new ObjectId(session.id) }).sort({ createdAt: -1 }).limit(100).toArray();
-    return Response.json({ data: rows.map(row => ({ ...row, _id: String(row._id), customerId: String(row.customerId), assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "", responses: Array.isArray(row.responses) ? row.responses.map((reply: Record<string, unknown>) => ({ ...reply, providerId: String(reply.providerId ?? "") })) : [] })) });
+    return Response.json({ data: rows.map(row => ({ ...row, whatsappNumber: undefined, _id: String(row._id), customerId: String(row.customerId), assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "", responses: Array.isArray(row.responses) ? row.responses.map((reply: Record<string, unknown>) => { const { providerWhatsApp: _privateNumber, ...safeReply } = reply; return { ...safeReply, providerId: String(reply.providerId ?? "") }; }) : [] })) });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load requests" }, { status: 500 }); }
 }
 

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const latitude = Number(latitudeText);
   const longitude = Number(longitudeText);
   const hasLocation = latitudeText !== null && longitudeText !== null && Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
-  const query: Record<string, unknown> = { status: "active", published: true, verificationStatus: "approved" };
+  const query: Record<string, unknown> = { status: { $ne: "disabled" }, service: { $exists: true, $ne: "" }, phone: { $exists: true, $ne: "" } };
   if (minRating > 0) query.averageRating = { $gte: minRating };
   if (search) {
     const pattern = { $regex: escapeRegex(search), $options: "i" };
@@ -46,7 +46,6 @@ export async function GET(request: Request) {
       description: String(row.description ?? "Local service professional."),
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
-      whatsapp: String(row.phone ?? ""),
       portfolio: Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0,4).map((_id: unknown,index: number) => `/api/providers/portfolio/${row._id}/${index}`) : [],
     }));
     return Response.json({ data, meta: { limit, count: data.length } });

@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   const index = Number(indexText);
   if (!ObjectId.isValid(id) || !Number.isInteger(index) || index < 0 || index > 3) return new Response("Not found", { status: 404 });
   const db = await getMongoDb();
-  const provider = await db.collection("providers").findOne({ _id: new ObjectId(id), status: "active", published: true, verificationStatus: "approved" }, { projection: { portfolioImageIds: 1 } });
+  const provider = await db.collection("providers").findOne({ _id: new ObjectId(id), status: { $ne: "disabled" } }, { projection: { portfolioImageIds: 1 } });
   const fileId = Array.isArray(provider?.portfolioImageIds) ? provider.portfolioImageIds[index] : null;
   if (!(fileId instanceof ObjectId)) return new Response("Not found", { status: 404 });
   const stored = await readProviderFile(db, fileId);

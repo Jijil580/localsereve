@@ -1,5 +1,5 @@
-import LumNearoApp from "./localserve-app";
+import NearleoApp from "./localserve-app";
 
 export default function Home() {
-  return <LumNearoApp />;
+  return <NearleoApp />;
 }

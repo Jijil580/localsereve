@@ -44,7 +44,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       if (body.action === "start" && isCustomer) return Response.json({ error: "The selected provider starts the job" }, { status: 403 });
       if (!isCustomer) {
         if (!assignedProviderId) return Response.json({ error: "No provider has been selected" }, { status: 409 });
-        const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: "active", verificationStatus: "approved" });
+        const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: { $ne: "disabled" } });
         if (!profile) return Response.json({ error: "Only the selected provider can update this job" }, { status: 403 });
       }
     }

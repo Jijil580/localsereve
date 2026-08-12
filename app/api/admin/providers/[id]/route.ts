@@ -11,13 +11,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const { id } = await context.params;
     if (!ObjectId.isValid(id)) return Response.json({ error: "Invalid provider" }, { status: 400 });
     const body = await request.json();
-    const action = body.action === "approve" ? "approve" : body.action === "reject" ? "reject" : "";
+    const action = body.action === "approve" ? "approve" : body.action === "unverify" || body.action === "reject" ? "unverify" : "";
     const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
-    if (!action || (action === "reject" && reason.length < 5)) return Response.json({ error: "Add a clear rejection reason" }, { status: 400 });
+    if (!action) return Response.json({ error: "Choose verify or remove verification" }, { status: 400 });
     const now = new Date();
     const update = action === "approve"
       ? { status: "active", verificationStatus: "approved", published: true, verified: true, rejectionReason: "", reviewedAt: now, reviewedBy: admin.email, updatedAt: now }
-      : { status: "rejected", verificationStatus: "rejected", published: false, verified: false, rejectionReason: reason, reviewedAt: now, reviewedBy: admin.email, updatedAt: now };
+      : { status: "active", verificationStatus: "unverified", published: true, verified: false, rejectionReason: reason, reviewedAt: now, reviewedBy: admin.email, updatedAt: now };
     const db = await getMongoDb();
     const result = await db.collection("providers").updateOne({ _id: new ObjectId(id) }, { $set: update });
     if (!result.matchedCount) return Response.json({ error: "Provider not found" }, { status: 404 });

@@ -1,8 +1,8 @@
-# LumNearo
+# Nearleo
 
 **Where Local Experts Meet Local Customers**
 
-LumNearo is a responsive marketplace by Lumier for discovering, comparing and booking nearby service professionals. This production-ready release includes customer discovery, provider profiles, filters, saved providers, service requests, quotations, booking status, messaging, multilingual UI and customer/provider/admin dashboards.
+Nearleo is a responsive marketplace by Lumier for discovering, comparing and booking nearby service professionals. This production-ready release includes customer discovery, provider profiles, filters, saved providers, service requests, quotations, booking status, messaging, multilingual UI and customer/provider/admin dashboards.
 
 ## Local development
 

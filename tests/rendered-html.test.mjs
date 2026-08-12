@@ -5,7 +5,7 @@ import test from "node:test";
 const sourceRoot = new URL("../", import.meta.url);
 const readSource = (path) => readFile(new URL(path, sourceRoot), "utf8");
 
-test("LumNearo exposes an explicit terms consent flow", async () => {
+test("Nearleo exposes an explicit terms consent flow", async () => {
   const [app, i18n] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/i18n.ts")]);
 
   assert.match(app, /name="acceptedTerms"/);
@@ -80,14 +80,14 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.search-location-mobile\{display:flex/);
 });
 
-test("opening uses a mobile-first LumNearo service montage", async () => {
+test("opening uses a mobile-first Nearleo service montage", async () => {
   const [app, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
   ]);
 
   assert.match(app, /OpeningIntro/);
-  assert.match(app, /LumNearo welcome, part/);
+  assert.match(app, /Nearleo welcome, part/);
   assert.match(app, /near-lio-carpenter\.jpg/);
   assert.match(app, /near-lio-tile-worker\.jpg/);
   assert.match(app, />Skip<\/button>/);
@@ -123,7 +123,7 @@ test("production request workflow persists quotes and status transitions", async
   assert.match(responseRoute, /availability/);
 });
 
-test("LumNearo is installable and avoids invented marketplace totals", async () => {
+test("Nearleo is installable and avoids invented marketplace totals", async () => {
   const [app, layout, manifest, worker, i18n] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/layout.tsx"),
@@ -187,4 +187,41 @@ test("English and Malayalam language modes persist and localize service search",
   assert.match(styles, /html\[data-language="ML"\]/);
   assert.match(styles, /grid-template-areas:"brand account" "location language"/);
   assert.doesNotMatch(styles, /location-mini\{display:none!important\}/);
+});
+
+test("provider profiles publish immediately with optional verification media", async () => {
+  const [app, profileRoute, providersRoute, adminRoute] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/providers/me/route.ts"),
+    readSource("app/api/providers/route.ts"),
+    readSource("app/api/admin/providers/[id]/route.ts"),
+  ]);
+
+  assert.match(profileRoute, /published: true/);
+  assert.match(profileRoute, /status: "active"/);
+  assert.doesNotMatch(profileRoute, /Upload a clear profile photo/);
+  assert.doesNotMatch(profileRoute, /Upload the front of a government-issued ID card/);
+  assert.doesNotMatch(providersRoute, /verificationStatus: "approved"/);
+  assert.doesNotMatch(providersRoute, /whatsapp:/);
+  assert.match(adminRoute, /body\.action === "unverify"/);
+  assert.match(app, /Unverified provider/);
+  assert.match(app, /Save and publish profile/);
+});
+
+test("WhatsApp contact requires customer-specific provider approval", async () => {
+  const [app, customerRoute, providerListRoute, providerActionRoute, requestRoute] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/providers/[id]/whatsapp-request/route.ts"),
+    readSource("app/api/provider/whatsapp-requests/route.ts"),
+    readSource("app/api/provider/whatsapp-requests/[id]/route.ts"),
+    readSource("app/api/requests/route.ts"),
+  ]);
+
+  assert.match(app, /Request WhatsApp Contact/);
+  assert.match(app, /WhatsApp Messaging Active/);
+  assert.match(customerRoute, /access\.status !== "approved"/);
+  assert.match(customerRoute, /customerId, providerId/);
+  assert.match(providerListRoute, /providerId: profile\._id/);
+  assert.match(providerActionRoute, /status: "pending"/);
+  assert.match(requestRoute, /providerWhatsApp: _privateNumber/);
 });

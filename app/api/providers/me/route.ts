@@ -37,8 +37,8 @@ export async function PUT(request: Request) {
     const latitude = Number(body.get("latitude"));
     const longitude = Number(body.get("longitude"));
     const validLocation = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
-    if (businessName.length < 2 || !service || locality.length < 2 || description.length < 30 || phone.length < 10 || !Number.isFinite(experienceYears) || !Number.isFinite(startingPrice) || !validLocation) {
-      return Response.json({ error: "Complete all required profile fields with valid information" }, { status: 400 });
+    if (businessName.length < 2 || !service || locality.length < 2 || phone.length < 10 || !Number.isFinite(experienceYears) || !Number.isFinite(startingPrice) || !validLocation) {
+      return Response.json({ error: "Complete your name, service, location and contact information" }, { status: 400 });
     }
     const db = await getMongoDb();
     await db.collection("providers").createIndex({ location: "2dsphere" });
@@ -52,8 +52,6 @@ export async function PUT(request: Request) {
     const hasProfilePhoto = profilePhoto instanceof File && profilePhoto.size > 0;
     const hasIdFront = idCardFront instanceof File && idCardFront.size > 0;
     const hasIdBack = idCardBack instanceof File && idCardBack.size > 0;
-    if (!hasProfilePhoto && !existing?.profilePhotoId) return Response.json({ error: "Upload a clear profile photo" }, { status: 400 });
-    if (!hasIdFront && !existing?.idCardFrontId) return Response.json({ error: "Upload the front of a government-issued ID card" }, { status: 400 });
     if (recentWork.length > 4) return Response.json({ error: "Upload no more than 4 recent work images" }, { status: 400 });
     if (recentWork.reduce((total, file) => total + file.size, 0) > 3_500_000) return Response.json({ error: "Recent work images must be smaller than 3.5 MB combined" }, { status: 400 });
 
@@ -77,8 +75,8 @@ export async function PUT(request: Request) {
     await db.collection("providers").updateOne(
       { userId },
       {
-        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: false, verified: false, status: "pending", verificationStatus: "pending", rejectionReason: "", submittedAt: now, initials, updatedAt: now },
-        $setOnInsert: { userId, averageRating: 0, reviewCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
+        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: true, status: "active", submittedAt: now, initials, updatedAt: now },
+        $setOnInsert: { userId, verified: false, verificationStatus: "unverified", rejectionReason: "", averageRating: 0, reviewCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
       },
       { upsert: true },
     );
@@ -89,7 +87,7 @@ export async function PUT(request: Request) {
     await db.collection("users").updateOne({ _id: userId }, { $set: { role: "provider", updatedAt: now } });
     const user: SessionUser = { ...session, role: "provider" };
     await createSession(user);
-    return Response.json({ ok: true, user, verificationStatus: "pending" });
+    return Response.json({ ok: true, user, verificationStatus: existing?.verified ? "approved" : "unverified" });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to save your profile";
     return Response.json({ error: message.includes("MONGODB_URI") ? "Profile storage is not configured" : message }, { status: 500 });

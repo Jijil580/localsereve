@@ -18,13 +18,13 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!Number.isFinite(quoteAmount) || quoteAmount < 0 || quoteAmount > 10_000_000) return Response.json({ error: "Enter a valid estimated price" }, { status: 400 });
     if (availability.length < 3) return Response.json({ error: "Add your availability" }, { status: 400 });
     const db = await getMongoDb();
-    const profile = await db.collection("providers").findOne({ userId: new ObjectId(session.id), status: "active", published: true, verificationStatus: "approved" }, { projection: { service: 1, businessName: 1, phone: 1 } });
-    if (!profile || typeof profile.service !== "string") return Response.json({ error: "An approved provider profile is required" }, { status: 403 });
+    const profile = await db.collection("providers").findOne({ userId: new ObjectId(session.id), status: { $ne: "disabled" } }, { projection: { service: 1, businessName: 1 } });
+    if (!profile || typeof profile.service !== "string") return Response.json({ error: "Complete your provider profile before replying" }, { status: 403 });
     const servicePattern = new RegExp(`^${profile.service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
     const now = new Date();
     const result = await db.collection("serviceRequests").findOneAndUpdate(
       { _id: new ObjectId(id), service: servicePattern, status: { $in: ["open", "quoted"] } },
-      { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), providerWhatsApp: String(profile.phone ?? ""), message, quoteAmount, availability, createdAt: now } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
+      { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), message, quoteAmount, availability, createdAt: now } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
       { returnDocument: "after", projection: { responses: 1, quoteCount: 1, status: 1 } },
     );
     if (!result) return Response.json({ error: "Request not found or does not match your service" }, { status: 404 });

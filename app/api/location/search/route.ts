@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     url.searchParams.set("limit", "5");
     url.searchParams.set("countrycodes", "in");
     url.searchParams.set("addressdetails", "1");
-    const response = await fetch(url, { headers: { "user-agent": "LumNearo/1.0 (https://localserviecses.vercel.app)", "accept-language": "en-IN,en;q=0.9" }, next: { revalidate: 2_592_000 } });
+    const response = await fetch(url, { headers: { "user-agent": "Nearleo/1.0 (https://localserviecses.vercel.app)", "accept-language": "en-IN,en;q=0.9" }, next: { revalidate: 2_592_000 } });
     if (!response.ok) throw new Error("Location search is temporarily unavailable");
     const rows = await response.json() as Array<Record<string, unknown>>;
     const results = rows.map(row => ({ label: String(row.display_name ?? "Selected location").slice(0, 180), latitude: Number(row.lat), longitude: Number(row.lon) })).filter(row => Number.isFinite(row.latitude) && Number.isFinite(row.longitude));
