@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nearleoBlue" x1="64" y1="48" x2="454" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2C82F1"/>
+      <stop offset="1" stop-color="#0B3D91"/>
+    </linearGradient>
+  </defs>
+  <rect x="28" y="28" width="456" height="456" rx="142" fill="url(#nearleoBlue)"/>
+  <path d="M145 363V149H195L317 287V149H367V363H319L195 223V363H145Z" fill="white"/>
+  <circle cx="373" cy="139" r="24" fill="#8EC5FF"/>
+</svg>

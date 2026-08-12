@@ -277,3 +277,29 @@ test("Nearleo uses a premium blue and white visual identity", async () => {
   assert.match(layout, /theme-color" content="#1769e0"/);
   assert.match(manifest, /theme_color: "#1769e0"/);
 });
+
+test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
+  const [layout, home, robots, sitemap, directory, servicePage, services] = await Promise.all([
+    readSource("app/layout.tsx"),
+    readSource("app/page.tsx"),
+    readSource("app/robots.ts"),
+    readSource("app/sitemap.ts"),
+    readSource("app/services/page.tsx"),
+    readSource("app/services/[slug]/page.tsx"),
+    readSource("lib/seo-services.ts"),
+  ]);
+
+  assert.match(services, /https:\/\/www\.nearleo\.com/);
+  assert.match(layout, /alternates: \{ canonical: "\/" \}/);
+  assert.match(layout, /max-image-preview/);
+  assert.match(home, /application\/ld\+json/);
+  assert.match(home, /"@type": "Organization"/);
+  assert.match(home, /nearleo-logo\.svg/);
+  assert.match(robots, /disallow: \["\/admin\/", "\/api\/"\]/);
+  assert.match(sitemap, /sitemap/);
+  assert.match(directory, /Nearleo service directory/);
+  assert.match(servicePage, /BreadcrumbList/);
+  assert.match(servicePage, /generateStaticParams/);
+  assert.match(services, /slug: "electrician"/);
+  assert.match(services, /slug: "interlock-paving"/);
+});

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Language, malayalamServiceNames, serviceLabel, translations } from "./i18n";
 import { TERMS_VERSION } from "../lib/terms";
+import { seoServices } from "../lib/seo-services";
 
 type View = "home" | "search" | "requests" | "messages" | "dashboard";
 type SessionUser = { id: string; fullName: string; email: string; role: "customer" | "provider" | "admin" };
@@ -95,6 +96,12 @@ export default function NearleoApp() {
     if(localStorage.getItem("nearlio-intro-seen")==="1")setIntroVisible(false);
     const savedLanguage=localStorage.getItem("nearlio-language");
     if(savedLanguage==="ML"||savedLanguage==="EN")setLanguage(savedLanguage);
+    const requestedService=new URLSearchParams(window.location.search).get("service");
+    if(requestedService){
+      setIntroVisible(false);
+      setView("search");
+      if(requestedService!=="All services"&&serviceNames.includes(requestedService))setQuery(requestedService);
+    }
     if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
   }, []);
 
@@ -223,6 +230,11 @@ export default function NearleoApp() {
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div><button onClick={() => goSearch()}>{t.viewAllServices} →</button></div>
             <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
+          </section>
+
+          <section className="section seo-home-directory" aria-labelledby="seo-home-directory-title">
+            <div className="section-head"><div><span className="kicker">Service directory</span><h2 id="seo-home-directory-title">Browse popular local services</h2></div><a href="/services">View service guides →</a></div>
+            <div className="seo-home-links">{seoServices.map(service=><a href={`/services/${service.slug}`} key={service.slug}><span>{serviceLabel(service.name,language)}</span><i aria-hidden="true">→</i></a>)}</div>
           </section>
 
           {!currentUser && <section className="mobile-auth-invite" aria-labelledby="mobile-auth-title">

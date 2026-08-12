@@ -282,3 +282,44 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .search-top{padding-top:24px}.search-bar-page{border-radius:16px}.mobile-nav{box-shadow:0 14px 38px rgba(11,48,103,.18)}
 }
 @media(prefers-reduced-motion:reduce){button,input,select,textarea{transition:none!important}}
+
+/* Search-friendly service directory and landing pages */
+.seo-home-directory{background:#f8faff;border-top:1px solid #e3ebf6}
+.seo-home-directory .section-head>a{padding:9px 12px;border:1px solid #dbe6f5;border-radius:9px;background:#fff;color:#0b3d91;font-size:13px;font-weight:800;text-decoration:none}
+.seo-home-links{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.seo-home-links>a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:12px 15px;border:1px solid #dce7f5;border-radius:14px;background:#fff;color:#16365f;font-size:12px;font-weight:800;text-decoration:none;box-shadow:0 4px 14px rgba(20,66,130,.035)}
+.seo-home-links>a:hover{border-color:#9fc2f4;transform:translateY(-2px);box-shadow:0 9px 22px rgba(20,66,130,.08)}
+.seo-home-links i{color:#1769e0;font-style:normal}
+.seo-page{min-height:100vh;background:#f7faff;color:#102b53;overflow:hidden}
+.seo-page a{text-decoration:none}
+.seo-header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 max(calc((100vw - 1180px)/2),24px);border-bottom:1px solid #dce7f5;background:rgba(255,255,255,.95);backdrop-filter:blur(14px)}
+.seo-brand{display:flex;align-items:center;gap:10px;color:#102b53}
+.seo-brand>span{width:40px;height:40px;display:grid;place-items:center;border-radius:14px 14px 14px 5px;background:linear-gradient(145deg,#2379ed,#0d55bd);color:#fff;font-family:Georgia,serif;font-size:24px;font-weight:900;box-shadow:0 8px 20px rgba(23,105,224,.2)}
+.seo-brand strong{display:flex;flex-direction:column;font-size:21px;letter-spacing:-.03em}.seo-brand small{color:#1769e0;font-size:9px;letter-spacing:.02em}
+.seo-home-link{padding:11px 16px;border:1px solid #cbdcf3;border-radius:11px;color:#0b3d91;font-size:12px;font-weight:900;background:#fff}
+.seo-breadcrumb{max-width:1180px;margin:0 auto;padding:24px 0 0;display:flex;align-items:center;gap:9px;color:#718096;font-size:11px}
+.seo-breadcrumb a{color:#1769e0}.seo-breadcrumb b{color:#53647d}
+.seo-hero{max-width:1180px;margin:20px auto 0;padding:64px;display:grid;grid-template-columns:1.4fr .8fr;gap:60px;align-items:center;border:1px solid #d7e5f7;border-radius:28px;background:radial-gradient(circle at 95% 5%,rgba(86,153,244,.2),transparent 36%),linear-gradient(125deg,#fff,#edf4ff);box-shadow:0 24px 65px rgba(20,66,130,.1)}
+.seo-directory-hero{display:block;text-align:center}.seo-directory-hero>p{margin-inline:auto}
+.seo-kicker,.seo-section-heading>span,.seo-cta span{display:block;color:#1769e0;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+.seo-hero h1{margin:13px 0 16px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,5vw,70px);line-height:1.02;font-weight:500;letter-spacing:-.045em;color:#071f45}
+.seo-hero>div>p,.seo-directory-hero>p{max-width:690px;margin-top:0;color:#52647c;font-size:16px;line-height:1.7}
+.seo-hero aside{padding:26px;border:1px solid #d7e4f5;border-radius:20px;background:rgba(255,255,255,.78)}
+.seo-hero aside>span{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.11em;color:#0b55bd}
+.seo-hero aside ul{margin:18px 0 0;padding:0;list-style:none}.seo-hero aside li{position:relative;padding:10px 0 10px 27px;border-top:1px solid #e5edf8;color:#425672;font-size:12px;line-height:1.5}.seo-hero aside li:before{content:"✓";position:absolute;left:0;color:#1769e0;font-weight:900}
+.seo-hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:28px}
+.seo-primary-link,.seo-secondary-link{padding:14px 18px;border-radius:12px;font-size:12px;font-weight:900}
+.seo-primary-link{background:linear-gradient(135deg,#2379ed,#1158c2);color:#fff;box-shadow:0 9px 22px rgba(23,105,224,.2)}.seo-secondary-link{border:1px solid #c5d8f2;background:#fff;color:#0b3d91}
+.seo-content-grid,.seo-how,.seo-related,.seo-directory{max-width:1180px;margin:72px auto 0}
+.seo-content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.seo-content-grid article{padding:28px;border:1px solid #dce7f5;border-radius:20px;background:#fff;box-shadow:0 8px 25px rgba(20,66,130,.045)}
+.seo-content-grid h2{margin:12px 0 13px;font-size:21px;line-height:1.2;letter-spacing:-.025em}.seo-content-grid p,.seo-content-grid li{color:#62738a;font-size:12px;line-height:1.75}.seo-content-grid ul{margin:16px 0 0;padding-left:19px}
+.seo-section-heading{margin-bottom:24px}.seo-section-heading h2{margin:9px 0 0;font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:500;letter-spacing:-.035em;color:#0b274e}
+.seo-how ol{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0;padding:0;list-style:none}
+.seo-how li{display:grid;grid-template-columns:40px 1fr;gap:13px;padding:23px;border:1px solid #dce7f5;border-radius:18px;background:#fff}.seo-how li>b{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#eaf2ff;color:#0b55bd;font-size:10px}.seo-how h3{margin:2px 0 7px;font-size:15px}.seo-how p{margin:0;color:#67778d;font-size:11px;line-height:1.65}
+.seo-related>div:last-child{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.seo-related>div:last-child a{display:flex;align-items:center;justify-content:space-between;padding:17px;border:1px solid #dce7f5;border-radius:14px;background:#fff;color:#183b68;font-size:12px;font-weight:900}.seo-related a span{color:#1769e0}
+.seo-directory-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.seo-directory-grid>a{display:grid;grid-template-columns:42px 1fr 18px;gap:15px;align-items:start;padding:22px;border:1px solid #dce7f5;border-radius:18px;background:#fff;color:#183b68;box-shadow:0 6px 20px rgba(20,66,130,.04)}.seo-directory-grid>a>span{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#eaf2ff;color:#0b55bd;font-size:10px;font-weight:900}.seo-directory-grid h3{margin:1px 0 7px;font-size:15px}.seo-directory-grid p{margin:0;color:#687990;font-size:11px;line-height:1.55}.seo-directory-grid>a>b{color:#1769e0}
+.seo-cta{max-width:1180px;margin:72px auto 0;padding:34px 40px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-radius:22px;background:linear-gradient(135deg,#071f45,#0b4eae);color:#fff}.seo-cta span{color:#a7c9fa}.seo-cta h2{margin:8px 0 0;font-family:Georgia,"Times New Roman",serif;font-size:29px;font-weight:500}.seo-cta>a{flex:none;padding:14px 19px;border-radius:12px;background:#fff;color:#0b3d91;font-size:12px;font-weight:900}
+.seo-footer{max-width:1180px;margin:58px auto 0;padding:26px 0 34px;border-top:1px solid #dbe6f5;color:#75849a;font-size:10px;text-align:center}
+@media(max-width:900px){.seo-home-links{grid-template-columns:repeat(2,1fr)}.seo-hero{grid-template-columns:1fr;gap:28px;margin-inline:20px;padding:42px}.seo-breadcrumb,.seo-content-grid,.seo-how,.seo-related,.seo-directory,.seo-cta,.seo-footer{margin-left:20px;margin-right:20px}.seo-content-grid,.seo-how ol{grid-template-columns:1fr}.seo-directory-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.seo-home-directory .section-head{gap:16px}.seo-home-directory .section-head>a{font-size:10px}.seo-home-links{grid-template-columns:1fr}.seo-home-links>a{min-height:52px}.seo-header{height:68px;padding-inline:16px}.seo-brand>span{width:36px;height:36px}.seo-brand strong{font-size:19px}.seo-home-link{padding:9px 11px;font-size:10px}.seo-breadcrumb{padding-top:17px;white-space:nowrap;overflow:hidden}.seo-hero{margin-top:14px;padding:31px 23px;border-radius:22px}.seo-hero h1{font-size:39px}.seo-hero>div>p,.seo-directory-hero>p{font-size:13px}.seo-hero-actions{display:grid}.seo-primary-link,.seo-secondary-link{text-align:center}.seo-content-grid,.seo-how,.seo-related,.seo-directory{margin-top:48px}.seo-section-heading h2{font-size:28px}.seo-related>div:last-child{grid-template-columns:1fr}.seo-directory-grid>a{grid-template-columns:38px 1fr 15px;padding:17px}.seo-directory-grid>a>span{width:38px;height:38px}.seo-cta{margin-top:48px;padding:28px 22px;display:block;text-align:center}.seo-cta h2{font-size:25px}.seo-cta>a{display:block;margin-top:19px}.seo-footer{margin-top:38px}}
