@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const whatsappDigits = text(body.whatsappNumber, 20).replace(/\D/g, "");
     const preferredProviderId = typeof body.preferredProviderId === "string" && ObjectId.isValid(body.preferredProviderId) ? new ObjectId(body.preferredProviderId) : null;
     const allowWhatsApp = body.allowWhatsApp === true && whatsappDigits.length >= 10 && whatsappDigits.length <= 15;
-    if (!service || description.length < 10 || address.length < 5 || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate)) return Response.json({ error: "Complete the service, description, address and preferred date" }, { status: 400 });
+    if (!service || description.length < 10 || !address || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate)) return Response.json({ error: "Complete the service, description, address and preferred date" }, { status: 400 });
     const now = new Date();
     const record = { requestNumber: `REQ-${Date.now().toString(36).toUpperCase()}`, customerId: new ObjectId(session.id), customerName: session.fullName, service, description, address, preferredDate, preferredTime, urgency, allowWhatsApp, whatsappNumber: allowWhatsApp ? whatsappDigits : "", preferredProviderId, responses: [], status: "open", quoteCount: 0, statusHistory: [{ status: "open", changedAt: now, changedBy: new ObjectId(session.id) }], createdAt: now, updatedAt: now };
     const db = await getMongoDb();

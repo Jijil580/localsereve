@@ -117,6 +117,8 @@ test("production request workflow persists quotes and status transitions", async
   assert.match(app, /Mark job completed/);
   assert.match(app, /Estimated price/);
   assert.match(requestRoute, /statusHistory/);
+  assert.match(requestRoute, /description\.length < 10 \|\| !address/);
+  assert.doesNotMatch(requestRoute, /address\.length\s*</);
   assert.match(statusRoute, /in_progress/);
   assert.match(statusRoute, /assignedProviderId/);
   assert.match(responseRoute, /quoteAmount/);
