@@ -86,6 +86,7 @@ export default function NearleoApp() {
   const [language, setLanguage] = useState<Language>("EN");
   const [role, setRole] = useState<"customer" | "provider" | "admin">("customer");
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [postAuthAction,setPostAuthAction]=useState<View|"request"|null>(null);
   const [customerLocation, setCustomerLocation] = useState<MapLocation | null>(null);
   const t = translations[language];
@@ -214,6 +215,19 @@ export default function NearleoApp() {
             <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
           </section>
 
+          {!currentUser && <section className="mobile-auth-invite" aria-labelledby="mobile-auth-title">
+            <div className="mobile-auth-invite-mark" aria-hidden="true">N</div>
+            <div className="mobile-auth-invite-copy">
+              <span className="kicker">{t.welcome}</span>
+              <h2 id="mobile-auth-title">{t.signInAccount}</h2>
+              <p>{t.registerDescription}</p>
+            </div>
+            <div className="mobile-auth-invite-actions">
+              <button className="primary-btn" onClick={() => {setAuthMode("login");setModal("auth")}}>{t.signIn}</button>
+              <button className="mobile-auth-create" onClick={() => {setAuthMode("register");setModal("auth")}}>{t.createAccount}</button>
+            </div>
+          </section>}
+
           <section className="section provider-section">
             <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={() => goSearch()}>{t.seeAllProfessionals} →</button></div>
             {providers.length ? <div className="provider-grid">{providers.slice(0,3).map(p => <ProviderCard key={p.id} provider={p} saved={saved.includes(p.id)} onSave={() => setSaved(s => s.includes(p.id) ? s.filter(x=>x!==p.id) : [...s,p.id])} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
@@ -234,7 +248,7 @@ export default function NearleoApp() {
 
       <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂",t.home,"home"],["⌕",t.explore,"search"],["＋",t.requests,"requests"],["✉",t.inbox,"messages"],["◉",t.account,"dashboard"]].map(([icon,label,id]) => <button aria-current={view===id ? "page" : undefined} className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} user={currentUser} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSignIn={() => setModal("auth")} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
-      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);notify(`Welcome, ${user.fullName.split(" ")[0]}!`);if(postAuthAction==="request"){setModal("request")}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
+      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);notify(`Welcome, ${user.fullName.split(" ")[0]}!`);if(postAuthAction==="request"){setModal("request")}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
       {toast && <div className="toast" role="status">✓ {toast}</div>}
     </div>
   );
@@ -293,14 +307,14 @@ function InformationPanel({type,onFindServices,onJoinProvider}:{type:string;onFi
   return <div className="info-panel"><span className="kicker">{page.kicker}</span><h2>{page.title}</h2>{page.body}</div>;
 }
 
-function AppModal({type,provider,user,customerLocation,language,onLocationSaved,onClose,onFindServices,onJoinProvider,onSuccess,onAuthenticated,onProfileSaved}:{type:string;provider:Provider|null;user:SessionUser|null;customerLocation:MapLocation|null;language:Language;onLocationSaved:(location:MapLocation)=>void;onClose:()=>void;onFindServices:()=>void;onJoinProvider:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void;onProfileSaved:(u:SessionUser)=>void}) {
+function AppModal({type,provider,user,customerLocation,language,authMode,onLocationSaved,onClose,onFindServices,onJoinProvider,onSuccess,onAuthenticated,onProfileSaved}:{type:string;provider:Provider|null;user:SessionUser|null;customerLocation:MapLocation|null;language:Language;authMode:"login"|"register";onLocationSaved:(location:MapLocation)=>void;onClose:()=>void;onFindServices:()=>void;onJoinProvider:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void;onProfileSaved:(u:SessionUser)=>void}) {
   if(type==="terms") return <div className="overlay"><div className="modal auth-modal"><UserTerms onClose={onClose}/></div></div>;
   if(["about","contact","safety","pricing","provider-help"].includes(type)) return <div className="overlay"><div className={`modal info-modal ${type==="pricing"?"pricing-modal":""}`}><button className="modal-close" onClick={onClose}>×</button><InformationPanel type={type} onFindServices={onFindServices} onJoinProvider={onJoinProvider}/></div></div>;
   if(type==="profile" && user) return <div className="overlay"><div className="modal profile-modal"><button className="modal-close" onClick={onClose}>×</button><ProviderProfileForm user={user} onSaved={onProfileSaved}/></div></div>;
   if(type==="profile-view" && user) return <div className="overlay"><div className="modal profile-view-modal"><button className="modal-close" onClick={onClose}>×</button><ProviderProfilePreview/></div></div>;
   if(type==="location") return <div className="overlay"><div className="modal location-modal"><button className="modal-close" onClick={onClose}>×</button><CustomerLocationForm initial={customerLocation} onSaved={onLocationSaved}/></div></div>;
   if(type==="request"||type==="booking") return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button>{user?<RequestForm provider={type==="booking"?provider:null} onSuccess={onSuccess}/>:<AuthForm onAuthenticated={onAuthenticated} language={language}/>}</div></div>;
-  return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button><AuthForm onAuthenticated={onAuthenticated} language={language}/></div></div>;
+  return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button><AuthForm onAuthenticated={onAuthenticated} language={language} initialMode={authMode}/></div></div>;
 }
 
 function RequestForm({onSuccess,provider}:{onSuccess:(message:string)=>void;provider?:Provider|null}) {
@@ -312,8 +326,8 @@ function RequestForm({onSuccess,provider}:{onSuccess:(message:string)=>void;prov
   return <form className="request-form" onSubmit={submit}><span className="kicker">{provider?"REQUEST THIS PROFESSIONAL":"POST A REQUEST"}</span><h2>{provider?`Request ${provider.business}`:"Tell us what you need"}</h2><p className="muted">{provider?`Your request will be saved and sent for ${provider.service}. The professional must reply before anything is confirmed.`:"Your request will be saved to your account and shared with suitable nearby professionals."}</p><div className="stepper"><span className="active">1</span><i></i><span className={step>1?"active":""}>2</span><i></i><span className={step>2?"active":""}>3</span></div>{step===1&&<><label>Service category<select value={draft.service} onChange={event=>update("service",event.target.value)} required disabled={Boolean(provider)}><option value="" disabled>Select a service</option>{categories.slice(0,-1).map(item=><option key={item[1]} value={item[1]}>{item[1]}</option>)}</select></label><label>Describe the work<textarea value={draft.description} onChange={event=>update("description",event.target.value)} required minLength={10} placeholder="Explain what needs to be done…"/></label></>}{step===2&&<><label>Service address<input value={draft.address} onChange={event=>update("address",event.target.value)} required placeholder="House, street, area and city"/></label><div className="form-row"><label>Preferred date<input value={draft.preferredDate} onChange={event=>update("preferredDate",event.target.value)} min={new Date().toISOString().slice(0,10)} required type="date"/></label><label>Preferred time<select value={draft.preferredTime} onChange={event=>update("preferredTime",event.target.value)}><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label></div><label>Urgency<select value={draft.urgency} onChange={event=>update("urgency",event.target.value)}><option>Flexible</option><option>Within 24 hours</option><option>Emergency</option></select></label><label>WhatsApp number (optional)<input value={draft.whatsappNumber} onChange={event=>update("whatsappNumber",event.target.value)} inputMode="tel" placeholder="10-digit WhatsApp number"/></label><label className="check consent-check"><input type="checkbox" checked={draft.allowWhatsApp} onChange={event=>setDraft(current=>({...current,allowWhatsApp:event.target.checked}))}/><span>Allow matched providers to contact me on WhatsApp</span></label></>}{step===3&&<div className="request-review">{provider&&<div><span>Preferred professional</span><b>{provider.business}</b></div>}<div><span>Service</span><b>{draft.service}</b></div><div><span>When</span><b>{draft.preferredDate} · {draft.preferredTime}</b></div><div><span>Address</span><b>{draft.address}</b></div><div><span>Urgency</span><b>{draft.urgency}</b></div>{draft.allowWhatsApp&&<div><span>WhatsApp</span><b>{draft.whatsappNumber||"Not provided"}</b></div>}<p>{draft.description}</p><small>No booking or price is confirmed until you select a provider reply.</small></div>}{error&&<div className="auth-error">{error}</div>}<div className="modal-actions">{step>1&&<button type="button" onClick={()=>setStep(current=>current-1)}>Back</button>}{step<3?<button type="button" className="primary-btn" onClick={next}>Continue</button>:<button className="primary-btn" disabled={busy}>{busy?"Posting…":"Send request"}</button>}</div></form>;
 }
 
-function AuthForm({onAuthenticated,language}:{onAuthenticated:(user:SessionUser)=>void;language:Language}) {
-  const [mode,setMode]=useState<"login"|"register">("login");
+function AuthForm({onAuthenticated,language,initialMode="login"}:{onAuthenticated:(user:SessionUser)=>void;language:Language;initialMode?:"login"|"register"}) {
+  const [mode,setMode]=useState<"login"|"register">(initialMode);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
   const [showTerms,setShowTerms]=useState(false);

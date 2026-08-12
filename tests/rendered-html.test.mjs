@@ -225,3 +225,17 @@ test("WhatsApp contact requires customer-specific provider approval", async () =
   assert.match(providerActionRoute, /status: "pending"/);
   assert.match(requestRoute, /providerWhatsApp: _privateNumber/);
 });
+
+test("logged-out mobile visitors get central login and sign-up actions", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /!currentUser && <section className="mobile-auth-invite"/);
+  assert.match(app, /setAuthMode\("login"\);setModal\("auth"\)/);
+  assert.match(app, /setAuthMode\("register"\);setModal\("auth"\)/);
+  assert.match(app, /initialMode=\{authMode\}/);
+  assert.match(styles, /\.mobile-auth-invite\{display:none\}/);
+  assert.match(styles, /@media\(max-width:760px\)[\s\S]*\.mobile-auth-invite\{display:grid/);
+});
