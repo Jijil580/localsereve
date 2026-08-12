@@ -364,3 +364,41 @@ test("priority Kannur and Iritty search phrases have dedicated landing pages", a
   assert.match(irittyPage, /Interlock Workers in Iritty/);
   assert.match(sitemap, /services\/interlock-paving\/iritty/);
 });
+
+test("signed-in customers and providers can use private WebRTC audio calls", async () => {
+  const [app, callClient, callsRoute, callRoute, iceRoute, styles, environment] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/webrtc-call.tsx"),
+    readSource("app/api/calls/route.ts"),
+    readSource("app/api/calls/[id]/route.ts"),
+    readSource("app/api/calls/ice-config/route.ts"),
+    readSource("app/globals.css"),
+    readSource(".env.example"),
+  ]);
+
+  assert.match(app, /WebRtcCallCenter/);
+  assert.match(app, /☎ Audio call/);
+  assert.match(app, /Sign in with a customer account to call a professional/);
+  assert.match(callClient, /navigator\.mediaDevices\.getUserMedia/);
+  assert.match(callClient, /new RTCPeerConnection/);
+  assert.match(callClient, /createOffer/);
+  assert.match(callClient, /createAnswer/);
+  assert.match(callClient, /Incoming Nearleo call/);
+  assert.match(callClient, /Phone numbers stay private/);
+  assert.match(callsRoute, /session\.role !== "customer"/);
+  assert.match(callsRoute, /recentCount >= 3/);
+  assert.match(callsRoute, /expireAfterSeconds: 0/);
+  assert.doesNotMatch(callsRoute, /phone|whatsapp/i);
+  assert.match(callRoute, /callerUserId: userId/);
+  assert.match(callRoute, /providerUserId: userId/);
+  assert.match(callRoute, /action === "accept"/);
+  assert.match(callRoute, /action === "decline"/);
+  assert.match(callRoute, /action === "end"/);
+  assert.match(callRoute, /candidateCount >= 128/);
+  assert.match(callRoute, /This call has expired/);
+  assert.match(iceRoute, /createHmac\("sha1"/);
+  assert.match(environment, /STUN_URL=/);
+  assert.match(environment, /TURN_SHARED_SECRET=/);
+  assert.match(styles, /Private WebRTC audio calling/);
+  assert.match(styles, /\.voice-call-overlay/);
+});
