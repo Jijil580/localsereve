@@ -210,6 +210,16 @@ export default function NearleoApp() {
 
           <div className="home-service-motion" aria-label="Popular Nearleo services"><div>{[...homeMotionServices,...homeMotionServices].map((service,index)=><span key={`${service}-${index}`}>✦ {serviceLabel(service,language)}</span>)}</div></div>
 
+          <section className="premium-assurance" aria-labelledby="nearleo-standard-title">
+            <div className="assurance-intro"><span className="kicker">{t.nearleoStandard}</span><h2 id="nearleo-standard-title">{t.trustTitle}</h2></div>
+            <div className="assurance-grid">
+              <article><span aria-hidden="true">01</span><div><b>{t.browseFreely}</b><p>{t.browseFreelyBody}</p></div></article>
+              <article><span aria-hidden="true">02</span><div><b>{t.privacyFirst}</b><p>{t.privacyFirstBody}</p></div></article>
+              <article><span aria-hidden="true">03</span><div><b>{t.verificationClarity}</b><p>{t.verificationClarityBody}</p></div></article>
+              <article><span aria-hidden="true">04</span><div><b>{t.locationControl}</b><p>{t.locationControlBody}</p></div></article>
+            </div>
+          </section>
+
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div><button onClick={() => goSearch()}>{t.viewAllServices} →</button></div>
             <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>

@@ -255,12 +255,25 @@ test("empty service selection lists every published provider", async () => {
 });
 
 test("Nearleo uses a premium blue and white visual identity", async () => {
-  const styles = await readSource("app/globals.css");
+  const [styles, app, i18n, layout, manifest] = await Promise.all([
+    readSource("app/globals.css"),
+    readSource("app/localserve-app.tsx"),
+    readSource("app/i18n.ts"),
+    readSource("app/layout.tsx"),
+    readSource("app/manifest.ts"),
+  ]);
 
   assert.match(styles, /--green:#1769e0/);
   assert.match(styles, /--green-dark:#0b3d91/);
   assert.match(styles, /Nearleo premium blue and white identity/);
+  assert.match(styles, /2026 premium product polish/);
   assert.match(styles, /\.hero-reference\{background:linear-gradient\(112deg,#fff 0%,#f9fbff/);
   assert.match(styles, /footer\{background:linear-gradient\(135deg,#06152f,#0a2e68\)/);
   assert.match(styles, /\.mobile-auth-invite\{border-color:#cbdcf3;background:linear-gradient\(145deg,#fff 0%,#edf4ff/);
+  assert.match(app, /className="premium-assurance"/);
+  assert.match(i18n, /privacyFirst: "Privacy-first contact"/);
+  assert.match(i18n, /Clear verification status/);
+  assert.match(layout, /og-blue\.png/);
+  assert.match(layout, /theme-color" content="#1769e0"/);
+  assert.match(manifest, /theme_color: "#1769e0"/);
 });

@@ -6,14 +6,14 @@ const english = {
   trustedNearby: "Trusted professionals, just around you", heroTitle: "Find trusted local professionals", nearYou: "near you.",
   heroDescription: "From small repairs to big projects, find verified experts for every service you need.",
   service: "Service", servicePlaceholder: "Plumber, electrician, carpenter…", yourLocation: "Your location", location: "Kochi, Kerala",
-  radius: "Radius", searchNow: "Search now", reviewedProfiles: "Admin-reviewed profiles", startingPrices: "Provider-set starting prices",
+  radius: "Radius", searchNow: "Search now", reviewedProfiles: "Clear verification status", startingPrices: "Provider-set starting prices",
   locationDiscovery: "Location-based discovery", savedReplies: "Saved requests and replies", localExpertise: "Local expertise",
-  skilledService: "Skilled service", nearbyProfessionals: "Nearby professionals", approvedProfiles: "Approved profiles",
+  skilledService: "Skilled service", nearbyProfessionals: "Nearby professionals", approvedProfiles: "Professional profiles",
   directEnquiries: "Direct enquiries", builtForCommunities: "Built for local communities", exploreServices: "Explore services",
   needHelp: "What do you need help with?", viewAllServices: "View all services", browseService: "Browse service",
-  exploreCategories: "Explore categories", topNearby: "Top professionals near you", realProfessionals: "Real professionals published after Nearleo admin review.",
+  exploreCategories: "Explore categories", topNearby: "Top professionals near you", realProfessionals: "Compare nearby professionals and look for the green verified badge on admin-approved profiles.",
   seeAllProfessionals: "See all professionals", noProviders: "No providers have published profiles yet",
-  providersSoon: "New verified professionals will appear here as they complete onboarding.", firstProfessional: "Become the first professional",
+  providersSoon: "New professionals will appear here as they complete their profiles.", firstProfessional: "Become the first professional",
   simpleSecure: "Simple & secure", easyTitle: "From search to service, we make it easy.",
   easyDescription: "Book confidently with verified professionals and transparent updates at every step.", postRequest: "Post a service request",
   step1Title: "Tell us what you need", step1Body: "Search or post your requirement in under a minute.",
@@ -42,7 +42,12 @@ const english = {
   passwordPlaceholder: "At least 8 characters", passwordHint: "Use uppercase, lowercase and at least one number.",
   consent: "I agree to the Nearleo User Terms and Privacy Notice, including the rules against unwanted messages and misuse of contact details.",
   readTerms: "Read terms", pleaseWait: "Please wait…", agreeSignIn: "Agree & sign in", agreeCreate: "Agree & create account",
-  passwordSecure: "Your password is securely hashed and never stored as plain text."
+  passwordSecure: "Your password is securely hashed and never stored as plain text.",
+  nearleoStandard: "The Nearleo standard", trustTitle: "Local services with clarity at every step.",
+  browseFreely: "Browse freely", browseFreelyBody: "Explore every published professional before creating an account.",
+  privacyFirst: "Privacy-first contact", privacyFirstBody: "WhatsApp details stay private until the provider approves access.",
+  verificationClarity: "Visible verification", verificationClarityBody: "Admin-verified profiles receive a clear green trust badge.",
+  locationControl: "You control location", locationControlBody: "Change your search area anytime to discover relevant local experts."
 } as const;
 
 const malayalam: { [K in keyof typeof english]: string } = {
@@ -53,14 +58,14 @@ const malayalam: { [K in keyof typeof english]: string } = {
   trustedNearby: "വിശ്വസ്ത പ്രൊഫഷണലുകൾ നിങ്ങളുടെ സമീപത്ത്", heroTitle: "വിശ്വസ്തരായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്തൂ", nearYou: "നിങ്ങളുടെ സമീപത്ത്.",
   heroDescription: "ചെറിയ അറ്റകുറ്റപ്പണി മുതൽ വലിയ പദ്ധതികൾ വരെ, ആവശ്യമായ എല്ലാ സേവനത്തിനും പരിശോധിച്ച വിദഗ്ധരെ കണ്ടെത്തൂ.",
   service: "സേവനം", servicePlaceholder: "പ്ലംബർ, ഇലക്ട്രീഷ്യൻ, കാർപെന്റർ…", yourLocation: "നിങ്ങളുടെ സ്ഥലം", location: "കൊച്ചി, കേരളം",
-  radius: "ദൂരം", searchNow: "ഇപ്പോൾ തിരയുക", reviewedProfiles: "അഡ്മിൻ പരിശോധിച്ച പ്രൊഫൈലുകൾ", startingPrices: "പ്രൊവൈഡർ നിശ്ചയിച്ച ആരംഭ നിരക്ക്",
+  radius: "ദൂരം", searchNow: "ഇപ്പോൾ തിരയുക", reviewedProfiles: "വ്യക്തമായ വെരിഫിക്കേഷൻ നില", startingPrices: "പ്രൊവൈഡർ നിശ്ചയിച്ച ആരംഭ നിരക്ക്",
   locationDiscovery: "സ്ഥലം അടിസ്ഥാനമാക്കിയ കണ്ടെത്തൽ", savedReplies: "സേവ് ചെയ്ത അഭ്യർത്ഥനകളും മറുപടികളും", localExpertise: "പ്രാദേശിക വൈദഗ്ധ്യം",
-  skilledService: "നൈപുണ്യമുള്ള സേവനം", nearbyProfessionals: "സമീപത്തെ പ്രൊഫഷണലുകൾ", approvedProfiles: "അംഗീകരിച്ച പ്രൊഫൈലുകൾ",
+  skilledService: "നൈപുണ്യമുള്ള സേവനം", nearbyProfessionals: "സമീപത്തെ പ്രൊഫഷണലുകൾ", approvedProfiles: "പ്രൊഫഷണൽ പ്രൊഫൈലുകൾ",
   directEnquiries: "നേരിട്ടുള്ള അന്വേഷണങ്ങൾ", builtForCommunities: "പ്രാദേശിക സമൂഹങ്ങൾക്കായി", exploreServices: "സേവനങ്ങൾ പരിശോധിക്കുക",
   needHelp: "ഏത് സേവനമാണ് ആവശ്യം?", viewAllServices: "എല്ലാ സേവനങ്ങളും കാണുക", browseService: "സേവനം കാണുക",
-  exploreCategories: "വിഭാഗങ്ങൾ പരിശോധിക്കുക", topNearby: "നിങ്ങളുടെ സമീപത്തെ മികച്ച പ്രൊഫഷണലുകൾ", realProfessionals: "Nearleo അഡ്മിൻ പരിശോധിച്ച് പ്രസിദ്ധീകരിച്ച യഥാർത്ഥ പ്രൊഫഷണലുകൾ.",
+  exploreCategories: "വിഭാഗങ്ങൾ പരിശോധിക്കുക", topNearby: "നിങ്ങളുടെ സമീപത്തെ മികച്ച പ്രൊഫഷണലുകൾ", realProfessionals: "സമീപത്തെ പ്രൊഫഷണലുകളെ താരതമ്യം ചെയ്യൂ; അഡ്മിൻ അംഗീകരിച്ച പ്രൊഫൈലുകളിൽ പച്ച വെരിഫൈഡ് ബാഡ്ജ് കാണാം.",
   seeAllProfessionals: "എല്ലാ പ്രൊഫഷണലുകളെയും കാണുക", noProviders: "ഇതുവരെ പ്രൊവൈഡർ പ്രൊഫൈലുകൾ ലഭ്യമല്ല",
-  providersSoon: "ഓൺബോർഡിംഗ് പൂർത്തിയാക്കുന്ന പുതിയ പരിശോധിച്ച പ്രൊഫഷണലുകൾ ഇവിടെ പ്രത്യക്ഷപ്പെടും.", firstProfessional: "ആദ്യ പ്രൊഫഷണലാകൂ",
+  providersSoon: "പ്രൊഫൈൽ പൂർത്തിയാക്കുന്ന പുതിയ പ്രൊഫഷണലുകൾ ഇവിടെ പ്രത്യക്ഷപ്പെടും.", firstProfessional: "ആദ്യ പ്രൊഫഷണലാകൂ",
   simpleSecure: "ലളിതവും സുരക്ഷിതവും", easyTitle: "തിരച്ചിൽ മുതൽ സേവനം വരെ എല്ലാം എളുപ്പം.",
   easyDescription: "പരിശോധിച്ച പ്രൊഫഷണലുകളെയും ഓരോ ഘട്ടത്തിലുമുള്ള വ്യക്തമായ അപ്ഡേറ്റുകളെയും ആശ്രയിച്ച് ആത്മവിശ്വാസത്തോടെ തിരഞ്ഞെടുക്കൂ.", postRequest: "സേവന അഭ്യർത്ഥന പോസ്റ്റ് ചെയ്യുക",
   step1Title: "ആവശ്യം അറിയിക്കുക", step1Body: "ഒരു മിനിറ്റിനുള്ളിൽ സേവനം തിരയുകയോ അഭ്യർത്ഥന പോസ്റ്റ് ചെയ്യുകയോ ചെയ്യൂ.",
@@ -89,7 +94,12 @@ const malayalam: { [K in keyof typeof english]: string } = {
   passwordPlaceholder: "കുറഞ്ഞത് 8 അക്ഷരങ്ങൾ", passwordHint: "വലിയക്ഷരം, ചെറിയക്ഷരം, ഒരു അക്കമെങ്കിലും ഉപയോഗിക്കുക.",
   consent: "അനാവശ്യ സന്ദേശങ്ങളും ബന്ധപ്പെടാനുള്ള വിവരങ്ങളുടെ ദുരുപയോഗവും നിരോധിക്കുന്ന Nearleo ഉപയോക്തൃ നിബന്ധനകളും സ്വകാര്യതാ അറിയിപ്പും ഞാൻ അംഗീകരിക്കുന്നു.",
   readTerms: "നിബന്ധനകൾ വായിക്കുക", pleaseWait: "ദയവായി കാത്തിരിക്കുക…", agreeSignIn: "അംഗീകരിച്ച് ലോഗിൻ ചെയ്യുക", agreeCreate: "അംഗീകരിച്ച് അക്കൗണ്ട് സൃഷ്ടിക്കുക",
-  passwordSecure: "നിങ്ങളുടെ പാസ്‌വേഡ് സുരക്ഷിതമായി ഹാഷ് ചെയ്യപ്പെടുന്നു; സാധാരണ ടെക്സ്റ്റായി സൂക്ഷിക്കില്ല."
+  passwordSecure: "നിങ്ങളുടെ പാസ്‌വേഡ് സുരക്ഷിതമായി ഹാഷ് ചെയ്യപ്പെടുന്നു; സാധാരണ ടെക്സ്റ്റായി സൂക്ഷിക്കില്ല.",
+  nearleoStandard: "Nearleo നിലവാരം", trustTitle: "ഓരോ ഘട്ടത്തിലും വ്യക്തതയുള്ള പ്രാദേശിക സേവനങ്ങൾ.",
+  browseFreely: "സ്വതന്ത്രമായി പരിശോധിക്കൂ", browseFreelyBody: "അക്കൗണ്ട് സൃഷ്ടിക്കുന്നതിന് മുമ്പ് പ്രസിദ്ധീകരിച്ച എല്ലാ പ്രൊഫഷണലുകളെയും കാണൂ.",
+  privacyFirst: "സ്വകാര്യതയ്ക്ക് മുൻഗണന", privacyFirstBody: "പ്രൊവൈഡർ അനുമതി നൽകുന്നതുവരെ WhatsApp വിവരങ്ങൾ സ്വകാര്യമായി തുടരും.",
+  verificationClarity: "വ്യക്തമായ വെരിഫിക്കേഷൻ", verificationClarityBody: "അഡ്മിൻ അംഗീകരിച്ച പ്രൊഫൈലുകൾക്ക് വ്യക്തമായ പച്ച ട്രസ്റ്റ് ബാഡ്ജ് ലഭിക്കും.",
+  locationControl: "സ്ഥലം നിങ്ങളുടെ നിയന്ത്രണത്തിൽ", locationControlBody: "പ്രസക്തമായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്താൻ തിരയുന്ന സ്ഥലം എപ്പോൾ വേണമെങ്കിലും മാറ്റാം."
 };
 
 export const translations = { EN: english, ML: malayalam } as const;

@@ -18,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     appleWebApp: { capable: true, statusBarStyle: "default", title: "Nearleo" },
     formatDetection: { telephone: false },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
-    openGraph: { title: "Nearleo", description, type: "website", images: [{ url: new URL("/og.png", base).toString(), width: 1734, height: 907, alt: "Nearleo – Where Local Experts Meet Local Customers" }] },
-    twitter: { card: "summary_large_image", title: "Nearleo", description, images: [new URL("/og.png", base).toString()] },
+    openGraph: { title: "Nearleo", description, type: "website", images: [{ url: new URL("/og-blue.png", base).toString(), width: 1734, height: 907, alt: "Nearleo – Where Local Experts Meet Local Customers" }] },
+    twitter: { card: "summary_large_image", title: "Nearleo", description, images: [new URL("/og-blue.png", base).toString()] },
   };
 }
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head><meta name="theme-color" content="#0d7c59"/><link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous"/></head>
+      <head><meta name="theme-color" content="#1769e0"/><link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous"/></head>
       <body className="antialiased">
         {children}
       </body>

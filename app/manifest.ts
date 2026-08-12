@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Find approved local professionals, post service requests and follow replies near you.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f8faf8",
-    theme_color: "#0d7c59",
+    background_color: "#f7faff",
+    theme_color: "#1769e0",
     orientation: "portrait-primary",
     categories: ["business", "lifestyle", "utilities"],
     icons: [
