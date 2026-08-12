@@ -307,3 +307,27 @@ test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
   assert.match(proxy, /www\.nearleo\.com/);
   assert.match(proxy, /NextResponse\.redirect\(canonicalUrl, 308\)/);
 });
+
+test("Kannur providers have crawlable location pages without private contact data", async () => {
+  const [directory, servicePage, profilePage, publicProviders, sitemap, home] = await Promise.all([
+    readSource("app/kannur/page.tsx"),
+    readSource("app/services/[slug]/kannur/page.tsx"),
+    readSource("app/professionals/[id]/page.tsx"),
+    readSource("lib/public-providers.ts"),
+    readSource("app/sitemap.ts"),
+    readSource("app/localserve-app.tsx"),
+  ]);
+
+  assert.match(directory, /Find local service professionals in Kannur/);
+  assert.match(servicePage, /professionals in Kannur/);
+  assert.match(servicePage, /areaServed/);
+  assert.match(profilePage, /ProfilePage/);
+  assert.match(profilePage, /permission-based contact process/);
+  assert.match(publicProviders, /publicProjection/);
+  assert.doesNotMatch(publicProviders, /phone:\s*1/);
+  assert.doesNotMatch(publicProviders, /userId:\s*1/);
+  assert.doesNotMatch(publicProviders, /privateDocuments:\s*1/);
+  assert.match(sitemap, /professionals\/\$\{provider\.id\}/);
+  assert.match(sitemap, /services\/\$\{service\.slug\}\/kannur/);
+  assert.match(home, /href="\/kannur"/);
+});

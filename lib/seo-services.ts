@@ -133,3 +133,7 @@ export const seoServices: SeoService[] = [
 export function findSeoService(slug: string) {
   return seoServices.find((service) => service.slug === slug);
 }
+
+export function findSeoServiceByName(name: string) {
+  return seoServices.find((service) => service.name.toLowerCase() === name.toLowerCase());
+}

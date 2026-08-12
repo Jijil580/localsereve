@@ -235,6 +235,7 @@ export default function NearleoApp() {
           <section className="section seo-home-directory" aria-labelledby="seo-home-directory-title">
             <div className="section-head"><div><span className="kicker">Service directory</span><h2 id="seo-home-directory-title">Browse popular local services</h2></div><a href="/services">View service guides →</a></div>
             <div className="seo-home-links">{seoServices.map(service=><a href={`/services/${service.slug}`} key={service.slug}><span>{serviceLabel(service.name,language)}</span><i aria-hidden="true">→</i></a>)}</div>
+            <a className="seo-kannur-entry" href="/kannur"><span><small>Now serving Kannur district</small><b>Explore local professionals in Kannur, Mattannur and Iritty</b></span><i aria-hidden="true">View Kannur directory →</i></a>
           </section>
 
           {!currentUser && <section className="mobile-auth-invite" aria-labelledby="mobile-auth-title">
