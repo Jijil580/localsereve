@@ -253,3 +253,14 @@ test("empty service selection lists every published provider", async () => {
   assert.match(providersRoute, /providersWithoutCoordinates/);
   assert.doesNotMatch(providersRoute, /maxDistance:/);
 });
+
+test("Nearleo uses a premium blue and white visual identity", async () => {
+  const styles = await readSource("app/globals.css");
+
+  assert.match(styles, /--green:#1769e0/);
+  assert.match(styles, /--green-dark:#0b3d91/);
+  assert.match(styles, /Nearleo premium blue and white identity/);
+  assert.match(styles, /\.hero-reference\{background:linear-gradient\(112deg,#fff 0%,#f9fbff/);
+  assert.match(styles, /footer\{background:linear-gradient\(135deg,#06152f,#0a2e68\)/);
+  assert.match(styles, /\.mobile-auth-invite\{border-color:#cbdcf3;background:linear-gradient\(145deg,#fff 0%,#edf4ff/);
+});
