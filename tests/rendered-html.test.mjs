@@ -279,7 +279,7 @@ test("Nearleo uses a premium blue and white visual identity", async () => {
 });
 
 test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
-  const [layout, home, robots, sitemap, directory, servicePage, services] = await Promise.all([
+  const [layout, home, robots, sitemap, directory, servicePage, services, proxy] = await Promise.all([
     readSource("app/layout.tsx"),
     readSource("app/page.tsx"),
     readSource("app/robots.ts"),
@@ -287,6 +287,7 @@ test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
     readSource("app/services/page.tsx"),
     readSource("app/services/[slug]/page.tsx"),
     readSource("lib/seo-services.ts"),
+    readSource("proxy.ts"),
   ]);
 
   assert.match(services, /https:\/\/www\.nearleo\.com/);
@@ -302,4 +303,7 @@ test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
   assert.match(servicePage, /generateStaticParams/);
   assert.match(services, /slug: "electrician"/);
   assert.match(services, /slug: "interlock-paving"/);
+  assert.match(proxy, /"nearleo\.com", "localserviecses\.vercel\.app"/);
+  assert.match(proxy, /www\.nearleo\.com/);
+  assert.match(proxy, /NextResponse\.redirect\(canonicalUrl, 308\)/);
 });
