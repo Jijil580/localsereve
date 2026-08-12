@@ -15,7 +15,7 @@ const structuredData = [
       width: 512,
       height: 512,
     },
-    email: "demo@lumiertechnologies.com",
+    email: "support@nealeo.com",
     description: "A marketplace that helps local customers discover and contact local service professionals.",
   },
   {

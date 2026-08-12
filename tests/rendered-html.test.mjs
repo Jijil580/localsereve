@@ -40,7 +40,8 @@ test("footer destinations and launch pricing are wired to actions", async () => 
     assert.match(app, new RegExp(`setModal\\(\\"${destination}\\"\\)`));
   }
   assert.match(app, /onClick=\{openRequest\}>\{t\.postRequest\}/);
-  assert.match(app, /demo@lumiertechnologies\.com/);
+  assert.match(app, /support@nealeo\.com/);
+  assert.doesNotMatch(app, /demo@lumiertechnologies\.com/);
   assert.match(app, /first 12 months free/i);
   assert.match(app, /₹199/);
   assert.match(app, /Work gallery and extra profile space/);
@@ -171,6 +172,18 @@ test("interlock and hollow-brick services are searchable categories", async () =
   assert.match(app, /"Hollow-brick work"/);
   assert.match(app, /"hollobricks"/);
   assert.match(app, /serviceAliases/);
+});
+
+test("service entry and provider discovery tolerate spelling mistakes", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+
+  assert.match(app, /function editDistance/);
+  assert.match(app, /function matchingServices/);
+  assert.match(app, /p\.service===suggestedService/);
+  assert.match(app, /name="service" value=\{profileService\}/);
+  assert.match(app, /Type your service, even with a spelling mistake/);
+  assert.match(app, /Type a service, even with a spelling mistake/);
+  assert.match(app, /Choose your main service from the suggestions/);
 });
 
 test("English and Malayalam language modes persist and localize service search", async () => {
