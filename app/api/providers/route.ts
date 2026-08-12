@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const search = url.searchParams.get("q")?.trim().slice(0, 80) ?? "";
   const verified = url.searchParams.get("verified") === "true";
   const minRating = Math.min(5, Math.max(0, Number(url.searchParams.get("rating") ?? 0)));
-  const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? 20)));
+  const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit") ?? 20)));
   const latitudeText = url.searchParams.get("lat");
   const longitudeText = url.searchParams.get("lng");
   const latitude = Number(latitudeText);
@@ -25,9 +25,17 @@ export async function GET(request: Request) {
   try {
     const db = await getMongoDb();
     if (hasLocation) await db.collection("providers").createIndex({ location: "2dsphere" });
-    const rows = hasLocation
-      ? await db.collection("providers").aggregate([{ $geoNear: { near: { type: "Point", coordinates: [longitude, latitude] }, key: "location", distanceField: "distanceMeters", spherical: true, maxDistance: 100_000, query } }, { $sort: { averageRating: -1, completedJobs: -1 } }, { $limit: limit }, { $project: { privateDocuments: 0, paymentDetails: 0 } }]).toArray()
-      : await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
+    let rows;
+    if (hasLocation) {
+      const nearbyRows = await db.collection("providers").aggregate([{ $geoNear: { near: { type: "Point", coordinates: [longitude, latitude] }, key: "location", distanceField: "distanceMeters", spherical: true, query } }, { $sort: { averageRating: -1, completedJobs: -1 } }, { $limit: limit }, { $project: { privateDocuments: 0, paymentDetails: 0 } }]).toArray();
+      const remaining = limit - nearbyRows.length;
+      const providersWithoutCoordinates = remaining > 0
+        ? await db.collection("providers").find({ ...query, _id: { $nin: nearbyRows.map(row => row._id) } }, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(remaining).toArray()
+        : [];
+      rows = [...nearbyRows, ...providersWithoutCoordinates];
+    } else {
+      rows = await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
+    }
     const data = rows.map(row => ({
       id: String(row._id),
       name: String(row.name ?? "Local professional"),

@@ -239,3 +239,17 @@ test("logged-out mobile visitors get central login and sign-up actions", async (
   assert.match(styles, /\.mobile-auth-invite\{display:none\}/);
   assert.match(styles, /@media\(max-width:760px\)[\s\S]*\.mobile-auth-invite\{display:grid/);
 });
+
+test("empty service selection lists every published provider", async () => {
+  const [app, providersRoute] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/providers/route.ts"),
+  ]);
+
+  assert.match(app, /!q \|\| p\.distance === null \|\| p\.distance <= radius/);
+  assert.match(app, /new URLSearchParams\(\{ limit: "200" \}\)/);
+  assert.match(app, /service === "All services"[\s\S]*document\.querySelector\("\.results"\)/);
+  assert.match(providersRoute, /Math\.min\(200,/);
+  assert.match(providersRoute, /providersWithoutCoordinates/);
+  assert.doesNotMatch(providersRoute, /maxDistance:/);
+});
