@@ -319,7 +319,7 @@ test("Kannur providers have crawlable location pages without private contact dat
   ]);
 
   assert.match(directory, /Find local service professionals in Kannur/);
-  assert.match(servicePage, /professionals in Kannur/);
+  assert.match(servicePage, /profiles serving Kannur/);
   assert.match(servicePage, /areaServed/);
   assert.match(profilePage, /ProfilePage/);
   assert.match(profilePage, /permission-based contact process/);
@@ -330,4 +330,22 @@ test("Kannur providers have crawlable location pages without private contact dat
   assert.match(sitemap, /professionals\/\$\{provider\.id\}/);
   assert.match(sitemap, /services\/\$\{service\.slug\}\/kannur/);
   assert.match(home, /href="\/kannur"/);
+});
+
+test("priority Kannur and Iritty search phrases have dedicated landing pages", async () => {
+  const [services, kannurService, irittyPage, sitemap] = await Promise.all([
+    readSource("lib/seo-services.ts"),
+    readSource("app/services/[slug]/kannur/page.tsx"),
+    readSource("app/services/interlock-paving/iritty/page.tsx"),
+    readSource("app/sitemap.ts"),
+  ]);
+
+  assert.match(services, /kannurSearchTitle: "Electrician in Kannur"/);
+  assert.match(services, /kannurSearchTitle: "Interlock Paving in Kannur"/);
+  assert.match(services, /kannurSearchTitle: "Hollow-Brick Workers in Kannur"/);
+  assert.match(kannurService, /service\.kannurSearchTitle/);
+  assert.match(kannurService, /href="\/services\/interlock-paving\/iritty"/);
+  assert.match(irittyPage, /Find interlock workers in Iritty/);
+  assert.match(irittyPage, /Interlock Workers in Iritty/);
+  assert.match(sitemap, /services\/interlock-paving\/iritty/);
 });

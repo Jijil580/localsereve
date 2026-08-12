@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: KannurServicePageProps): Prom
   const service = findSeoService(slug);
   if (!service) return {};
   const providers = await getKannurProviders(service.name).catch(() => []);
-  const title = `${service.name} in Kannur`;
+  const title = service.kannurSearchTitle ?? `${service.name} in Kannur`;
   return {
     title,
     description: `Find ${service.name.toLowerCase()} profiles serving Kannur district. Compare public details, location and verification status on Nearleo.`,
@@ -35,12 +35,14 @@ export default async function KannurServicePage({ params }: KannurServicePagePro
   const providers = await getKannurProviders(service.name).catch(() => []);
   const pageUrl = `${SITE_URL}/services/${service.slug}/kannur`;
   const localities = Array.from(new Set(providers.map((provider) => displayKannurLocality(provider.locality))));
+  const searchTitle = service.kannurSearchTitle ?? `${service.name} in Kannur`;
+  const hasIrittyProvider = providers.some((provider) => /iritty/i.test(provider.locality));
   const structuredData = [
     {
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${pageUrl}/#service`,
-      name: `${service.name} in Kannur`,
+      name: searchTitle,
       description: service.summary,
       areaServed: { "@type": "AdministrativeArea", name: "Kannur, Kerala" },
       provider: { "@id": `${SITE_URL}/#organization` },
@@ -73,9 +75,9 @@ export default async function KannurServicePage({ params }: KannurServicePagePro
       <section className="seo-hero seo-location-hero">
         <div>
           <span className="seo-kicker">Local service in Kannur</span>
-          <h1>Find {service.name.toLowerCase()} professionals in Kannur</h1>
+          <h1>Find {searchTitle.toLowerCase()}</h1>
           <p>{service.summary} The profiles below are currently published on Nearleo and list a service area within Kannur district.</p>
-          <div className="seo-hero-actions"><Link className="seo-primary-link" href={`/?service=${encodeURIComponent(service.name)}`}>Search {service.name.toLowerCase()} profiles</Link><Link className="seo-secondary-link" href={`/services/${service.slug}`}>Read service guide</Link></div>
+          <div className="seo-hero-actions"><Link className="seo-primary-link" href={`/?service=${encodeURIComponent(service.name)}`}>Search {service.name.toLowerCase()} profiles</Link><Link className="seo-secondary-link" href={`/services/${service.slug}`}>Read service guide</Link>{service.slug === "interlock-paving" && hasIrittyProvider && <Link className="seo-secondary-link" href="/services/interlock-paving/iritty">Interlock workers in Iritty</Link>}</div>
         </div>
         <aside className="seo-location-summary"><span>Currently published</span><strong>{providers.length}</strong><p>{service.name.toLowerCase()} {providers.length === 1 ? "profile" : "profiles"}</p><small>{localities.length ? localities.join(" · ") : "Kannur district"}</small></aside>
       </section>

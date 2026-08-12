@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const kannurServices = Array.from(new Set(providers.map((provider) => provider.service)))
     .map((name) => findSeoServiceByName(name))
     .filter((service) => service !== undefined);
+  const hasIrittyInterlockProvider = providers.some((provider) => provider.service === "Interlock paving" && /iritty/i.test(provider.locality));
 
   return [
     {
@@ -42,6 +43,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.9,
     })),
+    ...(hasIrittyInterlockProvider ? [{
+      url: `${SITE_URL}/services/interlock-paving/iritty`,
+      lastModified: updated,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    }] : []),
     ...providers.map((provider) => ({
       url: `${SITE_URL}/professionals/${provider.id}`,
       lastModified: provider.updatedAt ?? updated,

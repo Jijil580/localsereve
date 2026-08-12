@@ -5,6 +5,7 @@ export type SeoService = {
   slug: string;
   summary: string;
   commonNeeds: string[];
+  kannurSearchTitle?: string;
 };
 
 export const seoServices: SeoService[] = [
@@ -17,6 +18,7 @@ export const seoServices: SeoService[] = [
   {
     name: "Electrician",
     slug: "electrician",
+    kannurSearchTitle: "Electrician in Kannur",
     summary: "Discover local electricians for wiring, switches, lighting, fault checks and electrical installations.",
     commonNeeds: ["Wiring and rewiring", "Switch and lighting work", "Electrical fault checks"],
   },
@@ -35,12 +37,14 @@ export const seoServices: SeoService[] = [
   {
     name: "Interlock paving",
     slug: "interlock-paving",
+    kannurSearchTitle: "Interlock Paving in Kannur",
     summary: "Find interlock paving professionals for driveways, pathways, courtyards and outdoor paving repairs.",
     commonNeeds: ["Driveway paving", "Pathways and courtyards", "Paver repair and relaying"],
   },
   {
     name: "Hollow-brick work",
     slug: "hollow-brick-work",
+    kannurSearchTitle: "Hollow-Brick Workers in Kannur",
     summary: "Browse hollow-brick workers for walls, partitions, extensions and local building projects.",
     commonNeeds: ["Hollow-block walls", "Room partitions", "Building extensions"],
   },
