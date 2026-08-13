@@ -27,7 +27,7 @@ async function findNearleoServiceAreas(query:string){
       const longitude=Number(Number(coordinates[0]).toFixed(2));
       const latitude=Number(Number(coordinates[1]).toFixed(2));
       const key=normalized;
-      if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||seen.has(key))return [];
+      if(!Number.isFinite(latitude)||latitude<6||latitude>38||!Number.isFinite(longitude)||longitude<68||longitude>98||seen.has(key))return [];
       seen.add(key);
       const [name,...contextParts]=locality.split(",").map(part=>part.trim()).filter(Boolean);
       return [{name,context:contextParts.join(", ")||"Nearleo service area",label:locality,latitude,longitude}];

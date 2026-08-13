@@ -98,6 +98,7 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.place-results\{position:absolute/);
   assert.match(locationSearch, /https:\/\/photon\.komoot\.io\/api\//);
   assert.match(locationSearch, /s-maxage=2592000/);
+  assert.match(locationSearch, /latitude<6\|\|latitude>38/);
   assert.doesNotMatch(locationSearch, /localServeLastGeocodeAt|Please wait a moment/);
 });
 
