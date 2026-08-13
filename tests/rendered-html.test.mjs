@@ -97,8 +97,10 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /Fast floating location autocomplete/);
   assert.match(styles, /\.place-results\{position:absolute/);
   assert.match(locationSearch, /https:\/\/photon\.komoot\.io\/api\//);
+  assert.match(locationSearch, /Kara – Peravoor/);
+  assert.match(locationSearch, /tokens\.map\(token=>searchPhoton/);
   assert.match(locationSearch, /s-maxage=2592000/);
-  assert.match(locationSearch, /latitude<6\|\|latitude>38/);
+  assert.match(locationSearch, /latitude>=6&&latitude<=38/);
   assert.doesNotMatch(locationSearch, /localServeLastGeocodeAt|Please wait a moment/);
 });
 
@@ -177,12 +179,14 @@ test("motion continues through the main mobile experience", async () => {
   assert.match(styles, /\.motion-reveal\.motion-in/);
 });
 
-test("mobile homepage places the animated professionals before search", async () => {
+test("mobile homepage places search before promotional content", async () => {
   const styles = await readSource("app/globals.css");
 
   assert.match(styles, /\.hero-reference\{display:flex!important;flex-direction:column\}/);
-  assert.match(styles, /\.hero-reference \.hero-collage\{order:1/);
-  assert.match(styles, /\.hero-reference \.hero-copy\{order:2/);
+  assert.match(styles, /\.hero-reference \.hero-copy\{order:1!important;display:flex/);
+  assert.match(styles, /\.hero-reference \.hero-search-expanded\{order:-10/);
+  assert.match(styles, /\.hero-reference \.hero-collage\{order:2!important/);
+  assert.match(styles, /\.hero-reference \.location-field\{display:flex!important/);
   assert.match(styles, /Trusted local professionals/);
 });
 
@@ -430,7 +434,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v13/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v14/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
