@@ -66,10 +66,11 @@ test("provider recent work uses only authenticated gallery uploads", async () =>
 });
 
 test("mobile users can manage account and change provider search location", async () => {
-  const [app, styles, locationPin] = await Promise.all([
+  const [app, styles, locationPin, locationSearch] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
     readSource("app/location-pin.tsx"),
+    readSource("app/api/location/search/route.ts"),
   ]);
 
   assert.match(app, /className="account-menu" role="menu"/);
@@ -88,12 +89,16 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.search-location-mobile\{display:flex/);
   assert.match(styles, /\.gps-pin\{/);
   assert.match(styles, /\.search-bar-page\{grid-template-columns:180px minmax\(220px,1fr\) auto\}/);
-  assert.match(app, /className="nearby-location-list"/);
-  assert.match(app, /a\.localeCompare\(b,"en-IN",\{sensitivity:"base"\}\)/);
-  assert.match(app, /window\.setTimeout\(\(\)=>searchPlace\(query,sequence\),1200\)/);
-  assert.match(app, /Matching locations appear automatically/);
+  assert.doesNotMatch(app, /nearby-location-list|availableLocations/);
+  assert.match(app, /window\.setTimeout\(\(\)=>searchPlace\(query,sequence\),250\)/);
+  assert.match(app, /Suggestions appear automatically/);
+  assert.match(app, /new AbortController\(\)/);
   assert.doesNotMatch(app, /onClick=\{searchPlace\}/);
-  assert.match(styles, /\.nearby-location-group/);
+  assert.match(styles, /Fast floating location autocomplete/);
+  assert.match(styles, /\.place-results\{position:absolute/);
+  assert.match(locationSearch, /https:\/\/photon\.komoot\.io\/api\//);
+  assert.match(locationSearch, /s-maxage=2592000/);
+  assert.doesNotMatch(locationSearch, /localServeLastGeocodeAt|Please wait a moment/);
 });
 
 test("opening uses a mobile-first Nearleo service montage", async () => {
@@ -424,7 +429,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v12/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v13/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
