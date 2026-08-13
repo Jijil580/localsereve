@@ -223,22 +223,21 @@ test("provider profiles publish immediately with optional verification media", a
   assert.match(app, /Save and publish profile/);
 });
 
-test("WhatsApp contact requires customer-specific provider approval", async () => {
-  const [app, customerRoute, providerListRoute, providerActionRoute, requestRoute] = await Promise.all([
+test("provider profiles offer direct phone, WhatsApp and email contact", async () => {
+  const [app, providersRoute, profilePage] = await Promise.all([
     readSource("app/localserve-app.tsx"),
-    readSource("app/api/providers/[id]/whatsapp-request/route.ts"),
-    readSource("app/api/provider/whatsapp-requests/route.ts"),
-    readSource("app/api/provider/whatsapp-requests/[id]/route.ts"),
-    readSource("app/api/requests/route.ts"),
+    readSource("app/api/providers/route.ts"),
+    readSource("app/professionals/[id]/page.tsx"),
   ]);
 
-  assert.match(app, /Request WhatsApp Chat/);
-  assert.match(app, /WhatsApp Messaging Active/);
-  assert.match(customerRoute, /access\.status !== "approved"/);
-  assert.match(customerRoute, /customerId, providerId/);
-  assert.match(providerListRoute, /providerId: profile\._id/);
-  assert.match(providerActionRoute, /status: "pending"/);
-  assert.match(requestRoute, /providerWhatsApp: _privateNumber/);
+  assert.match(app, /href={`tel:\$\{p\.phone\}`}/);
+  assert.match(app, /Start chat/);
+  assert.match(app, /Send enquiry/);
+  assert.match(providersRoute, /phone: String\(row\.phone/);
+  assert.match(providersRoute, /email: String\(row\.contactEmail/);
+  assert.match(profilePage, /Call directly/);
+  assert.match(profilePage, /WhatsApp/);
+  assert.match(profilePage, /mailto:/);
 });
 
 test("logged-out mobile visitors get central login and sign-up actions", async () => {
@@ -323,7 +322,7 @@ test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
   assert.match(proxy, /NextResponse\.redirect\(canonicalUrl, 308\)/);
 });
 
-test("Kannur providers have crawlable location pages without private contact data", async () => {
+test("Kannur providers have crawlable premium profiles with direct contact", async () => {
   const [directory, servicePage, profilePage, publicProviders, sitemap, home] = await Promise.all([
     readSource("app/kannur/page.tsx"),
     readSource("app/services/[slug]/kannur/page.tsx"),
@@ -337,10 +336,12 @@ test("Kannur providers have crawlable location pages without private contact dat
   assert.match(servicePage, /profiles serving Kannur/);
   assert.match(servicePage, /areaServed/);
   assert.match(profilePage, /ProfilePage/);
-  assert.match(profilePage, /permission-based contact process/);
+  assert.match(profilePage, /public-direct-contact/);
+  assert.match(profilePage, /aggregateRating/);
   assert.match(publicProviders, /publicProjection/);
-  assert.doesNotMatch(publicProviders, /phone:\s*1/);
-  assert.doesNotMatch(publicProviders, /userId:\s*1/);
+  assert.match(publicProviders, /phone:\s*1/);
+  assert.match(publicProviders, /contactEmail:\s*1/);
+  assert.match(publicProviders, /instagramUrl:\s*1/);
   assert.doesNotMatch(publicProviders, /privateDocuments:\s*1/);
   assert.match(sitemap, /professionals\/\$\{provider\.id\}/);
   assert.match(sitemap, /services\/\$\{service\.slug\}\/kannur/);
@@ -365,58 +366,34 @@ test("priority Kannur and Iritty search phrases have dedicated landing pages", a
   assert.match(sitemap, /services\/interlock-paving\/iritty/);
 });
 
-test("private WebRTC audio calls require provider approval first", async () => {
-  const [app, callClient, callsRoute, callRoute, iceRoute, customerPermissionRoute, providerPermissionRoute, providerPermissionActionRoute, styles, environment] = await Promise.all([
+test("customers can leave one-to-five-star provider reviews and providers can add social links", async () => {
+  const [app, reviewRoute, profileRoute, providersRoute, styles, environment] = await Promise.all([
     readSource("app/localserve-app.tsx"),
-    readSource("app/webrtc-call.tsx"),
-    readSource("app/api/calls/route.ts"),
-    readSource("app/api/calls/[id]/route.ts"),
-    readSource("app/api/calls/ice-config/route.ts"),
-    readSource("app/api/providers/[id]/call-request/route.ts"),
-    readSource("app/api/provider/call-requests/route.ts"),
-    readSource("app/api/provider/call-requests/[id]/route.ts"),
+    readSource("app/api/providers/[id]/reviews/route.ts"),
+    readSource("app/api/providers/me/route.ts"),
+    readSource("app/api/providers/route.ts"),
     readSource("app/globals.css"),
     readSource(".env.example"),
   ]);
 
-  assert.match(app, /WebRtcCallCenter/);
-  assert.match(app, /Request Audio Call/);
-  assert.match(app, /Check Call Approval/);
-  assert.match(app, /Start Audio Call/);
-  assert.match(app, /Audio call requests/);
-  assert.match(app, /className="provider-quick-call"/);
+  assert.match(app, /Rate this professional/);
+  assert.match(app, /Choose a rating/);
+  assert.match(app, /Save my review/);
+  assert.match(app, /Instagram/);
+  assert.match(app, /Facebook/);
+  assert.match(app, /YouTube/);
   assert.match(app, /updateViaCache:"none"/);
-  assert.match(app, /Sign in with a customer account to call a professional/);
-  assert.match(callClient, /navigator\.mediaDevices\.getUserMedia/);
-  assert.match(callClient, /new RTCPeerConnection/);
-  assert.match(callClient, /createOffer/);
-  assert.match(callClient, /createAnswer/);
-  assert.match(callClient, /Incoming Nearleo call/);
-  assert.match(callClient, /Phone numbers stay private/);
-  assert.match(callsRoute, /session\.role !== "customer"/);
-  assert.match(callsRoute, /callContactRequests/);
-  assert.match(callsRoute, /status: "approved"/);
-  assert.match(callsRoute, /provider must approve your audio-call request/);
-  assert.match(callsRoute, /recentCount >= 3/);
-  assert.match(callsRoute, /expireAfterSeconds: 0/);
-  assert.doesNotMatch(callsRoute, /phone|whatsapp/i);
-  assert.match(callRoute, /callerUserId: userId/);
-  assert.match(callRoute, /providerUserId: userId/);
-  assert.match(callRoute, /action === "accept"/);
-  assert.match(callRoute, /action === "decline"/);
-  assert.match(callRoute, /action === "end"/);
-  assert.match(callRoute, /candidateCount >= 128/);
-  assert.match(callRoute, /This call has expired/);
-  assert.match(iceRoute, /createHmac\("sha1"/);
-  assert.match(customerPermissionRoute, /customerId, providerId/);
-  assert.match(customerPermissionRoute, /status: "pending"/);
-  assert.match(providerPermissionRoute, /providerId: profile\._id/);
-  assert.match(providerPermissionActionRoute, /status: "pending"/);
-  assert.match(providerPermissionActionRoute, /body\.action === "approve"/);
-  assert.match(environment, /STUN_URL=/);
-  assert.match(environment, /TURN_SHARED_SECRET=/);
-  assert.match(styles, /Private WebRTC audio calling/);
-  assert.match(styles, /\.voice-call-overlay/);
-  assert.match(styles, /\.provider-quick-call/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v4/);
+  assert.match(reviewRoute, /session\.role !== "customer"/);
+  assert.match(reviewRoute, /rating < 1 \|\| rating > 5/);
+  assert.match(reviewRoute, /createIndex\(\{ customerId: 1, providerId: 1 \}, \{ unique: true \}\)/);
+  assert.match(reviewRoute, /averageRating/);
+  assert.match(profileRoute, /socialUrl/);
+  assert.match(profileRoute, /instagramUrl, facebookUrl, youtubeUrl/);
+  assert.match(providersRoute, /instagramUrl: String/);
+  assert.match(styles, /Premium provider profiles and direct contact/);
+  assert.match(styles, /\.provider-reviews/);
+  assert.match(styles, /\.direct-contact-grid/);
+  assert.doesNotMatch(environment, /TURN_|STUN_/);
+  assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v5/);
 });

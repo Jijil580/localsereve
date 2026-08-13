@@ -9,6 +9,17 @@ function text(value: unknown, maximum: number) {
   return typeof value === "string" ? value.trim().slice(0, maximum) : "";
 }
 
+function socialUrl(value: unknown, allowedHosts: string[]) {
+  const raw = text(value, 300);
+  if (!raw) return "";
+  try {
+    const url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    if (url.protocol !== "https:" || !allowedHosts.some(allowed => host === allowed || host.endsWith(`.${allowed}`))) return null;
+    return url.toString().slice(0, 300);
+  } catch { return null; }
+}
+
 export async function GET() {
   const session = await getSession();
   if (!session) return Response.json({ error: "Sign in to manage your professional profile" }, { status: 401 });
@@ -32,6 +43,9 @@ export async function PUT(request: Request) {
     const locality = text(body.get("locality"), 100);
     const description = text(body.get("description"), 800);
     const phone = text(body.get("phone"), 24);
+    const instagramUrl = socialUrl(body.get("instagramUrl"), ["instagram.com"]);
+    const facebookUrl = socialUrl(body.get("facebookUrl"), ["facebook.com", "fb.com"]);
+    const youtubeUrl = socialUrl(body.get("youtubeUrl"), ["youtube.com", "youtu.be"]);
     const experienceYears = Math.min(60, Math.max(0, Number(body.get("experienceYears"))));
     const startingPrice = Math.min(1_000_000, Math.max(0, Number(body.get("startingPrice"))));
     const latitude = Number(body.get("latitude"));
@@ -40,6 +54,7 @@ export async function PUT(request: Request) {
     if (businessName.length < 2 || !service || locality.length < 2 || phone.length < 10 || !Number.isFinite(experienceYears) || !Number.isFinite(startingPrice) || !validLocation) {
       return Response.json({ error: "Complete your name, service, location and contact information" }, { status: 400 });
     }
+    if (instagramUrl === null || facebookUrl === null || youtubeUrl === null) return Response.json({ error: "Enter valid HTTPS Instagram, Facebook and YouTube profile links" }, { status: 400 });
     const db = await getMongoDb();
     await db.collection("providers").createIndex({ location: "2dsphere" });
     const userId = new ObjectId(session.id);
@@ -75,7 +90,7 @@ export async function PUT(request: Request) {
     await db.collection("providers").updateOne(
       { userId },
       {
-        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: true, status: "active", submittedAt: now, initials, updatedAt: now },
+        $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, contactEmail: session.email, instagramUrl, facebookUrl, youtubeUrl, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: true, status: "active", submittedAt: now, initials, updatedAt: now },
         $setOnInsert: { userId, verified: false, verificationStatus: "unverified", rejectionReason: "", averageRating: 0, reviewCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
       },
       { upsert: true },

@@ -111,8 +111,8 @@ export default async function ServicePage({ params }: ServicePageProps) {
         </article>
         <article>
           <span className="seo-kicker">Privacy-aware contact</span>
-          <h2>Share contact details with permission</h2>
-          <p>Nearleo keeps WhatsApp contact permission-based. A customer can request WhatsApp access, and the provider decides whether to approve it for that customer.</p>
+          <h2>Contact professionals directly</h2>
+          <p>Open a Nearleo provider profile to call, start a WhatsApp chat or send an email directly. Use contact details only for genuine service enquiries.</p>
         </article>
       </section>
 

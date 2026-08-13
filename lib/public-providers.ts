@@ -22,6 +22,11 @@ export type PublicProvider = {
   initials: string;
   photoUrl: string | null;
   portfolioUrls: string[];
+  phone: string;
+  email: string;
+  instagramUrl: string;
+  facebookUrl: string;
+  youtubeUrl: string;
   updatedAt: Date | null;
 };
 
@@ -42,6 +47,12 @@ const publicProjection = {
   initials: 1,
   profilePhotoId: 1,
   portfolioImageIds: 1,
+  userId: 1,
+  phone: 1,
+  contactEmail: 1,
+  instagramUrl: 1,
+  facebookUrl: 1,
+  youtubeUrl: 1,
   updatedAt: 1,
 } as const;
 
@@ -54,7 +65,7 @@ const publishedProviderFilter = {
 
 const kannurLocalityPattern = /kannur|mattannur|iritty|thalassery|payyannur|taliparamba|koothuparamba/i;
 
-function toPublicProvider(row: Document): PublicProvider {
+function toPublicProvider(row: Document, emailFallback = ""): PublicProvider {
   const id = String(row._id);
   const name = String(row.name ?? "Local professional");
   const portfolioIds = Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0, 4) : [];
@@ -76,6 +87,11 @@ function toPublicProvider(row: Document): PublicProvider {
     initials: String(row.initials ?? name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("") ?? "LS"),
     photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : null,
     portfolioUrls: portfolioIds.map((_imageId: unknown, index: number) => `/api/providers/portfolio/${id}/${index}`),
+    phone: String(row.phone ?? ""),
+    email: String(row.contactEmail ?? emailFallback),
+    instagramUrl: String(row.instagramUrl ?? ""),
+    facebookUrl: String(row.facebookUrl ?? ""),
+    youtubeUrl: String(row.youtubeUrl ?? ""),
     updatedAt: row.updatedAt instanceof Date ? row.updatedAt : null,
   };
 }
@@ -100,12 +116,14 @@ export const getKannurProviders = cache(async (service?: string): Promise<Public
   };
   if (service) filter.service = service;
   const rows = await db.collection("providers").find(filter, { projection: publicProjection }).sort({ verified: -1, averageRating: -1, updatedAt: -1 }).limit(200).toArray();
-  return rows.map(toPublicProvider);
+  return rows.map(row => toPublicProvider(row));
 });
 
 export const getPublicProvider = cache(async (id: string): Promise<PublicProvider | null> => {
   if (!ObjectId.isValid(id)) return null;
   const db = await getMongoDb();
   const row = await db.collection("providers").findOne({ ...publishedProviderFilter, _id: new ObjectId(id) }, { projection: publicProjection });
-  return row ? toPublicProvider(row) : null;
+  if (!row) return null;
+  const account = row.userId instanceof ObjectId ? await db.collection("users").findOne({ _id: row.userId }, { projection: { email: 1 } }) : null;
+  return toPublicProvider(row, String(account?.email ?? ""));
 });

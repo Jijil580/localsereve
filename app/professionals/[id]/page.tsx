@@ -38,6 +38,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const service = findSeoServiceByName(provider.service);
   const relatedProviders = (await getKannurProviders(provider.service).catch(() => [])).filter((item) => item.id !== provider.id).slice(0, 3);
   const profileUrl = `${SITE_URL}/professionals/${provider.id}`;
+  const whatsappNumber = provider.phone.replace(/\D/g, "");
+  const whatsappInternational = whatsappNumber.length === 10 ? `91${whatsappNumber}` : whatsappNumber;
+  const whatsappMessage = encodeURIComponent(`Hello ${provider.name}, I found your ${provider.service} profile on Nearleo.`);
   const profileDescription = provider.description || `${provider.name} has published a ${provider.service.toLowerCase()} service profile for customers in ${locality}.`;
   const structuredData = [
     {
@@ -55,6 +58,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         image: provider.photoUrl ? `${SITE_URL}${provider.photoUrl}` : undefined,
         workLocation: { "@type": "Place", name: locality },
         worksFor: { "@type": "Organization", name: provider.business },
+        telephone: provider.phone,
+        email: provider.email || undefined,
+        sameAs: [provider.instagramUrl, provider.facebookUrl, provider.youtubeUrl].filter(Boolean),
+        aggregateRating: provider.reviews > 0 ? { "@type": "AggregateRating", ratingValue: provider.rating, reviewCount: provider.reviews, bestRating: 5 } : undefined,
       },
     },
     {
@@ -91,8 +98,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             {provider.startingPrice > 0 && <div><span>Starting price</span><b>₹{provider.startingPrice}</b></div>}
             <div><span>Availability</span><b>{provider.available ? "Available" : "Ask provider"}</b></div>
           </div>
+          <div className="public-direct-contact"><a className="phone" href={`tel:${provider.phone}`}><span>☎</span><b>Call directly</b></a><a className="whatsapp" href={`https://wa.me/${whatsappInternational}?text=${whatsappMessage}`} target="_blank" rel="noreferrer"><span>◉</span><b>WhatsApp</b></a>{provider.email&&<a className="email" href={`mailto:${provider.email}?subject=${encodeURIComponent(`${provider.service} enquiry from Nearleo`)}`}><span>✉</span><b>Email</b></a>}</div>
           <div className="seo-hero-actions"><Link className="seo-primary-link" href={`/?service=${encodeURIComponent(provider.service)}`}>Request {provider.service.toLowerCase()} service</Link>{service && <Link className="seo-secondary-link" href={`/services/${service.slug}/kannur`}>View Kannur listings</Link>}</div>
-          <small className="public-contact-note">Private phone and WhatsApp details are shared only through Nearleo&apos;s permission-based contact process.</small>
+          {[provider.instagramUrl,provider.facebookUrl,provider.youtubeUrl].some(Boolean)&&<div className="public-social-links"><span>Follow this professional</span>{provider.instagramUrl&&<a href={provider.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}{provider.facebookUrl&&<a href={provider.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}{provider.youtubeUrl&&<a href={provider.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}</div>}
         </div>
       </section>
 
@@ -104,7 +112,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       <section className="public-profile-safety">
         <div><span aria-hidden="true">✓</span><p><b>Check the verification badge</b>A verified badge means Nearleo administration approved the submitted verification details.</p></div>
         <div><span aria-hidden="true">₹</span><p><b>Confirm the final price</b>Discuss work, materials, timing and payment directly before the job begins.</p></div>
-        <div><span aria-hidden="true">⌖</span><p><b>Protect your privacy</b>Nearleo does not publish the professional&apos;s private WhatsApp number on this page.</p></div>
+        <div><span aria-hidden="true">★</span><p><b>Check customer reviews</b>Use recent ratings and written feedback together with the verification badge before hiring.</p></div>
       </section>
 
       {relatedProviders.length > 0 && <section className="seo-provider-directory"><div className="seo-section-heading"><span>More nearby options</span><h2>Related professionals in Kannur</h2></div><div className="seo-provider-list">{relatedProviders.map((item) => <SeoProviderCard provider={item} key={item.id} />)}</div></section>}

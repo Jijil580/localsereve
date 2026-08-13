@@ -67,7 +67,7 @@ export default async function IrittyInterlockPage() {
           <p>Browse published Nearleo profiles for interlock paving professionals serving Iritty and nearby Kannur communities. Check location, profile details and verification status before requesting work.</p>
           <div className="seo-hero-actions"><Link className="seo-primary-link" href="/?service=Interlock%20paving">Search interlock paving</Link><Link className="seo-secondary-link" href="/services/interlock-paving/kannur">View all Kannur listings</Link></div>
         </div>
-        <aside className="seo-location-summary"><span>Serving Iritty</span><strong>{providers.length}</strong><p>published interlock {providers.length === 1 ? "profile" : "profiles"}</p><small>Contact details remain permission-based.</small></aside>
+        <aside className="seo-location-summary"><span>Serving Iritty</span><strong>{providers.length}</strong><p>published interlock {providers.length === 1 ? "profile" : "profiles"}</p><small>Open a profile to call, WhatsApp or email the professional directly.</small></aside>
       </section>
 
       <section className="seo-provider-directory" aria-labelledby="iritty-provider-title">

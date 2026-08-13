@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { getMongoDb } from "../../../lib/mongodb";
 
 export const runtime = "nodejs";
@@ -36,6 +37,9 @@ export async function GET(request: Request) {
     } else {
       rows = await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
     }
+    const userIds = rows.map(row => row.userId).filter((value): value is ObjectId => value instanceof ObjectId);
+    const users = userIds.length ? await db.collection("users").find({ _id: { $in: userIds } }, { projection: { email: 1 } }).toArray() : [];
+    const emailByUserId = new Map(users.map(user => [String(user._id), String(user.email ?? "")]));
     const data = rows.map(row => ({
       id: String(row._id),
       name: String(row.name ?? "Local professional"),
@@ -55,6 +59,11 @@ export async function GET(request: Request) {
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
       portfolio: Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0,4).map((_id: unknown,index: number) => `/api/providers/portfolio/${row._id}/${index}`) : [],
+      phone: String(row.phone ?? ""),
+      email: String(row.contactEmail ?? emailByUserId.get(String(row.userId)) ?? ""),
+      instagramUrl: String(row.instagramUrl ?? ""),
+      facebookUrl: String(row.facebookUrl ?? ""),
+      youtubeUrl: String(row.youtubeUrl ?? ""),
     }));
     return Response.json({ data, meta: { limit, count: data.length } });
   } catch (error) {
