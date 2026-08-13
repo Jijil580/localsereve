@@ -36,13 +36,18 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     const providerId = new ObjectId(id);
     const provider = await db.collection("providers").findOne({ _id: providerId, status: { $ne: "disabled" } }, { projection: { service: 1, businessName: 1 } });
     if (!provider) return Response.json({ error: "Provider not found" }, { status: 404 });
-    const existing = await db.collection("whatsappContactRequests").findOne({ customerId, providerId });
-    if (existing) return Response.json({ status: existing.status, duplicate: true });
+    const collection = db.collection("whatsappContactRequests");
+    const existing = await collection.findOne({ customerId, providerId });
+    if (existing?.status === "pending" || existing?.status === "approved") return Response.json({ status: existing.status, duplicate: true });
     const related = await db.collection("serviceRequests").findOne({ customerId, $or: [{ preferredProviderId: providerId }, { "responses.providerId": providerId }] }, { sort: { createdAt: -1 }, projection: { requestNumber: 1, service: 1 } });
     const now = new Date();
     const record = { customerId, customerName: session.fullName, providerId, providerBusiness: String(provider.businessName ?? "Service provider"), service: String(related?.service ?? provider.service ?? "Local service"), requestNumber: String(related?.requestNumber ?? ""), status: "pending", requestedAt: now, updatedAt: now };
-    await db.collection("whatsappContactRequests").createIndex({ customerId: 1, providerId: 1 }, { unique: true });
-    await db.collection("whatsappContactRequests").insertOne(record);
+    await collection.createIndex({ customerId: 1, providerId: 1 }, { unique: true });
+    if (existing) {
+      await collection.updateOne({ _id: existing._id }, { $set: record, $unset: { respondedAt: "" } });
+      return Response.json({ status: "pending", message: "A new WhatsApp-chat request has been sent to the provider." });
+    }
+    await collection.insertOne(record);
     return Response.json({ status: "pending", message: "A WhatsApp contact request has been sent to the service provider." }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message.includes("E11000")) return Response.json({ status: "pending", duplicate: true });

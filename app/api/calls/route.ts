@@ -43,6 +43,8 @@ export async function POST(request: Request) {
     const provider = await db.collection("providers").findOne({ _id: providerId, status: { $ne: "disabled" }, published: true }, { projection: { userId: 1, businessName: 1, service: 1 } });
     if (!provider || !(provider.userId instanceof ObjectId)) return Response.json({ error: "This professional cannot receive calls yet" }, { status: 404 });
     if (provider.userId.equals(callerUserId)) return Response.json({ error: "You cannot call your own profile" }, { status: 400 });
+    const callAccess = await db.collection("callContactRequests").findOne({ customerId: callerUserId, providerId, status: "approved" }, { projection: { _id: 1 } });
+    if (!callAccess) return Response.json({ error: "The provider must approve your audio-call request before you can call" }, { status: 403 });
     const now = new Date();
     const recentCount = await db.collection("voiceCalls").countDocuments({ callerUserId, createdAt: { $gte: new Date(now.getTime() - 60_000) } });
     if (recentCount >= 3) return Response.json({ error: "Please wait before starting another call" }, { status: 429 });

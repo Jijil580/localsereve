@@ -232,7 +232,7 @@ test("WhatsApp contact requires customer-specific provider approval", async () =
     readSource("app/api/requests/route.ts"),
   ]);
 
-  assert.match(app, /Request WhatsApp Contact/);
+  assert.match(app, /Request WhatsApp Chat/);
   assert.match(app, /WhatsApp Messaging Active/);
   assert.match(customerRoute, /access\.status !== "approved"/);
   assert.match(customerRoute, /customerId, providerId/);
@@ -365,21 +365,26 @@ test("priority Kannur and Iritty search phrases have dedicated landing pages", a
   assert.match(sitemap, /services\/interlock-paving\/iritty/);
 });
 
-test("signed-in customers and providers can use private WebRTC audio calls", async () => {
-  const [app, callClient, callsRoute, callRoute, iceRoute, styles, environment] = await Promise.all([
+test("private WebRTC audio calls require provider approval first", async () => {
+  const [app, callClient, callsRoute, callRoute, iceRoute, customerPermissionRoute, providerPermissionRoute, providerPermissionActionRoute, styles, environment] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/webrtc-call.tsx"),
     readSource("app/api/calls/route.ts"),
     readSource("app/api/calls/[id]/route.ts"),
     readSource("app/api/calls/ice-config/route.ts"),
+    readSource("app/api/providers/[id]/call-request/route.ts"),
+    readSource("app/api/provider/call-requests/route.ts"),
+    readSource("app/api/provider/call-requests/[id]/route.ts"),
     readSource("app/globals.css"),
     readSource(".env.example"),
   ]);
 
   assert.match(app, /WebRtcCallCenter/);
-  assert.match(app, /☎ Audio call/);
+  assert.match(app, /Request Audio Call/);
+  assert.match(app, /Check Call Approval/);
+  assert.match(app, /Start Audio Call/);
+  assert.match(app, /Audio call requests/);
   assert.match(app, /className="provider-quick-call"/);
-  assert.match(app, /Internet audio call/);
   assert.match(app, /updateViaCache:"none"/);
   assert.match(app, /Sign in with a customer account to call a professional/);
   assert.match(callClient, /navigator\.mediaDevices\.getUserMedia/);
@@ -389,6 +394,9 @@ test("signed-in customers and providers can use private WebRTC audio calls", asy
   assert.match(callClient, /Incoming Nearleo call/);
   assert.match(callClient, /Phone numbers stay private/);
   assert.match(callsRoute, /session\.role !== "customer"/);
+  assert.match(callsRoute, /callContactRequests/);
+  assert.match(callsRoute, /status: "approved"/);
+  assert.match(callsRoute, /provider must approve your audio-call request/);
   assert.match(callsRoute, /recentCount >= 3/);
   assert.match(callsRoute, /expireAfterSeconds: 0/);
   assert.doesNotMatch(callsRoute, /phone|whatsapp/i);
@@ -400,10 +408,15 @@ test("signed-in customers and providers can use private WebRTC audio calls", asy
   assert.match(callRoute, /candidateCount >= 128/);
   assert.match(callRoute, /This call has expired/);
   assert.match(iceRoute, /createHmac\("sha1"/);
+  assert.match(customerPermissionRoute, /customerId, providerId/);
+  assert.match(customerPermissionRoute, /status: "pending"/);
+  assert.match(providerPermissionRoute, /providerId: profile\._id/);
+  assert.match(providerPermissionActionRoute, /status: "pending"/);
+  assert.match(providerPermissionActionRoute, /body\.action === "approve"/);
   assert.match(environment, /STUN_URL=/);
   assert.match(environment, /TURN_SHARED_SECRET=/);
   assert.match(styles, /Private WebRTC audio calling/);
   assert.match(styles, /\.voice-call-overlay/);
   assert.match(styles, /\.provider-quick-call/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v3/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v4/);
 });
