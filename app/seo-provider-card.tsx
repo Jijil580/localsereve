@@ -17,6 +17,7 @@ export default function SeoProviderCard({ provider }: { provider: PublicProvider
         <h3>{provider.business}</h3>
         <p className="seo-provider-name">{provider.name}</p>
         <p className="seo-provider-location">⌖ {displayKannurLocality(provider.locality)}</p>
+        <div className="seo-provider-metrics" aria-label="Provider profile summary"><span><i>♥</i><b>{provider.likes}</b><small>{provider.likes===1?"Like":"Likes"}</small></span><span><i>★</i><b>{provider.reviews>0?provider.rating.toFixed(1):"New"}</b><small>{provider.reviews>0?`${provider.reviews} reviews`:"No ratings"}</small></span><span><i>✓</i><b>{provider.completedJobs}</b><small>{provider.completedJobs===1?"Work done":"Works done"}</small></span></div>
         <div className="seo-provider-facts">
           {provider.experience > 0 && <span><b>{provider.experience}</b> years experience</span>}
           {provider.startingPrice > 0 && <span>Starts at <b>₹{provider.startingPrice}</b></span>}

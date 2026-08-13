@@ -43,6 +43,9 @@ export async function GET(request: Request) {
     const userIds = revealContact ? rows.map(row => row.userId).filter((value): value is ObjectId => value instanceof ObjectId) : [];
     const users = userIds.length ? await db.collection("users").find({ _id: { $in: userIds } }, { projection: { email: 1 } }).toArray() : [];
     const emailByUserId = new Map(users.map(user => [String(user._id), String(user.email ?? "")]));
+    const viewerId = session && ObjectId.isValid(session.id) ? new ObjectId(session.id) : null;
+    const likedRows = viewerId && rows.length ? await db.collection("providerLikes").find({ userId: viewerId, providerId: { $in: rows.map(row => row._id) } }, { projection: { providerId: 1 } }).toArray() : [];
+    const likedProviderIds = new Set(likedRows.map(row => String(row.providerId)));
     const data = rows.map(row => ({
       id: String(row._id),
       name: String(row.name ?? "Local professional"),
@@ -51,6 +54,7 @@ export async function GET(request: Request) {
       rating: Number(row.averageRating ?? 0),
       reviews: Number(row.reviewCount ?? 0),
       likes: Number(row.likeCount ?? 0),
+      liked: likedProviderIds.has(String(row._id)),
       distance: row.distanceMeters !== undefined ? Number((Number(row.distanceMeters) / 1000).toFixed(1)) : null,
       experience: Number(row.experienceYears ?? 0),
       price: Number(row.startingPrice ?? 0),
