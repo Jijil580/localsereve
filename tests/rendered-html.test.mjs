@@ -66,9 +66,10 @@ test("provider recent work uses only authenticated gallery uploads", async () =>
 });
 
 test("mobile users can manage account and change provider search location", async () => {
-  const [app, styles] = await Promise.all([
+  const [app, styles, locationPin] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
+    readSource("app/location-pin.tsx"),
   ]);
 
   assert.match(app, /className="account-menu" role="menu"/);
@@ -77,8 +78,16 @@ test("mobile users can manage account and change provider search location", asyn
   assert.doesNotMatch(app, /className="mobile-signout"/);
   assert.match(app, /className="search-location-mobile" onClick=\{props\.openLocation\}/);
   assert.match(app, /\{t\.searchingNear\}/);
+  assert.match(app, /setSort\("nearest"\);setView\("search"\)/);
+  assert.match(app, /!customerLocation \|\| p\.distance === null \|\| p\.distance <= radius/);
+  assert.match(app, /className="search-location-control"/);
+  assert.doesNotMatch(app, /className="search-submit"/);
+  assert.doesNotMatch(app, /<button className="primary-btn">\{t\.search\}<\/button>/);
+  assert.match(locationPin, /className=\{`gps-pin/);
   assert.match(styles, /\.account-menu/);
   assert.match(styles, /\.search-location-mobile\{display:flex/);
+  assert.match(styles, /\.gps-pin\{/);
+  assert.match(styles, /\.search-bar-page\{grid-template-columns:180px minmax\(220px,1fr\) auto\}/);
 });
 
 test("opening uses a mobile-first Nearleo service montage", async () => {
@@ -274,7 +283,7 @@ test("empty service selection lists every published provider", async () => {
     readSource("app/api/providers/route.ts"),
   ]);
 
-  assert.match(app, /!q \|\| p\.distance === null \|\| p\.distance <= radius/);
+  assert.match(app, /!customerLocation \|\| p\.distance === null \|\| p\.distance <= radius/);
   assert.match(app, /new URLSearchParams\(\{ limit: "200" \}\)/);
   assert.match(app, /service === "All services"[\s\S]*document\.querySelector\("\.results"\)/);
   assert.match(providersRoute, /Math\.min\(200,/);
@@ -409,7 +418,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v10/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v11/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {

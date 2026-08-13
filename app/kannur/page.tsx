@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SeoProviderCard from "../seo-provider-card";
+import LocationPinIcon from "../location-pin";
 import { displayKannurLocality, getKannurProviders } from "../../lib/public-providers";
 import { SITE_URL, findSeoServiceByName } from "../../lib/seo-services";
 
@@ -84,7 +85,7 @@ export default async function KannurPage() {
 
       <section className="seo-local-coverage">
         <div className="seo-section-heading"><span>Local coverage</span><h2>Kannur areas represented on Nearleo</h2></div>
-        <div>{Array.from(new Set(providers.map((provider) => displayKannurLocality(provider.locality)))).map((locality) => <span key={locality}>⌖ {locality}</span>)}</div>
+        <div>{Array.from(new Set(providers.map((provider) => displayKannurLocality(provider.locality)))).map((locality) => <span key={locality}><LocationPinIcon/>{locality}</span>)}</div>
       </section>
 
       <section className="seo-cta"><div><span>Need a local professional?</span><h2>Describe your requirement on Nearleo</h2></div><Link href="/?service=All%20services">Find help now</Link></section>
