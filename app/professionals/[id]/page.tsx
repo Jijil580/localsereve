@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
   const locality = displayKannurLocality(provider.locality);
   const title = `${provider.business} - ${provider.service} in ${locality}`;
   const description = `${provider.name} provides ${provider.service.toLowerCase()} services in ${locality}. View the public profile, experience and verification status on Nearleo.`;
-  const socialImage = `/professionals/${provider.id}/opengraph-image?v=${provider.updatedAt?.getTime() ?? 1}`;
+  const socialImage = `/professionals/${provider.id}/share-card.png?v=${provider.updatedAt?.getTime() ?? 1}`;
   return {
     title,
     description,
@@ -27,8 +27,10 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
       title: `${title} | Nearleo`,
       description,
       url: `${SITE_URL}/professionals/${provider.id}`,
-      type: "profile",
-      images: [{ url: socialImage, width: 1200, height: 630, alt: `${provider.business}, ${provider.service} in ${locality}` }],
+      type: "website",
+      siteName: "Nearleo",
+      locale: "en_IN",
+      images: [{ url: socialImage, secureUrl: socialImage, type: "image/png", width: 1200, height: 630, alt: `${provider.business}, ${provider.service} in ${locality}` }],
     },
     twitter: { card: "summary_large_image", title: `${title} | Nearleo`, description, images: [socialImage] },
   };

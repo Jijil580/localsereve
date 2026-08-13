@@ -27,15 +27,18 @@ export default function ShareProfile({
 }: ShareProfileProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareToken, setShareToken] = useState("");
   const title = `${business} - ${service} in ${locality}`;
   const shareText = `View ${providerName}'s ${service} profile in ${locality} on Nearleo.`;
-  const encodedUrl = encodeURIComponent(profileUrl);
-  const encodedMessage = encodeURIComponent(`${shareText}\n${profileUrl}`);
+  const shareUrl = shareToken ? `${profileUrl}${profileUrl.includes("?") ? "&" : "?"}shared=${shareToken}` : profileUrl;
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedMessage = encodeURIComponent(`${shareText}\n${shareUrl}`);
 
   useEffect(() => {
     if (!authenticated || typeof window === "undefined") return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("share") !== "1") return;
+    setShareToken(String(Date.now()));
     setOpen(true);
     url.searchParams.delete("share");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
@@ -55,6 +58,7 @@ export default function ShareProfile({
 
   function toggleShare() {
     if (!requireLogin()) return;
+    if (!open) setShareToken(String(Date.now()));
     setOpen(current => !current);
   }
 
@@ -62,7 +66,7 @@ export default function ShareProfile({
     if (!requireLogin()) return;
     if (navigator.share) {
       try {
-        await navigator.share({ title, text: shareText, url: profileUrl });
+        await navigator.share({ title, text: shareText, url: shareUrl });
         return;
       } catch (problem) {
         if (problem instanceof DOMException && problem.name === "AbortError") return;
@@ -74,11 +78,11 @@ export default function ShareProfile({
   async function copyLink() {
     if (!requireLogin()) return;
     try {
-      await navigator.clipboard.writeText(profileUrl);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2200);
     } catch {
-      window.prompt("Copy this Nearleo profile link", profileUrl);
+      window.prompt("Copy this Nearleo profile link", shareUrl);
     }
   }
 

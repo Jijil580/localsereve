@@ -1,22 +1,18 @@
 import { ImageResponse } from "next/og";
-import { notFound } from "next/navigation";
-import { displayKannurLocality, getPublicProvider } from "../../../lib/public-providers";
-import { SITE_URL } from "../../../lib/seo-services";
+import { displayKannurLocality, getPublicProvider } from "../../../../lib/public-providers";
+import { SITE_URL } from "../../../../lib/seo-services";
 
-export const alt = "Nearleo professional profile";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-export const revalidate = 300;
+export const runtime = "nodejs";
+const imageSize = { width: 1200, height: 630 };
 
-export default async function OpenGraphProfileImage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const provider = await getPublicProvider(id).catch(() => null);
-  if (!provider) notFound();
+  if (!provider) return new Response("Not found", { status: 404 });
   const locality = displayKannurLocality(provider.locality);
   const photoUrl = provider.photoUrl ? `${SITE_URL}${provider.photoUrl}` : null;
   const rating = provider.reviews > 0 ? provider.rating.toFixed(1) : "New";
-
-  return new ImageResponse(
+  const generated = new ImageResponse(
     <div style={{ width: "100%", height: "100%", display: "flex", padding: 42, color: "#071f45", background: "linear-gradient(125deg,#ffffff 0%,#edf5ff 68%,#d8e9ff 100%)", fontFamily: "Arial, sans-serif" }}>
       <div style={{ width: 445, height: "100%", display: "flex", position: "relative", overflow: "hidden", borderRadius: 34, background: "linear-gradient(145deg,#1769e0,#0b3d91)", boxShadow: "0 24px 60px rgba(11,61,145,.24)" }}>
         {photoUrl ? <img src={photoUrl} alt="" width="445" height="546" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 112, fontWeight: 800 }}>{provider.initials}</div>}
@@ -35,6 +31,16 @@ export default async function OpenGraphProfileImage({ params }: { params: Promis
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 24, borderTop: "2px solid #d4e3f6" }}><span style={{ color: "#526a88", fontSize: 18 }}>View the complete professional profile</span><b style={{ color: "#1769e0", fontSize: 21 }}>nearleo.com →</b></div>
       </div>
     </div>,
-    size,
+    imageSize,
   );
+  const body = await generated.arrayBuffer();
+  return new Response(body, {
+    headers: {
+      "content-type": "image/png",
+      "content-length": String(body.byteLength),
+      "content-disposition": 'inline; filename="nearleo-provider-profile.png"',
+      "cache-control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+      "x-content-type-options": "nosniff",
+    },
+  });
 }
