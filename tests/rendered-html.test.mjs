@@ -409,7 +409,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v9/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v10/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -425,6 +425,8 @@ test("provider banners show persistent likes, average rating or New, and complet
 
   assert.match(app, /profile-banner-metrics/);
   assert.match(app, /provider-card-metrics/);
+  assert.match(app, /provider-service-spotlight/);
+  assert.match(app, /serviceLabel\(p\.service,language\)/);
   assert.match(app, /onLikeUpdate\(p\.id,Number\(result\.count\|\|0\),Boolean\(result\.liked\)\)/);
   assert.match(app, /p\.likes/);
   assert.match(app, /p\.reviews>0\?p\.rating\.toFixed\(1\):"New"/);
@@ -442,4 +444,8 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(likesRoute, /You cannot like your own provider profile/);
   assert.match(styles, /\.profile-banner-metrics/);
   assert.match(styles, /\.provider-card-metrics/);
+  assert.match(styles, /\.provider-service-spotlight/);
+  assert.match(styles, /\.profile-service-label/);
+  assert.match(styles, /\.public-profile-intro>\.seo-kicker/);
+  assert.match(styles, /\.seo-provider-copy>span/);
 });
