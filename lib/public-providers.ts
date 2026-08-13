@@ -88,7 +88,7 @@ function toPublicProvider(row: Document, emailFallback = ""): PublicProvider {
     likes: Math.max(0, Number(row.likeCount ?? 0)),
     completedJobs: Math.max(0, Number(row.completedJobs ?? 0)),
     initials: String(row.initials ?? name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("") ?? "LS"),
-    photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : null,
+    photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : portfolioIds.length ? `/api/providers/portfolio/${id}/0` : null,
     portfolioUrls: portfolioIds.map((_imageId: unknown, index: number) => `/api/providers/portfolio/${id}/${index}`),
     phone: String(row.phone ?? ""),
     email: String(row.contactEmail ?? emailFallback),

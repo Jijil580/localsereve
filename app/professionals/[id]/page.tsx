@@ -19,7 +19,7 @@ export async function generateMetadata({ params, searchParams }: PublicProfilePa
   const locality = displayKannurLocality(provider.locality);
   const title = `${provider.business} - ${provider.service} in ${locality}`;
   const description = `${provider.name} provides ${provider.service.toLowerCase()} services in ${locality}. View the public profile, experience and verification status on Nearleo.`;
-  const socialImage = `/professionals/${provider.id}/share-card.png?v=${provider.updatedAt?.getTime() ?? 1}`;
+  const socialImage = `/professionals/${provider.id}/share-card.png?v=${provider.updatedAt?.getTime() ?? 1}&design=2`;
   const sharedValue = Array.isArray(query?.shared) ? query?.shared[0] : query?.shared;
   const socialPageUrl = `${SITE_URL}/professionals/${provider.id}${sharedValue && /^\d{10,}$/.test(sharedValue) ? `?shared=${sharedValue}` : ""}`;
   return {

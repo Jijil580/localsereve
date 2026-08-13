@@ -434,7 +434,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v16/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v17/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -487,6 +487,7 @@ test("provider profiles support authenticated social sharing with rich preview b
 
   assert.match(profilePage, /<ShareProfile authenticated=\{Boolean\(viewer\)\}/);
   assert.match(profilePage, /share-card\.png\?v=/);
+  assert.match(profilePage, /design=2/);
   assert.match(profilePage, /socialPageUrl/);
   assert.match(profilePage, /\?shared=\$\{sharedValue\}/);
   assert.match(profilePage, /twitter: \{ card: "summary_large_image"/);
@@ -506,5 +507,15 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v16/);
+  assert.match(worker, /nearleo-shell-v17/);
+});
+
+test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
+  const [publicProviders, providersRoute] = await Promise.all([
+    readSource("lib/public-providers.ts"),
+    readSource("app/api/providers/route.ts"),
+  ]);
+
+  assert.match(publicProviders, /row\.profilePhotoId \? `\/api\/providers\/photo\/\$\{id\}` : portfolioIds\.length \? `\/api\/providers\/portfolio\/\$\{id\}\/0` : null/);
+  assert.match(providersRoute, /row\.profilePhotoId \? `\/api\/providers\/photo\/\$\{row\._id\}` : Array\.isArray\(row\.portfolioImageIds\) && row\.portfolioImageIds\.length \? `\/api\/providers\/portfolio\/\$\{row\._id\}\/0`/);
 });
