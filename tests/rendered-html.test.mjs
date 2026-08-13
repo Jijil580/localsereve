@@ -487,6 +487,8 @@ test("provider profiles support authenticated social sharing with rich preview b
 
   assert.match(profilePage, /<ShareProfile authenticated=\{Boolean\(viewer\)\}/);
   assert.match(profilePage, /share-card\.png\?v=/);
+  assert.match(profilePage, /socialPageUrl/);
+  assert.match(profilePage, /\?shared=\$\{sharedValue\}/);
   assert.match(profilePage, /twitter: \{ card: "summary_large_image"/);
   assert.match(shareProfile, /navigator\.share/);
   assert.match(shareProfile, /https:\/\/wa\.me\/\?text=/);

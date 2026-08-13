@@ -9,16 +9,19 @@ import { SITE_URL, findSeoServiceByName } from "../../../lib/seo-services";
 
 export const dynamic = "force-dynamic";
 
-type PublicProfilePageProps = { params: Promise<{ id: string }> };
+type PublicProfilePageProps = { params: Promise<{ id: string }>; searchParams?: Promise<{ shared?: string | string[] }> };
 
-export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PublicProfilePageProps): Promise<Metadata> {
   const { id } = await params;
+  const query = await searchParams;
   const provider = await getPublicProvider(id).catch(() => null);
   if (!provider) return {};
   const locality = displayKannurLocality(provider.locality);
   const title = `${provider.business} - ${provider.service} in ${locality}`;
   const description = `${provider.name} provides ${provider.service.toLowerCase()} services in ${locality}. View the public profile, experience and verification status on Nearleo.`;
   const socialImage = `/professionals/${provider.id}/share-card.png?v=${provider.updatedAt?.getTime() ?? 1}`;
+  const sharedValue = Array.isArray(query?.shared) ? query?.shared[0] : query?.shared;
+  const socialPageUrl = `${SITE_URL}/professionals/${provider.id}${sharedValue && /^\d{10,}$/.test(sharedValue) ? `?shared=${sharedValue}` : ""}`;
   return {
     title,
     description,
@@ -26,7 +29,7 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
     openGraph: {
       title: `${title} | Nearleo`,
       description,
-      url: `${SITE_URL}/professionals/${provider.id}`,
+      url: socialPageUrl,
       type: "website",
       siteName: "Nearleo",
       locale: "en_IN",
