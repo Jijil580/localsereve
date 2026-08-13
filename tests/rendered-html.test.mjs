@@ -378,6 +378,9 @@ test("signed-in customers and providers can use private WebRTC audio calls", asy
 
   assert.match(app, /WebRtcCallCenter/);
   assert.match(app, /☎ Audio call/);
+  assert.match(app, /className="provider-quick-call"/);
+  assert.match(app, /Internet audio call/);
+  assert.match(app, /updateViaCache:"none"/);
   assert.match(app, /Sign in with a customer account to call a professional/);
   assert.match(callClient, /navigator\.mediaDevices\.getUserMedia/);
   assert.match(callClient, /new RTCPeerConnection/);
@@ -401,4 +404,6 @@ test("signed-in customers and providers can use private WebRTC audio calls", asy
   assert.match(environment, /TURN_SHARED_SECRET=/);
   assert.match(styles, /Private WebRTC audio calling/);
   assert.match(styles, /\.voice-call-overlay/);
+  assert.match(styles, /\.provider-quick-call/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v3/);
 });
