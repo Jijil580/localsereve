@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SeoProviderCard from "../../seo-provider-card";
+import ShareProfile from "../../share-profile";
 import { getSession } from "../../../lib/auth";
 import { displayKannurLocality, getKannurProviders, getPublicProvider } from "../../../lib/public-providers";
 import { SITE_URL, findSeoServiceByName } from "../../../lib/seo-services";
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
   const locality = displayKannurLocality(provider.locality);
   const title = `${provider.business} - ${provider.service} in ${locality}`;
   const description = `${provider.name} provides ${provider.service.toLowerCase()} services in ${locality}. View the public profile, experience and verification status on Nearleo.`;
+  const socialImage = `/professionals/${provider.id}/opengraph-image?v=${provider.updatedAt?.getTime() ?? 1}`;
   return {
     title,
     description,
@@ -26,8 +28,9 @@ export async function generateMetadata({ params }: PublicProfilePageProps): Prom
       description,
       url: `${SITE_URL}/professionals/${provider.id}`,
       type: "profile",
-      images: provider.photoUrl ? [{ url: provider.photoUrl, alt: `${provider.name}, ${provider.service}` }] : [{ url: "/og-blue.png", alt: "Nearleo local services" }],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: `${provider.business}, ${provider.service} in ${locality}` }],
     },
+    twitter: { card: "summary_large_image", title: `${title} | Nearleo`, description, images: [socialImage] },
   };
 }
 
@@ -103,6 +106,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             <div><span>Availability</span><b>{provider.available ? "Available" : "Ask provider"}</b></div>
           </div>
           <section className="public-contact-section"><div className="provider-contact-heading"><span>CONTACT NOW</span><h2>Contact {provider.service}</h2></div>{!viewer&&<p className="contact-login-note">Log in to call, WhatsApp or mail this provider.</p>}<div className="public-direct-contact">{viewer?<><a className="phone" href={`tel:${provider.phone}`}><span>☎</span><b>Call</b></a><a className="whatsapp" href={`https://wa.me/${whatsappInternational}?text=${whatsappMessage}`} target="_blank" rel="noreferrer"><img src="/icons/whatsapp.svg" alt="" aria-hidden="true"/><b>WhatsApp</b></a>{provider.email&&<a className="email" href={`mailto:${provider.email}?subject=${encodeURIComponent(`${provider.service} enquiry from Nearleo`)}`}><span>✉</span><b>Mail</b></a>}</>:<><Link className="phone login-required" href={contactLoginHref}><span>☎</span><b>Call</b></Link><Link className="whatsapp login-required" href={contactLoginHref}><img src="/icons/whatsapp.svg" alt="" aria-hidden="true"/><b>WhatsApp</b></Link><Link className="email login-required" href={contactLoginHref}><span>✉</span><b>Mail</b></Link></>}</div></section>
+          <ShareProfile authenticated={Boolean(viewer)} profileUrl={profileUrl} providerName={provider.name} business={provider.business} service={provider.service} locality={locality} loginHref={contactLoginHref}/>
           <div className="seo-hero-actions"><Link className="seo-primary-link" href={`/?service=${encodeURIComponent(provider.service)}`}>Request {provider.service.toLowerCase()} service</Link>{service && <Link className="seo-secondary-link" href={`/services/${service.slug}/kannur`}>View Kannur listings</Link>}</div>
           {[provider.instagramUrl,provider.facebookUrl,provider.youtubeUrl].some(Boolean)&&<div className="public-social-links"><span>Follow this professional</span>{provider.instagramUrl&&<a href={provider.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}{provider.facebookUrl&&<a href={provider.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}{provider.youtubeUrl&&<a href={provider.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}</div>}
         </div>

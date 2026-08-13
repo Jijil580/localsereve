@@ -434,7 +434,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v14/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v15/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -473,4 +473,33 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(styles, /\.profile-service-label/);
   assert.match(styles, /\.public-profile-intro>\.seo-kicker/);
   assert.match(styles, /\.seo-provider-copy>span/);
+});
+
+test("provider profiles support authenticated social sharing with rich preview banners", async () => {
+  const [profilePage, shareProfile, socialImage, app, styles, worker] = await Promise.all([
+    readSource("app/professionals/[id]/page.tsx"),
+    readSource("app/share-profile.tsx"),
+    readSource("app/professionals/[id]/opengraph-image.tsx"),
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+    readSource("public/sw.js"),
+  ]);
+
+  assert.match(profilePage, /<ShareProfile authenticated=\{Boolean\(viewer\)\}/);
+  assert.match(profilePage, /opengraph-image\?v=/);
+  assert.match(profilePage, /twitter: \{ card: "summary_large_image"/);
+  assert.match(shareProfile, /navigator\.share/);
+  assert.match(shareProfile, /https:\/\/wa\.me\/\?text=/);
+  assert.match(shareProfile, /facebook\.com\/sharer\/sharer\.php/);
+  assert.match(shareProfile, /twitter\.com\/intent\/tweet/);
+  assert.match(shareProfile, /nearleo-share-after-login/);
+  assert.match(shareProfile, /Log in to share profile/);
+  assert.match(socialImage, /width: 1200, height: 630/);
+  assert.match(socialImage, /provider\.photoUrl/);
+  assert.match(socialImage, /provider\.service/);
+  assert.match(socialImage, /provider\.completedJobs/);
+  assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
+  assert.match(app, /nearleo-share-after-login/);
+  assert.match(styles, /\.profile-share-options/);
+  assert.match(worker, /nearleo-shell-v15/);
 });
