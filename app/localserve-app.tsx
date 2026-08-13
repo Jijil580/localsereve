@@ -165,6 +165,10 @@ export default function NearleoApp() {
     return [...list].sort((a,b) => sort === "nearest" ? (a.distance??Infinity)-(b.distance??Infinity) : sort === "rating" ? b.rating-a.rating : sort === "price" ? a.price-b.price : b.jobs-a.jobs);
   }, [providers, query, radius, verifiedOnly, availableOnly, sort,language,customerLocation]);
 
+  const availableLocations = useMemo(() => Array.from(new Set(
+    providers.map(provider => provider.locality?.trim()).filter((locality): locality is string => Boolean(locality)),
+  )).sort((a,b) => a.localeCompare(b,"en-IN",{sensitivity:"base"})), [providers]);
+
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2600); }
   function updateProviderLike(id:string,count:number,liked:boolean){setProviders(list=>list.map(provider=>provider.id===id?{...provider,likes:count,liked}:provider));setSelected(provider=>provider?.id===id?{...provider,likes:count,liked}:provider)}
   function goSearch(service?: string) { if (service === "All services") { setQuery(""); setView("search"); setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50); return; } if (service) setQuery(service); setView("search"); window.scrollTo({top:0, behavior:"smooth"}); }
@@ -283,7 +287,7 @@ export default function NearleoApp() {
 
       <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂",t.home,"home"],["⌕",t.explore,"search"],["＋",t.requests,"requests"],["✉",t.inbox,"messages"],["◉",t.account,"dashboard"]].map(([icon,label,id]) => <button aria-current={view===id ? "page" : undefined} className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} user={currentUser} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
-      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);refreshProviders();notify(`Welcome, ${user.fullName.split(" ")[0]}!`);if(postAuthAction==="request"){setModal("request")}else if(postAuthAction==="contact"){setModal(null)}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
+      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} availableLocations={availableLocations} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);refreshProviders();notify(`Welcome, ${user.fullName.split(" ")[0]}!`);if(postAuthAction==="request"){setModal("request")}else if(postAuthAction==="contact"){setModal(null)}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
       {toast && <div className="toast" role="status">✓ {toast}</div>}
     </div>
   );
@@ -346,12 +350,12 @@ function InformationPanel({type,onFindServices,onJoinProvider}:{type:string;onFi
   return <div className="info-panel"><span className="kicker">{page.kicker}</span><h2>{page.title}</h2>{page.body}</div>;
 }
 
-function AppModal({type,provider,user,customerLocation,language,authMode,onLocationSaved,onClose,onFindServices,onJoinProvider,onSuccess,onAuthenticated,onProfileSaved}:{type:string;provider:Provider|null;user:SessionUser|null;customerLocation:MapLocation|null;language:Language;authMode:"login"|"register";onLocationSaved:(location:MapLocation)=>void;onClose:()=>void;onFindServices:()=>void;onJoinProvider:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void;onProfileSaved:(u:SessionUser)=>void}) {
+function AppModal({type,provider,user,customerLocation,availableLocations,language,authMode,onLocationSaved,onClose,onFindServices,onJoinProvider,onSuccess,onAuthenticated,onProfileSaved}:{type:string;provider:Provider|null;user:SessionUser|null;customerLocation:MapLocation|null;availableLocations:string[];language:Language;authMode:"login"|"register";onLocationSaved:(location:MapLocation)=>void;onClose:()=>void;onFindServices:()=>void;onJoinProvider:()=>void;onSuccess:(m:string)=>void;onAuthenticated:(u:SessionUser)=>void;onProfileSaved:(u:SessionUser)=>void}) {
   if(type==="terms") return <div className="overlay"><div className="modal auth-modal"><UserTerms onClose={onClose}/></div></div>;
   if(["about","contact","safety","pricing","provider-help"].includes(type)) return <div className="overlay"><div className={`modal info-modal ${type==="pricing"?"pricing-modal":""}`}><button className="modal-close" onClick={onClose}>×</button><InformationPanel type={type} onFindServices={onFindServices} onJoinProvider={onJoinProvider}/></div></div>;
   if(type==="profile" && user) return <div className="overlay"><div className="modal profile-modal"><button className="modal-close" onClick={onClose}>×</button><ProviderProfileForm user={user} language={language} onSaved={onProfileSaved}/></div></div>;
   if(type==="profile-view" && user) return <div className="overlay"><div className="modal profile-view-modal"><button className="modal-close" onClick={onClose}>×</button><ProviderProfilePreview/></div></div>;
-  if(type==="location") return <div className="overlay"><div className="modal location-modal"><button className="modal-close" onClick={onClose}>×</button><CustomerLocationForm initial={customerLocation} onSaved={onLocationSaved}/></div></div>;
+  if(type==="location") return <div className="overlay"><div className="modal location-modal"><button className="modal-close" onClick={onClose}>×</button><CustomerLocationForm initial={customerLocation} availableLocations={availableLocations} onSaved={onLocationSaved}/></div></div>;
   if(type==="request"||type==="booking") return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button>{user?<RequestForm provider={type==="booking"?provider:null} language={language} onSuccess={onSuccess}/>:<AuthForm onAuthenticated={onAuthenticated} language={language}/>}</div></div>;
   return <div className="overlay"><div className="modal auth-modal"><button className="modal-close" onClick={onClose}>×</button><AuthForm onAuthenticated={onAuthenticated} language={language} initialMode={authMode}/></div></div>;
 }
@@ -505,25 +509,75 @@ function ProviderProfileForm({user,onSaved,language}:{user:SessionUser;onSaved:(
   return <form className="provider-profile-form" onSubmit={save}><span className="kicker">PROFESSIONAL PROFILE</span><h2>{profile?._id?"Update your profile":"Set up your profile"}</h2><p className="muted">Your profile is listed immediately after saving the required details. Photos, description and identity documents are optional.</p>{profile?.verificationStatus&&<div className={`verification-banner ${profile.verificationStatus}`}><b>{profile.verificationStatus==="approved"?"✓ Verified":"Unverified"}</b><span>{profile.verificationStatus==="approved"?"Nearleo has verified your profile.":"Your profile is public and contactable. Add optional documents if you want to request verification."}</span></div>}<label>Your name<input value={user.fullName} disabled/></label><label>Business or professional name<input name="businessName" required minLength={2} maxLength={100} defaultValue={profile?.businessName||""} placeholder="Example: Jiji Electrical Services"/></label><div className="form-row"><label>Main service<ServiceAutocomplete name="service" value={profileService} onChange={setProfileService} placeholder="Type your service, even with a spelling mistake" ariaLabel="Main professional service" language={language} required restrictToServices/></label><label>Years of experience<input name="experienceYears" required type="number" min="0" max="60" defaultValue={profile?.experienceYears??0}/></label></div><div className="form-row"><label>Starting price (₹)<input name="startingPrice" required type="number" min="0" max="1000000" defaultValue={profile?.startingPrice??299}/></label><label>Phone number<input name="phone" required type="tel" minLength={10} maxLength={24} defaultValue={profile?.phone||""} placeholder="Contact number"/></label></div><label>Service area<input name="locality" required minLength={2} maxLength={100} defaultValue={profile?.locality||"Kochi, Kerala"} placeholder="Area, city"/></label><div className="profile-location"><div className="profile-location-head"><b>Service location on map</b><span>Customers only see the distance, not your exact coordinates.</span></div><LocationPicker value={serviceLocation} onChange={setServiceLocation}/><input type="hidden" name="latitude" value={serviceLocation?.latitude??""}/><input type="hidden" name="longitude" value={serviceLocation?.longitude??""}/>{!serviceLocation&&<small className="location-required">Use mobile location or choose a point on the map.</small>}</div><label>About your services (optional)<textarea name="description" maxLength={800} defaultValue={profile?.description||""} placeholder="Describe your skills, typical jobs and what customers can expect."/></label><div className="provider-social-fields"><div><b>Social media profiles (optional)</b><span>Add your professional pages so customers can follow your work.</span></div><label>Instagram<input name="instagramUrl" type="url" defaultValue={profile?.instagramUrl||""} placeholder="https://instagram.com/yourprofile"/></label><label>Facebook<input name="facebookUrl" type="url" defaultValue={profile?.facebookUrl||""} placeholder="https://facebook.com/yourpage"/></label><label>YouTube<input name="youtubeUrl" type="url" defaultValue={profile?.youtubeUrl||""} placeholder="https://youtube.com/@yourchannel"/></label></div><div className="portfolio-upload"><div><b>Recent work gallery</b><span>Only your uploaded work appears on your public profile.</span></div><label>Choose up to 4 images<input name="recentWork" type="file" accept="image/jpeg,image/png,image/webp" multiple/><em>New images replace the current gallery · maximum 3.5 MB combined</em></label>{Array.isArray(profile?.portfolioImageIds)&&profile.portfolioImageIds.length>0&&<label className="remove-portfolio"><input name="removePortfolio" type="checkbox"/><span>Remove all {profile.portfolioImageIds.length} current work image{profile.portfolioImageIds.length===1?"":"s"}</span></label>}</div><div className="identity-upload-grid"><label>Profile photo (optional) {profile?.profilePhotoId&&<small>Current photo saved</small>}<input name="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp"/><em>Clear face photo · JPG, PNG or WebP · max 4 MB</em></label><label>ID card — front (optional) {profile?.idCardFrontId&&<small>Current ID saved</small>}<input name="idCardFront" type="file" accept="image/jpeg,image/png,image/webp"/><em>Government-issued identity card · max 4 MB</em></label><label>ID card — back (optional) {profile?.idCardBackId&&<small>Current image saved</small>}<input name="idCardBack" type="file" accept="image/jpeg,image/png,image/webp"/><em>Upload if your ID contains details on both sides</em></label></div><div className="privacy-note"><b>🔒 Private identity verification</b><span>ID images are optional, private and never shown publicly. Only authorised Nearleo administrators can review uploaded documents.</span></div><div className="profile-checks"><label><input name="available" type="checkbox" defaultChecked={profile?.available??true}/> Available for new work</label><label><input name="emergency" type="checkbox" defaultChecked={profile?.emergency??false}/> Emergency service offered</label></div>{error&&<div className="auth-error" role="alert">{error}</div>}<button className="primary-btn wide" type="submit" disabled={busy}>{busy?"Saving…":profile?._id?"Save profile changes":"Save and publish profile"}</button></form>;
 }
 
-function CustomerLocationForm({initial,onSaved}:{initial:MapLocation|null;onSaved:(location:MapLocation)=>void}) {
+function CustomerLocationForm({initial,availableLocations,onSaved}:{initial:MapLocation|null;availableLocations:string[];onSaved:(location:MapLocation)=>void}) {
   const [location,setLocation]=useState<MapLocation|null>(initial);
   const [label,setLabel]=useState(initial?.label||"");
   const [busy,setBusy]=useState(false);
-  async function save(){if(!location)return;setBusy(true);await onSaved({...location,label:label.trim()||"Selected location"});setBusy(false);}
-  return <div className="customer-location-form"><span className="kicker">YOUR LOCATION</span><h2>Find professionals near you</h2><p className="muted">Use your mobile GPS or tap anywhere on the map. Your saved location is used only to calculate distance.</p><LocationPicker value={location} onChange={(next)=>{setLocation(next);if(!label)setLabel(next.label||"")}}/><label>Location name<input value={label} onChange={event=>setLabel(event.target.value)} placeholder="Home, office or area name"/></label><button className="primary-btn wide" onClick={save} disabled={!location||busy}>{busy?"Saving…":"Use this location"}</button></div>;
+  const [areaError,setAreaError]=useState("");
+  const locationGroups=useMemo(()=>availableLocations.reduce<Record<string,string[]>>((groups,area)=>{
+    const letter=(area[0]||"#").toUpperCase();
+    (groups[letter]??=[]).push(area);
+    return groups;
+  },{}),[availableLocations]);
+
+  async function save(nextLocation:MapLocation|null=location){
+    if(!nextLocation||busy)return;
+    setBusy(true);
+    setAreaError("");
+    await onSaved({...nextLocation,label:nextLocation.label?.trim()||label.trim()||"Selected location"});
+    setBusy(false);
+  }
+
+  async function chooseAvailableArea(area:string){
+    if(busy)return;
+    setBusy(true);
+    setAreaError("");
+    try{
+      const response=await fetch(`/api/location/search?q=${encodeURIComponent(area)}`);
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Unable to find this location");
+      const match:MapLocation|undefined=result.data?.[0];
+      if(!match)throw new Error("Location not found. Type the area name below to search again.");
+      const selectedArea={...match,label:area};
+      setLocation(selectedArea);
+      setLabel(area);
+      await onSaved(selectedArea);
+    }catch(problem){
+      setAreaError(problem instanceof Error?problem.message:"Unable to find this location");
+      setBusy(false);
+    }
+  }
+
+  return <div className="customer-location-form">
+    <span className="kicker">YOUR LOCATION</span>
+    <h2>Choose a nearby location</h2>
+    <p className="muted">Tap an available area to instantly list its nearest professionals. Locations are arranged alphabetically.</p>
+    {availableLocations.length>0&&<section className="nearby-location-list" aria-labelledby="nearby-location-title">
+      <div className="nearby-location-head"><span><LocationPinIcon/></span><div><b id="nearby-location-title">Nearby locations</b><small>Areas with professionals currently available</small></div></div>
+      <div className="nearby-location-groups">{Object.entries(locationGroups).map(([letter,areas])=><div className="nearby-location-group" key={letter}><b>{letter}</b><div>{areas.map(area=><button type="button" key={area} disabled={busy} onClick={()=>chooseAvailableArea(area)}><LocationPinIcon/><span>{area}</span><i aria-hidden="true">›</i></button>)}</div></div>)}</div>
+    </section>}
+    <div className="location-search-divider"><span>Area not listed? Start typing below</span></div>
+    <LocationPicker value={location} onChange={(next)=>{setLocation(next);setLabel(next.label||"")}} onSelect={save}/>
+    <label>Location name<input value={label} onChange={event=>setLabel(event.target.value)} placeholder="Home, office or area name"/></label>
+    {areaError&&<div className="location-error" role="alert">{areaError}</div>}
+    <button className="primary-btn wide" onClick={()=>save()} disabled={!location||busy}>{busy?"Finding nearby professionals…":"Use selected map location"}</button>
+  </div>;
 }
 
-function LocationPicker({value,onChange}:{value:MapLocation|null;onChange:(location:MapLocation)=>void}) {
+function LocationPicker({value,onChange,onSelect}:{value:MapLocation|null;onChange:(location:MapLocation)=>void;onSelect?:(location:MapLocation)=>void}) {
   const containerRef=useRef<HTMLDivElement|null>(null);
   const mapRef=useRef<any>(null);
   const markerRef=useRef<any>(null);
   const callbackRef=useRef(onChange);
+  const selectRef=useRef(onSelect);
+  const searchSequenceRef=useRef(0);
   const [locating,setLocating]=useState(false);
   const [error,setError]=useState("");
   const [placeQuery,setPlaceQuery]=useState("");
   const [placeResults,setPlaceResults]=useState<MapLocation[]>([]);
   const [searching,setSearching]=useState(false);
   callbackRef.current=onChange;
+  selectRef.current=onSelect;
   useEffect(()=>{
     let cancelled=false;
     (async()=>{
@@ -544,9 +598,39 @@ function LocationPicker({value,onChange}:{value:MapLocation|null;onChange:(locat
     return()=>{cancelled=true;if(mapRef.current){mapRef.current.remove();mapRef.current=null;markerRef.current=null;}};
   },[]);
   useEffect(()=>{if(value&&mapRef.current&&markerRef.current){markerRef.current.setLatLng([value.latitude,value.longitude]);mapRef.current.setView([value.latitude,value.longitude],15);}},[value?.latitude,value?.longitude]);
-  async function searchPlace(){if(placeQuery.trim().length<2)return;setSearching(true);setError("");try{const response=await fetch(`/api/location/search?q=${encodeURIComponent(placeQuery.trim())}`);const result=await response.json();if(!response.ok)throw new Error(result.error||"Unable to search locations");setPlaceResults(result.data||[]);if(!(result.data||[]).length)setError("No matching location found. Try an area, town, landmark or postcode.")}catch(problem){setError(problem instanceof Error?problem.message:"Unable to search locations")}finally{setSearching(false)}}
-  function detect(){setError("");if(!navigator.geolocation){setError("Location is not supported on this device.");return}setLocating(true);navigator.geolocation.getCurrentPosition(position=>{const next={latitude:position.coords.latitude,longitude:position.coords.longitude,label:"Current location"};onChange(next);setLocating(false)},()=>{setError("Location permission was not granted. You can choose a point on the map instead.");setLocating(false)},{enableHighAccuracy:true,timeout:12000,maximumAge:60000});}
-  return <div className="location-picker"><div className="place-search" role="search"><input value={placeQuery} onChange={event=>setPlaceQuery(event.target.value)} onKeyDown={event=>{if(event.key==="Enter"){event.preventDefault();searchPlace()}}} placeholder="Search area, town, landmark or postcode" aria-label="Search location"/><button type="button" onClick={searchPlace} disabled={searching}>{searching?"Searching…":"Search"}</button></div>{placeResults.length>0&&<div className="place-results">{placeResults.map((result,index)=><button type="button" key={`${result.latitude}-${result.longitude}-${index}`} onClick={()=>{onChange(result);setPlaceQuery(result.label||"");setPlaceResults([])}}><b><LocationPinIcon/></b><span>{result.label}</span></button>)}</div>}<button type="button" className="gps-button" onClick={detect} disabled={locating}><LocationPinIcon/>{locating?"Detecting your location…":"Use my current mobile location"}</button><div ref={containerRef} className="map-canvas" aria-label="Choose location on map"/>{value&&<div className="coordinate-chip">✓ Location selected · {value.label||`${value.latitude.toFixed(5)}, ${value.longitude.toFixed(5)}`}</div>}{error&&<div className="location-error">{error}</div>}</div>;
+  useEffect(()=>{
+    const query=placeQuery.trim();
+    const sequence=++searchSequenceRef.current;
+    if(query.length<2){setPlaceResults([]);setSearching(false);setError("");return;}
+    setSearching(true);
+    setError("");
+    const timer=window.setTimeout(()=>searchPlace(query,sequence),1200);
+    return()=>window.clearTimeout(timer);
+  },[placeQuery]);
+  async function searchPlace(query:string,sequence:number){
+    try{
+      const response=await fetch(`/api/location/search?q=${encodeURIComponent(query)}`);
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Unable to search locations");
+      if(sequence!==searchSequenceRef.current)return;
+      setPlaceResults(result.data||[]);
+      if(!(result.data||[]).length)setError("No matching location found. Try an area, town, landmark or postcode.");
+    }catch(problem){
+      if(sequence===searchSequenceRef.current)setError(problem instanceof Error?problem.message:"Unable to search locations");
+    }finally{
+      if(sequence===searchSequenceRef.current)setSearching(false);
+    }
+  }
+  function selectPlace(result:MapLocation){onChange(result);setPlaceQuery("");setPlaceResults([]);selectRef.current?.(result);}
+  function detect(){setError("");if(!navigator.geolocation){setError("Location is not supported on this device.");return}setLocating(true);navigator.geolocation.getCurrentPosition(position=>{const next={latitude:position.coords.latitude,longitude:position.coords.longitude,label:"Current location"};onChange(next);selectRef.current?.(next);setLocating(false)},()=>{setError("Location permission was not granted. You can choose a point on the map instead.");setLocating(false)},{enableHighAccuracy:true,timeout:12000,maximumAge:60000});}
+  return <div className="location-picker">
+    <div className="place-search" role="search"><input value={placeQuery} onChange={event=>setPlaceQuery(event.target.value)} placeholder="Type any area, town, landmark or postcode" aria-label="Search location automatically"/><small aria-live="polite">{searching?"Searching automatically…":"Matching locations appear automatically"}</small></div>
+    {placeResults.length>0&&<div className="place-results">{placeResults.map((result,index)=><button type="button" key={`${result.latitude}-${result.longitude}-${index}`} onClick={()=>selectPlace(result)}><b><LocationPinIcon/></b><span>{result.label}</span><i aria-hidden="true">›</i></button>)}</div>}
+    <button type="button" className="gps-button" onClick={detect} disabled={locating}><LocationPinIcon/>{locating?"Detecting your location…":"Use my current mobile location"}</button>
+    <div ref={containerRef} className="map-canvas" aria-label="Choose location on map"/>
+    {value&&<div className="coordinate-chip">✓ Location selected · {value.label||`${value.latitude.toFixed(5)}, ${value.longitude.toFixed(5)}`}</div>}
+    {error&&<div className="location-error">{error}</div>}
+  </div>;
 }
 
 function ProviderProfilePreview() {

@@ -88,6 +88,12 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.search-location-mobile\{display:flex/);
   assert.match(styles, /\.gps-pin\{/);
   assert.match(styles, /\.search-bar-page\{grid-template-columns:180px minmax\(220px,1fr\) auto\}/);
+  assert.match(app, /className="nearby-location-list"/);
+  assert.match(app, /a\.localeCompare\(b,"en-IN",\{sensitivity:"base"\}\)/);
+  assert.match(app, /window\.setTimeout\(\(\)=>searchPlace\(query,sequence\),1200\)/);
+  assert.match(app, /Matching locations appear automatically/);
+  assert.doesNotMatch(app, /onClick=\{searchPlace\}/);
+  assert.match(styles, /\.nearby-location-group/);
 });
 
 test("opening uses a mobile-first Nearleo service montage", async () => {
@@ -418,7 +424,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v11/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v12/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
