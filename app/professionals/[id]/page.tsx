@@ -88,6 +88,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         <div className="public-profile-image">
           {provider.photoUrl ? <img src={provider.photoUrl} alt={`${provider.name}, ${provider.service} in ${locality}`} /> : <span>{provider.initials}</span>}
           <b className={provider.verified ? "verified" : "unverified"}>{provider.verified ? "✓ Nearleo verified" : "Unverified profile"}</b>
+          <div className="public-profile-banner-metrics" aria-label="Provider profile summary"><div><i>♥</i><span><b>{provider.likes}</b><small>{provider.likes===1?"Like":"Likes"}</small></span></div><div><i>★</i><span><b>{provider.reviews>0?provider.rating.toFixed(1):"New"}</b><small>{provider.reviews>0?`${provider.reviews} reviews`:"No ratings yet"}</small></span></div><div><i>✓</i><span><b>{provider.completedJobs}</b><small>{provider.completedJobs===1?"Work done":"Works done"}</small></span></div></div>
         </div>
         <div className="public-profile-intro">
           <span className="seo-kicker">{provider.service} · {locality}</span>

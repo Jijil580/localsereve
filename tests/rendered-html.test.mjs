@@ -409,5 +409,30 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v7/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v8/);
+});
+
+test("provider banners show persistent likes, average rating or New, and completed works", async () => {
+  const [app, profilePage, providersRoute, publicProviders, likesRoute, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/professionals/[id]/page.tsx"),
+    readSource("app/api/providers/route.ts"),
+    readSource("lib/public-providers.ts"),
+    readSource("app/api/providers/[id]/likes/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /profile-banner-metrics/);
+  assert.match(app, /likeSummary\.count/);
+  assert.match(app, /p\.reviews>0\?p\.rating\.toFixed\(1\):"New"/);
+  assert.match(app, /Works done/);
+  assert.match(profilePage, /public-profile-banner-metrics/);
+  assert.match(profilePage, /provider\.likes/);
+  assert.match(profilePage, /provider\.completedJobs/);
+  assert.match(providersRoute, /likes: Number\(row\.likeCount/);
+  assert.match(publicProviders, /likes: Math\.max\(0, Number\(row\.likeCount/);
+  assert.match(likesRoute, /createIndex\(\{ userId: 1, providerId: 1 \}, \{ unique: true \}\)/);
+  assert.match(likesRoute, /countDocuments\(\{ providerId \}\)/);
+  assert.match(likesRoute, /You cannot like your own provider profile/);
+  assert.match(styles, /\.profile-banner-metrics/);
 });

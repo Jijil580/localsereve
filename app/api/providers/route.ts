@@ -50,6 +50,7 @@ export async function GET(request: Request) {
       service: String(row.service ?? "Local service"),
       rating: Number(row.averageRating ?? 0),
       reviews: Number(row.reviewCount ?? 0),
+      likes: Number(row.likeCount ?? 0),
       distance: row.distanceMeters !== undefined ? Number((Number(row.distanceMeters) / 1000).toFixed(1)) : null,
       experience: Number(row.experienceYears ?? 0),
       price: Number(row.startingPrice ?? 0),

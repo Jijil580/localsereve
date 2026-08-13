@@ -18,6 +18,7 @@ export type PublicProvider = {
   startingPrice: number;
   rating: number;
   reviews: number;
+  likes: number;
   completedJobs: number;
   initials: string;
   photoUrl: string | null;
@@ -43,6 +44,7 @@ const publicProjection = {
   startingPrice: 1,
   averageRating: 1,
   reviewCount: 1,
+  likeCount: 1,
   completedJobs: 1,
   initials: 1,
   profilePhotoId: 1,
@@ -83,6 +85,7 @@ function toPublicProvider(row: Document, emailFallback = ""): PublicProvider {
     startingPrice: Math.max(0, Number(row.startingPrice ?? 0)),
     rating: Math.max(0, Number(row.averageRating ?? 0)),
     reviews: Math.max(0, Number(row.reviewCount ?? 0)),
+    likes: Math.max(0, Number(row.likeCount ?? 0)),
     completedJobs: Math.max(0, Number(row.completedJobs ?? 0)),
     initials: String(row.initials ?? name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("") ?? "LS"),
     photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : null,
