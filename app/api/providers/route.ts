@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
 
 export const runtime = "nodejs";
@@ -6,6 +7,8 @@ export const runtime = "nodejs";
 function escapeRegex(value: string) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
 export async function GET(request: Request) {
+  const session = await getSession();
+  const revealContact = Boolean(session);
   const url = new URL(request.url);
   const search = url.searchParams.get("q")?.trim().slice(0, 80) ?? "";
   const verified = url.searchParams.get("verified") === "true";
@@ -37,7 +40,7 @@ export async function GET(request: Request) {
     } else {
       rows = await db.collection("providers").find(query, { projection: { privateDocuments: 0, paymentDetails: 0, location: 0 } }).sort({ averageRating: -1, completedJobs: -1 }).limit(limit).toArray();
     }
-    const userIds = rows.map(row => row.userId).filter((value): value is ObjectId => value instanceof ObjectId);
+    const userIds = revealContact ? rows.map(row => row.userId).filter((value): value is ObjectId => value instanceof ObjectId) : [];
     const users = userIds.length ? await db.collection("users").find({ _id: { $in: userIds } }, { projection: { email: 1 } }).toArray() : [];
     const emailByUserId = new Map(users.map(user => [String(user._id), String(user.email ?? "")]));
     const data = rows.map(row => ({
@@ -59,8 +62,8 @@ export async function GET(request: Request) {
       jobs: Number(row.completedJobs ?? 0),
       locality: String(row.locality ?? "Kochi"),
       portfolio: Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0,4).map((_id: unknown,index: number) => `/api/providers/portfolio/${row._id}/${index}`) : [],
-      phone: String(row.phone ?? ""),
-      email: String(row.contactEmail ?? emailByUserId.get(String(row.userId)) ?? ""),
+      phone: revealContact ? String(row.phone ?? "") : "",
+      email: revealContact ? String(row.contactEmail ?? emailByUserId.get(String(row.userId)) ?? "") : "",
       instagramUrl: String(row.instagramUrl ?? ""),
       facebookUrl: String(row.facebookUrl ?? ""),
       youtubeUrl: String(row.youtubeUrl ?? ""),

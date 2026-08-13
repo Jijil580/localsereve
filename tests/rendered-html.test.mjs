@@ -223,7 +223,7 @@ test("provider profiles publish immediately with optional verification media", a
   assert.match(app, /Save and publish profile/);
 });
 
-test("provider profiles offer direct phone, WhatsApp and email contact", async () => {
+test("provider contact actions require login before phone, WhatsApp or email is revealed", async () => {
   const [app, providersRoute, profilePage] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/api/providers/route.ts"),
@@ -232,12 +232,21 @@ test("provider profiles offer direct phone, WhatsApp and email contact", async (
 
   assert.match(app, /href={`tel:\$\{p\.phone\}`}/);
   assert.match(app, /Contact \{p\.service\}/);
+  assert.match(app, /requireContactLogin\(event,user,onSignIn\)/);
+  assert.match(app, /Please log in to call, WhatsApp or mail this provider/);
+  assert.match(app, /contactLogin/);
   assert.match(app, /\/icons\/whatsapp\.svg/);
   assert.match(app, /<b>WhatsApp<\/b>/);
   assert.match(app, /<b>Mail<\/b>/);
-  assert.match(providersRoute, /phone: String\(row\.phone/);
-  assert.match(providersRoute, /email: String\(row\.contactEmail/);
+  assert.match(providersRoute, /const session = await getSession\(\)/);
+  assert.match(providersRoute, /const revealContact = Boolean\(session\)/);
+  assert.match(providersRoute, /phone: revealContact \? String\(row\.phone/);
+  assert.match(providersRoute, /email: revealContact \? String\(row\.contactEmail/);
   assert.match(profilePage, /Contact \{provider\.service\}/);
+  assert.match(profilePage, /const viewer = await getSession\(\)/);
+  assert.match(profilePage, /contactLoginHref/);
+  assert.match(profilePage, /Log in to call, WhatsApp or mail this provider/);
+  assert.match(profilePage, /telephone: viewer \? provider\.phone : undefined/);
   assert.match(profilePage, /<b>Call<\/b>/);
   assert.match(profilePage, /WhatsApp/);
   assert.match(profilePage, /\/icons\/whatsapp\.svg/);
@@ -400,5 +409,5 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v6/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v7/);
 });

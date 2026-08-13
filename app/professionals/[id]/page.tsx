@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SeoProviderCard from "../../seo-provider-card";
+import { getSession } from "../../../lib/auth";
 import { displayKannurLocality, getKannurProviders, getPublicProvider } from "../../../lib/public-providers";
 import { SITE_URL, findSeoServiceByName } from "../../../lib/seo-services";
 
@@ -34,6 +35,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const { id } = await params;
   const provider = await getPublicProvider(id).catch(() => null);
   if (!provider) notFound();
+  const viewer = await getSession();
   const locality = displayKannurLocality(provider.locality);
   const service = findSeoServiceByName(provider.service);
   const relatedProviders = (await getKannurProviders(provider.service).catch(() => [])).filter((item) => item.id !== provider.id).slice(0, 3);
@@ -41,6 +43,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const whatsappNumber = provider.phone.replace(/\D/g, "");
   const whatsappInternational = whatsappNumber.length === 10 ? `91${whatsappNumber}` : whatsappNumber;
   const whatsappMessage = encodeURIComponent(`Hello ${provider.name}, I found your ${provider.service} profile on Nearleo.`);
+  const contactLoginHref = `/?contactLogin=1&service=${encodeURIComponent(provider.service)}`;
   const profileDescription = provider.description || `${provider.name} has published a ${provider.service.toLowerCase()} service profile for customers in ${locality}.`;
   const structuredData = [
     {
@@ -58,8 +61,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
         image: provider.photoUrl ? `${SITE_URL}${provider.photoUrl}` : undefined,
         workLocation: { "@type": "Place", name: locality },
         worksFor: { "@type": "Organization", name: provider.business },
-        telephone: provider.phone,
-        email: provider.email || undefined,
+        telephone: viewer ? provider.phone : undefined,
+        email: viewer ? provider.email || undefined : undefined,
         sameAs: [provider.instagramUrl, provider.facebookUrl, provider.youtubeUrl].filter(Boolean),
         aggregateRating: provider.reviews > 0 ? { "@type": "AggregateRating", ratingValue: provider.rating, reviewCount: provider.reviews, bestRating: 5 } : undefined,
       },
@@ -98,7 +101,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             {provider.startingPrice > 0 && <div><span>Starting price</span><b>₹{provider.startingPrice}</b></div>}
             <div><span>Availability</span><b>{provider.available ? "Available" : "Ask provider"}</b></div>
           </div>
-          <section className="public-contact-section"><div className="provider-contact-heading"><span>CONTACT NOW</span><h2>Contact {provider.service}</h2></div><div className="public-direct-contact"><a className="phone" href={`tel:${provider.phone}`}><span>☎</span><b>Call</b></a><a className="whatsapp" href={`https://wa.me/${whatsappInternational}?text=${whatsappMessage}`} target="_blank" rel="noreferrer"><img src="/icons/whatsapp.svg" alt="" aria-hidden="true"/><b>WhatsApp</b></a>{provider.email&&<a className="email" href={`mailto:${provider.email}?subject=${encodeURIComponent(`${provider.service} enquiry from Nearleo`)}`}><span>✉</span><b>Mail</b></a>}</div></section>
+          <section className="public-contact-section"><div className="provider-contact-heading"><span>CONTACT NOW</span><h2>Contact {provider.service}</h2></div>{!viewer&&<p className="contact-login-note">Log in to call, WhatsApp or mail this provider.</p>}<div className="public-direct-contact">{viewer?<><a className="phone" href={`tel:${provider.phone}`}><span>☎</span><b>Call</b></a><a className="whatsapp" href={`https://wa.me/${whatsappInternational}?text=${whatsappMessage}`} target="_blank" rel="noreferrer"><img src="/icons/whatsapp.svg" alt="" aria-hidden="true"/><b>WhatsApp</b></a>{provider.email&&<a className="email" href={`mailto:${provider.email}?subject=${encodeURIComponent(`${provider.service} enquiry from Nearleo`)}`}><span>✉</span><b>Mail</b></a>}</>:<><Link className="phone login-required" href={contactLoginHref}><span>☎</span><b>Call</b></Link><Link className="whatsapp login-required" href={contactLoginHref}><img src="/icons/whatsapp.svg" alt="" aria-hidden="true"/><b>WhatsApp</b></Link><Link className="email login-required" href={contactLoginHref}><span>✉</span><b>Mail</b></Link></>}</div></section>
           <div className="seo-hero-actions"><Link className="seo-primary-link" href={`/?service=${encodeURIComponent(provider.service)}`}>Request {provider.service.toLowerCase()} service</Link>{service && <Link className="seo-secondary-link" href={`/services/${service.slug}/kannur`}>View Kannur listings</Link>}</div>
           {[provider.instagramUrl,provider.facebookUrl,provider.youtubeUrl].some(Boolean)&&<div className="public-social-links"><span>Follow this professional</span>{provider.instagramUrl&&<a href={provider.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}{provider.facebookUrl&&<a href={provider.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}{provider.youtubeUrl&&<a href={provider.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}</div>}
         </div>
