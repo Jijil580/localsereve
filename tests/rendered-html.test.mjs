@@ -231,12 +231,17 @@ test("provider profiles offer direct phone, WhatsApp and email contact", async (
   ]);
 
   assert.match(app, /href={`tel:\$\{p\.phone\}`}/);
-  assert.match(app, /Start chat/);
-  assert.match(app, /Send enquiry/);
+  assert.match(app, /Contact \{p\.service\}/);
+  assert.match(app, /\/icons\/whatsapp\.svg/);
+  assert.match(app, /<b>WhatsApp<\/b>/);
+  assert.match(app, /<b>Mail<\/b>/);
   assert.match(providersRoute, /phone: String\(row\.phone/);
   assert.match(providersRoute, /email: String\(row\.contactEmail/);
-  assert.match(profilePage, /Call directly/);
+  assert.match(profilePage, /Contact \{provider\.service\}/);
+  assert.match(profilePage, /<b>Call<\/b>/);
   assert.match(profilePage, /WhatsApp/);
+  assert.match(profilePage, /\/icons\/whatsapp\.svg/);
+  assert.match(profilePage, /<b>Mail<\/b>/);
   assert.match(profilePage, /mailto:/);
 });
 
@@ -395,5 +400,5 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v5/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v6/);
 });
