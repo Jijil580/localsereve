@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, MouseEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Language, malayalamServiceNames, serviceLabel, translations } from "./i18n";
+import { Language, languageOptions, serviceLabel, serviceSearchLabels, translations } from "./i18n";
 import LocationPinIcon from "./location-pin";
 import { TERMS_VERSION } from "../lib/terms";
 import { seoServices } from "../lib/seo-services";
@@ -48,7 +48,7 @@ const featuredCategories = [...categories.slice(0,9), categories[categories.leng
 const serviceAliases:Record<string,string[]>={"Interlock paving":["interlock","interlocking paver","paving blocks"],"Hollow-brick work":["hollow brick","hollobricks","hollow blocks"]};
 
 function editDistance(left:string,right:string){const previous=Array.from({length:right.length+1},(_,index)=>index);for(let row=1;row<=left.length;row++){let diagonal=previous[0];previous[0]=row;for(let column=1;column<=right.length;column++){const above=previous[column];previous[column]=Math.min(previous[column]+1,previous[column-1]+1,diagonal+(left[row-1]===right[column-1]?0:1));diagonal=above}}return previous[right.length]}
-function matchingServices(value:string,language:Language="EN"){const needle=value.trim().toLowerCase();if(!needle)return[];return serviceNames.map(name=>{const normalized=name.toLowerCase();const localized=(malayalamServiceNames[name]||"").toLowerCase();const terms=[normalized,...normalized.split(/\s+|[-/]/),...(serviceAliases[name]||[]),localized];const direct=terms.some(term=>term&&term.includes(needle))?0:Math.min(...terms.filter(Boolean).map(term=>editDistance(needle,term)));return{name,score:direct}}).filter(item=>item.score<=Math.max(2,Math.floor(needle.length*.4))).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7).map(item=>item.name)}
+function matchingServices(value:string,language:Language="EN"){const needle=value.trim().toLocaleLowerCase();if(!needle)return[];return serviceNames.map(name=>{const normalized=name.toLowerCase();const localized=serviceSearchLabels(name).map(label=>label.toLocaleLowerCase());const selected=serviceLabel(name,language).toLocaleLowerCase();const terms=[normalized,...normalized.split(/\s+|[-/]/),...(serviceAliases[name]||[]),selected,...localized];const direct=terms.some(term=>term&&term.includes(needle))?0:Math.min(...terms.filter(Boolean).map(term=>editDistance(needle,term)));return{name,score:direct}}).filter(item=>item.score<=Math.max(2,Math.floor(needle.length*.4))).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7).map(item=>item.name)}
 
 function ServiceAutocomplete({value,onChange,onSelect,placeholder,ariaLabel,language="EN",name,required=false,disabled=false,restrictToServices=false}:{value:string;onChange:(value:string)=>void;onSelect?:(value:string)=>void;placeholder:string;ariaLabel:string;language?:Language;name?:string;required?:boolean;disabled?:boolean;restrictToServices?:boolean}){
   const [open,setOpen]=useState(false);const [active,setActive]=useState(0);const suggestions=useMemo(()=>matchingServices(value,language),[value,language]);const copy=translations[language];
@@ -144,7 +144,7 @@ export default function NearleoApp() {
   useEffect(() => {
     if(localStorage.getItem("nearlio-intro-seen")==="1")setIntroVisible(false);
     const savedLanguage=localStorage.getItem("nearlio-language");
-    if(savedLanguage==="ML"||savedLanguage==="EN")setLanguage(savedLanguage);
+    if(languageOptions.some(option=>option.code===savedLanguage))setLanguage(savedLanguage as Language);
     const launchParams=new URLSearchParams(window.location.search);
     const requestedService=launchParams.get("service");
     if(requestedService){
@@ -160,7 +160,7 @@ export default function NearleoApp() {
 
   useEffect(()=>{
     localStorage.setItem("nearlio-language",language);
-    document.documentElement.lang=language==="ML"?"ml":"en";
+    document.documentElement.lang=languageOptions.find(option=>option.code===language)?.lang||"en";
     document.documentElement.dataset.language=language;
   },[language]);
 
@@ -204,7 +204,7 @@ export default function NearleoApp() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     const suggestedService = q.length >= 3 ? matchingServices(query,language)[0]||"" : "";
-    const list = providers.filter(p => (!q || `${p.name} ${p.business} ${p.service} ${malayalamServiceNames[p.service]||""}`.toLowerCase().includes(q) || p.service===suggestedService) && (!customerLocation || p.distance === null || p.distance <= radius) && (!verifiedOnly || p.verified) && (!availableOnly || p.available));
+    const list = providers.filter(p => (!q || `${p.name} ${p.business} ${p.service} ${serviceSearchLabels(p.service).join(" ")}`.toLocaleLowerCase().includes(q) || p.service===suggestedService) && (!customerLocation || p.distance === null || p.distance <= radius) && (!verifiedOnly || p.verified) && (!availableOnly || p.available));
     return [...list].sort((a,b) => sort === "nearest" ? (a.distance??Infinity)-(b.distance??Infinity) : sort === "rating" ? b.rating-a.rating : sort === "price" ? a.price-b.price : b.jobs-a.jobs);
   }, [providers, query, radius, verifiedOnly, availableOnly, sort,language,customerLocation]);
 
@@ -240,7 +240,7 @@ export default function NearleoApp() {
         </nav>
         <div className="header-actions">
           <button className="location-mini" onClick={useLocation}><LocationPinIcon/><span>{customerLocation?.label||t.setLocation}</span></button>
-          <div className="language-switch" role="group" aria-label={t.languageLabel}><span aria-hidden="true">文</span><button type="button" className={language==="EN"?"active":""} aria-pressed={language==="EN"} onClick={()=>setLanguage("EN")}>EN</button><button type="button" className={language==="ML"?"active":""} aria-pressed={language==="ML"} onClick={()=>setLanguage("ML")}>മലയാളം</button></div>
+          <label className="language-switch" aria-label={t.languageLabel}><span aria-hidden="true">文</span><select value={language} onChange={event=>setLanguage(event.target.value as Language)} aria-label={t.languageLabel}>{languageOptions.map(option=><option key={option.code} value={option.code} lang={option.lang}>{option.label}</option>)}</select></label>
           <button className="ghost-btn desktop-only" onClick={() => {setRole("provider"); currentUser ? setView("dashboard") : setModal("auth")}}>{t.forProfessionals}</button>
           {currentUser ? <div className="account-menu-wrap"><button className="account-chip" aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen(open=>!open)}><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><b>{currentUser.fullName.split(" ")[0]}</b><i>⌄</i></button>{accountMenuOpen&&<div className="account-menu" role="menu"><div className="account-menu-head"><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><div><b>{currentUser.fullName}</b><small>{currentUser.role} account</small></div></div><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);setRole(currentUser.role);setView("dashboard")}}><span>◉</span><div><b>{t.profileDashboard}</b><small>{t.manageAccount}</small></div></button><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);useLocation()}}><span>⌖</span><div><b>{t.changeLocation}</b><small>{customerLocation?.label||t.chooseSearchArea}</small></div></button><button role="menuitem" className="account-logout" onClick={signOut}><span>↪</span><div><b>{t.logOut}</b><small>{t.endSession}</small></div></button></div>}</div> : <button className="primary-btn small" onClick={() => setModal("auth")}>{t.signIn}</button>}
         </div>

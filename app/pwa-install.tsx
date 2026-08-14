@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Language } from "./i18n";
 
-type Language = "EN" | "ML";
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
@@ -16,8 +16,11 @@ export default function PwaInstall() {
   const [instructions, setInstructions] = useState(false);
 
   useEffect(() => {
-    const syncLanguage = () =>
-      setLanguage(document.documentElement.dataset.language === "ML" ? "ML" : "EN");
+    const supportedLanguages: Language[] = ["EN", "ML", "HI", "TA", "KN", "TE"];
+    const syncLanguage = () => {
+      const selected = document.documentElement.dataset.language as Language;
+      setLanguage(supportedLanguages.includes(selected) ? selected : "EN");
+    };
     syncLanguage();
     const languageObserver = new MutationObserver(syncLanguage);
     languageObserver.observe(document.documentElement, {

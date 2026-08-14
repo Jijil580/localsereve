@@ -26,7 +26,7 @@ const structuredData = [
     "@id": `${SITE_URL}/#website`,
     name: "Nearleo",
     url: SITE_URL,
-    inLanguage: ["en-IN", "ml-IN"],
+    inLanguage: ["en-IN", "ml-IN", "hi-IN", "ta-IN", "kn-IN", "te-IN"],
     publisher: { "@id": `${SITE_URL}/#organization` },
   },
 ];

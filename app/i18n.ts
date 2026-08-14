@@ -50,7 +50,13 @@ const english = {
   locationControl: "You control location", locationControlBody: "Change your search area anytime to discover relevant local experts."
 } as const;
 
-const malayalam: { [K in keyof typeof english]: string } = {
+type TranslationTable = { [K in keyof typeof english]: string };
+
+function withEnglish(overrides: Partial<TranslationTable>): TranslationTable {
+  return { ...english, ...overrides };
+}
+
+const malayalam: TranslationTable = {
   home: "ഹോം", findServices: "സേവനങ്ങൾ കണ്ടെത്തുക", myRequests: "എന്റെ അഭ്യർത്ഥനകൾ", messages: "സന്ദേശങ്ങൾ",
   setLocation: "സ്ഥലം സജ്ജമാക്കുക", forProfessionals: "പ്രൊഫഷണലുകൾക്ക്", signIn: "ലോഗിൻ",
   profileDashboard: "പ്രൊഫൈലും ഡാഷ്ബോർഡും", manageAccount: "Nearleo അക്കൗണ്ട് നിയന്ത്രിക്കുക", changeLocation: "സ്ഥലം മാറ്റുക",
@@ -102,9 +108,138 @@ const malayalam: { [K in keyof typeof english]: string } = {
   locationControl: "സ്ഥലം നിങ്ങളുടെ നിയന്ത്രണത്തിൽ", locationControlBody: "പ്രസക്തമായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്താൻ തിരയുന്ന സ്ഥലം എപ്പോൾ വേണമെങ്കിലും മാറ്റാം."
 };
 
-export const translations = { EN: english, ML: malayalam } as const;
+const hindi = withEnglish({
+  home: "होम", findServices: "सेवाएँ खोजें", myRequests: "मेरे अनुरोध", messages: "संदेश",
+  setLocation: "स्थान चुनें", forProfessionals: "पेशेवरों के लिए", signIn: "साइन इन",
+  profileDashboard: "प्रोफ़ाइल और डैशबोर्ड", manageAccount: "अपना Nearleo खाता प्रबंधित करें", changeLocation: "स्थान बदलें",
+  chooseSearchArea: "खोज क्षेत्र चुनें", logOut: "लॉग आउट", endSession: "इस सत्र को सुरक्षित रूप से समाप्त करें",
+  trustedNearby: "भरोसेमंद पेशेवर, आपके आस-पास", heroTitle: "भरोसेमंद स्थानीय पेशेवर खोजें", nearYou: "आपके पास।",
+  heroDescription: "छोटी मरम्मत से बड़े काम तक, अपनी हर जरूरत के लिए सही स्थानीय विशेषज्ञ खोजें।",
+  service: "सेवा", servicePlaceholder: "प्लंबर, इलेक्ट्रीशियन, बढ़ई…", yourLocation: "आपका स्थान", radius: "दूरी",
+  searchNow: "अभी खोजें", exploreServices: "सेवाएँ देखें", needHelp: "आपको किस सेवा की जरूरत है?", viewAllServices: "सभी सेवाएँ देखें",
+  browseService: "सेवा देखें", topNearby: "आपके पास के प्रमुख पेशेवर", seeAllProfessionals: "सभी पेशेवर देखें",
+  noProviders: "अभी कोई प्रोफ़ाइल प्रकाशित नहीं हुई", providersSoon: "प्रोफ़ाइल पूरी करने वाले नए पेशेवर यहाँ दिखाई देंगे।",
+  simpleSecure: "सरल और सुरक्षित", easyTitle: "खोज से सेवा तक, सब कुछ आसान।", postRequest: "सेवा अनुरोध पोस्ट करें",
+  step1Title: "अपनी जरूरत बताएं", step2Title: "पेशेवर चुनें", step3Title: "अनुरोध भेजें और जुड़ें",
+  growBusiness: "अपना व्यवसाय बढ़ाएँ", joinProfessional: "पेशेवर के रूप में जुड़ें", discoverProfessionals: "पेशेवर खोजें",
+  findRightExpert: "पास में सही विशेषज्ञ खोजें", allServices: "सभी सेवाएँ", searchPlaceholder: "सेवा, प्रदाता या व्यवसाय खोजें",
+  search: "खोजें", searchingNear: "इस स्थान के पास", change: "बदलें", filters: "फ़िल्टर", reset: "रीसेट", distance: "दूरी",
+  trustAvailability: "भरोसा और उपलब्धता", verifiedOnly: "केवल सत्यापित प्रदाता", availableToday: "आज उपलब्ध",
+  professionalsFound: "पेशेवर मिले", recommended: "सुझाए गए", nearestFirst: "सबसे पास पहले", highestRated: "सबसे अच्छी रेटिंग",
+  lowestPrice: "सबसे कम कीमत", noProfessionals: "कोई पेशेवर नहीं मिला", widenSearch: "दूरी बढ़ाएँ या फ़िल्टर कम करें।",
+  completeDirectory: "पूरी सेवा सूची", chooseService: "अपने पास के पेशेवर खोजने के लिए सेवा चुनें।",
+  viewProfile: "प्रोफ़ाइल देखें", requestService: "सेवा का अनुरोध करें", save: "सहेजें", saved: "सहेजा गया", available: "आज उपलब्ध",
+  customers: "ग्राहक", safety: "सुरक्षा", professionals: "पेशेवर", plansPricing: "योजनाएँ और मूल्य", company: "कंपनी",
+  about: "हमारे बारे में", contact: "संपर्क", privacyTerms: "गोपनीयता और शर्तें", explore: "खोजें", requests: "अनुरोध",
+  inbox: "इनबॉक्स", account: "खाता", exactMatch: "सटीक मिलान", suggestedService: "सुझाई गई सेवा", languageLabel: "भाषा",
+  welcome: "Nearleo में आपका स्वागत है", signInAccount: "अपने खाते में साइन इन करें", createNearlioAccount: "Nearleo खाता बनाएँ",
+  createAccount: "खाता बनाएँ", fullName: "पूरा नाम", emailAddress: "ईमेल पता", mobileNumber: "मोबाइल नंबर",
+  emailMobile: "ईमेल या मोबाइल नंबर", password: "पासवर्ड", pleaseWait: "कृपया प्रतीक्षा करें…", agreeSignIn: "सहमत होकर साइन इन करें",
+  agreeCreate: "सहमत होकर खाता बनाएँ", readTerms: "शर्तें पढ़ें"
+});
+
+const tamil = withEnglish({
+  home: "முகப்பு", findServices: "சேவைகளைத் தேடுங்கள்", myRequests: "என் கோரிக்கைகள்", messages: "செய்திகள்",
+  setLocation: "இடத்தைத் தேர்வுசெய்க", forProfessionals: "தொழில் நிபுணர்களுக்கு", signIn: "உள்நுழைக",
+  profileDashboard: "சுயவிவரம் மற்றும் டாஷ்போர்டு", manageAccount: "Nearleo கணக்கை நிர்வகிக்கவும்", changeLocation: "இடத்தை மாற்றுக",
+  chooseSearchArea: "தேடல் பகுதியைத் தேர்வுசெய்க", logOut: "வெளியேறு", endSession: "இந்த அமர்வை பாதுகாப்பாக முடிக்கவும்",
+  trustedNearby: "நம்பகமான நிபுணர்கள் உங்கள் அருகில்", heroTitle: "நம்பகமான உள்ளூர் நிபுணர்களைக் கண்டறியுங்கள்", nearYou: "உங்கள் அருகில்.",
+  heroDescription: "சிறிய பழுதுபார்ப்பிலிருந்து பெரிய வேலைகள் வரை, தேவையான உள்ளூர் நிபுணரைக் கண்டறியுங்கள்.",
+  service: "சேவை", servicePlaceholder: "பிளம்பர், எலக்ட்ரீஷியன், தச்சர்…", yourLocation: "உங்கள் இடம்", radius: "தூரம்",
+  searchNow: "இப்போது தேடுங்கள்", exploreServices: "சேவைகளைப் பாருங்கள்", needHelp: "எந்த சேவை தேவை?", viewAllServices: "அனைத்து சேவைகளும்",
+  browseService: "சேவையைப் பாருங்கள்", topNearby: "அருகிலுள்ள சிறந்த நிபுணர்கள்", seeAllProfessionals: "அனைத்து நிபுணர்களும்",
+  noProviders: "இன்னும் சுயவிவரங்கள் வெளியிடப்படவில்லை", providersSoon: "சுயவிவரத்தை நிறைவு செய்யும் புதிய நிபுணர்கள் இங்கே தோன்றுவார்கள்.",
+  simpleSecure: "எளிமை மற்றும் பாதுகாப்பு", easyTitle: "தேடலிலிருந்து சேவை வரை அனைத்தும் எளிது.", postRequest: "சேவை கோரிக்கையை இடுங்கள்",
+  step1Title: "தேவையைச் சொல்லுங்கள்", step2Title: "நிபுணரைத் தேர்வுசெய்க", step3Title: "கோரிக்கையை அனுப்பி இணையுங்கள்",
+  growBusiness: "உங்கள் தொழிலை வளருங்கள்", joinProfessional: "நிபுணராக இணையுங்கள்", discoverProfessionals: "நிபுணர்களைக் கண்டறியுங்கள்",
+  findRightExpert: "அருகிலுள்ள சரியான நிபுணரைக் கண்டறியுங்கள்", allServices: "அனைத்து சேவைகள்", searchPlaceholder: "சேவை, வழங்குநர் அல்லது நிறுவனத்தைத் தேடுங்கள்",
+  search: "தேடுக", searchingNear: "இந்த இடத்திற்கு அருகில்", change: "மாற்றுக", filters: "வடிகட்டிகள்", reset: "மீட்டமை", distance: "தூரம்",
+  trustAvailability: "நம்பிக்கை மற்றும் கிடைப்புத்தன்மை", verifiedOnly: "சரிபார்க்கப்பட்ட வழங்குநர்கள் மட்டும்", availableToday: "இன்று கிடைக்கும்",
+  professionalsFound: "நிபுணர்கள் கிடைத்தனர்", recommended: "பரிந்துரைக்கப்பட்டது", nearestFirst: "அருகிலுள்ளது முதலில்", highestRated: "அதிக மதிப்பீடு",
+  lowestPrice: "குறைந்த விலை", noProfessionals: "நிபுணர்கள் கிடைக்கவில்லை", widenSearch: "தூரத்தை அதிகரிக்கவும் அல்லது வடிகட்டிகளை குறைக்கவும்.",
+  completeDirectory: "முழு சேவை பட்டியல்", chooseService: "அருகிலுள்ள நிபுணர்களைக் காண ஒரு சேவையைத் தேர்வுசெய்க.",
+  viewProfile: "சுயவிவரம் பார்க்க", requestService: "சேவையை கோருங்கள்", save: "சேமி", saved: "சேமிக்கப்பட்டது", available: "இன்று கிடைக்கும்",
+  customers: "வாடிக்கையாளர்கள்", safety: "பாதுகாப்பு", professionals: "நிபுணர்கள்", plansPricing: "திட்டங்கள் மற்றும் விலை", company: "நிறுவனம்",
+  about: "எங்களைப் பற்றி", contact: "தொடர்பு", privacyTerms: "தனியுரிமை மற்றும் விதிமுறைகள்", explore: "தேடுங்கள்", requests: "கோரிக்கைகள்",
+  inbox: "இன்பாக்ஸ்", account: "கணக்கு", exactMatch: "சரியான பொருத்தம்", suggestedService: "பரிந்துரைக்கப்பட்ட சேவை", languageLabel: "மொழி",
+  welcome: "Nearleo-க்கு வரவேற்கிறோம்", signInAccount: "உங்கள் கணக்கில் உள்நுழைக", createNearlioAccount: "Nearleo கணக்கை உருவாக்குக",
+  createAccount: "கணக்கை உருவாக்குக", fullName: "முழுப் பெயர்", emailAddress: "மின்னஞ்சல் முகவரி", mobileNumber: "மொபைல் எண்",
+  emailMobile: "மின்னஞ்சல் அல்லது மொபைல் எண்", password: "கடவுச்சொல்", pleaseWait: "தயவுசெய்து காத்திருக்கவும்…", agreeSignIn: "ஒப்புக்கொண்டு உள்நுழைக",
+  agreeCreate: "ஒப்புக்கொண்டு கணக்கை உருவாக்குக", readTerms: "விதிமுறைகளைப் படிக்கவும்"
+});
+
+const kannada = withEnglish({
+  home: "ಮುಖಪುಟ", findServices: "ಸೇವೆಗಳನ್ನು ಹುಡುಕಿ", myRequests: "ನನ್ನ ವಿನಂತಿಗಳು", messages: "ಸಂದೇಶಗಳು",
+  setLocation: "ಸ್ಥಳ ಆಯ್ಕೆಮಾಡಿ", forProfessionals: "ವೃತ್ತಿಪರರಿಗಾಗಿ", signIn: "ಸೈನ್ ಇನ್",
+  profileDashboard: "ಪ್ರೊಫೈಲ್ ಮತ್ತು ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", manageAccount: "ನಿಮ್ಮ Nearleo ಖಾತೆಯನ್ನು ನಿರ್ವಹಿಸಿ", changeLocation: "ಸ್ಥಳ ಬದಲಿಸಿ",
+  chooseSearchArea: "ಹುಡುಕಾಟದ ಪ್ರದೇಶ ಆಯ್ಕೆಮಾಡಿ", logOut: "ಲಾಗ್ ಔಟ್", endSession: "ಈ ಸೆಷನ್ ಅನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಮುಗಿಸಿ",
+  trustedNearby: "ವಿಶ್ವಾಸಾರ್ಹ ವೃತ್ತಿಪರರು ನಿಮ್ಮ ಹತ್ತಿರ", heroTitle: "ವಿಶ್ವಾಸಾರ್ಹ ಸ್ಥಳೀಯ ವೃತ್ತಿಪರರನ್ನು ಹುಡುಕಿ", nearYou: "ನಿಮ್ಮ ಹತ್ತಿರ.",
+  heroDescription: "ಸಣ್ಣ ದುರಸ್ತಿಯಿಂದ ದೊಡ್ಡ ಕೆಲಸದವರೆಗೆ, ನಿಮಗೆ ಬೇಕಾದ ಸ್ಥಳೀಯ ತಜ್ಞರನ್ನು ಹುಡುಕಿ.",
+  service: "ಸೇವೆ", servicePlaceholder: "ಪ್ಲಂಬರ್, ಎಲೆಕ್ಟ್ರಿಷಿಯನ್, ಕಾರ್ಪೆಂಟರ್…", yourLocation: "ನಿಮ್ಮ ಸ್ಥಳ", radius: "ದೂರ",
+  searchNow: "ಈಗ ಹುಡುಕಿ", exploreServices: "ಸೇವೆಗಳನ್ನು ನೋಡಿ", needHelp: "ಯಾವ ಸೇವೆ ಬೇಕು?", viewAllServices: "ಎಲ್ಲಾ ಸೇವೆಗಳನ್ನು ನೋಡಿ",
+  browseService: "ಸೇವೆ ನೋಡಿ", topNearby: "ಹತ್ತಿರದ ಪ್ರಮುಖ ವೃತ್ತಿಪರರು", seeAllProfessionals: "ಎಲ್ಲಾ ವೃತ್ತಿಪರರನ್ನು ನೋಡಿ",
+  noProviders: "ಇನ್ನೂ ಯಾವುದೇ ಪ್ರೊಫೈಲ್ ಪ್ರಕಟವಾಗಿಲ್ಲ", providersSoon: "ಪ್ರೊಫೈಲ್ ಪೂರ್ಣಗೊಳಿಸುವ ಹೊಸ ವೃತ್ತಿಪರರು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತಾರೆ.",
+  simpleSecure: "ಸರಳ ಮತ್ತು ಸುರಕ್ಷಿತ", easyTitle: "ಹುಡುಕಾಟದಿಂದ ಸೇವೆಯವರೆಗೆ ಎಲ್ಲವೂ ಸುಲಭ.", postRequest: "ಸೇವಾ ವಿನಂತಿ ಪೋಸ್ಟ್ ಮಾಡಿ",
+  step1Title: "ನಿಮ್ಮ ಅಗತ್ಯ ತಿಳಿಸಿ", step2Title: "ವೃತ್ತಿಪರರನ್ನು ಆಯ್ಕೆಮಾಡಿ", step3Title: "ವಿನಂತಿ ಕಳುಹಿಸಿ ಸಂಪರ್ಕಿಸಿ",
+  growBusiness: "ನಿಮ್ಮ ವ್ಯವಹಾರ ಬೆಳೆಸಿ", joinProfessional: "ವೃತ್ತಿಪರರಾಗಿ ಸೇರಿ", discoverProfessionals: "ವೃತ್ತಿಪರರನ್ನು ಹುಡುಕಿ",
+  findRightExpert: "ಹತ್ತಿರದ ಸರಿಯಾದ ತಜ್ಞರನ್ನು ಹುಡುಕಿ", allServices: "ಎಲ್ಲಾ ಸೇವೆಗಳು", searchPlaceholder: "ಸೇವೆ, ಪೂರೈಕೆದಾರ ಅಥವಾ ವ್ಯವಹಾರ ಹುಡುಕಿ",
+  search: "ಹುಡುಕಿ", searchingNear: "ಈ ಸ್ಥಳದ ಹತ್ತಿರ", change: "ಬದಲಿಸಿ", filters: "ಫಿಲ್ಟರ್‌ಗಳು", reset: "ಮರುಹೊಂದಿಸಿ", distance: "ದೂರ",
+  trustAvailability: "ವಿಶ್ವಾಸ ಮತ್ತು ಲಭ್ಯತೆ", verifiedOnly: "ಪರಿಶೀಲಿಸಿದ ಪೂರೈಕೆದಾರರು ಮಾತ್ರ", availableToday: "ಇಂದು ಲಭ್ಯ",
+  professionalsFound: "ವೃತ್ತಿಪರರು ಸಿಕ್ಕಿದ್ದಾರೆ", recommended: "ಶಿಫಾರಸು", nearestFirst: "ಹತ್ತಿರದವರು ಮೊದಲು", highestRated: "ಅತ್ಯಧಿಕ ರೇಟಿಂಗ್",
+  lowestPrice: "ಕಡಿಮೆ ಬೆಲೆ", noProfessionals: "ವೃತ್ತಿಪರರು ಸಿಗಲಿಲ್ಲ", widenSearch: "ದೂರ ಹೆಚ್ಚಿಸಿ ಅಥವಾ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಕಡಿಮೆ ಮಾಡಿ.",
+  completeDirectory: "ಸಂಪೂರ್ಣ ಸೇವಾ ಪಟ್ಟಿ", chooseService: "ಹತ್ತಿರದ ವೃತ್ತಿಪರರನ್ನು ಹುಡುಕಲು ಸೇವೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+  viewProfile: "ಪ್ರೊಫೈಲ್ ನೋಡಿ", requestService: "ಸೇವೆ ವಿನಂತಿಸಿ", save: "ಉಳಿಸಿ", saved: "ಉಳಿಸಲಾಗಿದೆ", available: "ಇಂದು ಲಭ್ಯ",
+  customers: "ಗ್ರಾಹಕರು", safety: "ಸುರಕ್ಷತೆ", professionals: "ವೃತ್ತಿಪರರು", plansPricing: "ಯೋಜನೆಗಳು ಮತ್ತು ಬೆಲೆ", company: "ಕಂಪನಿ",
+  about: "ನಮ್ಮ ಬಗ್ಗೆ", contact: "ಸಂಪರ್ಕ", privacyTerms: "ಗೌಪ್ಯತೆ ಮತ್ತು ನಿಯಮಗಳು", explore: "ಹುಡುಕಿ", requests: "ವಿನಂತಿಗಳು",
+  inbox: "ಇನ್‌ಬಾಕ್ಸ್", account: "ಖಾತೆ", exactMatch: "ನಿಖರ ಹೊಂದಾಣಿಕೆ", suggestedService: "ಸೂಚಿಸಿದ ಸೇವೆ", languageLabel: "ಭಾಷೆ",
+  welcome: "Nearleoಗೆ ಸ್ವಾಗತ", signInAccount: "ನಿಮ್ಮ ಖಾತೆಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ", createNearlioAccount: "Nearleo ಖಾತೆ ರಚಿಸಿ",
+  createAccount: "ಖಾತೆ ರಚಿಸಿ", fullName: "ಪೂರ್ಣ ಹೆಸರು", emailAddress: "ಇಮೇಲ್ ವಿಳಾಸ", mobileNumber: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+  emailMobile: "ಇಮೇಲ್ ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", password: "ಪಾಸ್‌ವರ್ಡ್", pleaseWait: "ದಯವಿಟ್ಟು ಕಾಯಿರಿ…", agreeSignIn: "ಒಪ್ಪಿಕೊಂಡು ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  agreeCreate: "ಒಪ್ಪಿಕೊಂಡು ಖಾತೆ ರಚಿಸಿ", readTerms: "ನಿಯಮಗಳನ್ನು ಓದಿ"
+});
+
+const telugu = withEnglish({
+  home: "హోమ్", findServices: "సేవలను వెతకండి", myRequests: "నా అభ్యర్థనలు", messages: "సందేశాలు",
+  setLocation: "స్థలాన్ని ఎంచుకోండి", forProfessionals: "వృత్తి నిపుణుల కోసం", signIn: "సైన్ ఇన్",
+  profileDashboard: "ప్రొఫైల్ మరియు డ్యాష్‌బోర్డ్", manageAccount: "మీ Nearleo ఖాతాను నిర్వహించండి", changeLocation: "స్థలం మార్చండి",
+  chooseSearchArea: "వెతకాల్సిన ప్రాంతాన్ని ఎంచుకోండి", logOut: "లాగ్ అవుట్", endSession: "ఈ సెషన్‌ను సురక్షితంగా ముగించండి",
+  trustedNearby: "నమ్మకమైన నిపుణులు మీ సమీపంలో", heroTitle: "నమ్మకమైన స్థానిక నిపుణులను కనుగొనండి", nearYou: "మీ సమీపంలో.",
+  heroDescription: "చిన్న మరమ్మతుల నుంచి పెద్ద పనుల వరకు, మీకు కావలసిన స్థానిక నిపుణులను కనుగొనండి.",
+  service: "సేవ", servicePlaceholder: "ప్లంబర్, ఎలక్ట్రిషియన్, కార్పెంటర్…", yourLocation: "మీ స్థలం", radius: "దూరం",
+  searchNow: "ఇప్పుడే వెతకండి", exploreServices: "సేవలను చూడండి", needHelp: "మీకు ఏ సేవ కావాలి?", viewAllServices: "అన్ని సేవలను చూడండి",
+  browseService: "సేవను చూడండి", topNearby: "సమీపంలోని ప్రముఖ నిపుణులు", seeAllProfessionals: "అన్ని నిపుణులను చూడండి",
+  noProviders: "ఇంకా ఎలాంటి ప్రొఫైళ్లు ప్రచురించలేదు", providersSoon: "ప్రొఫైల్ పూర్తి చేసిన కొత్త నిపుణులు ఇక్కడ కనిపిస్తారు.",
+  simpleSecure: "సులభం మరియు సురక్షితం", easyTitle: "వెతకడం నుంచి సేవ వరకు అన్నీ సులభం.", postRequest: "సేవ అభ్యర్థనను పోస్ట్ చేయండి",
+  step1Title: "మీ అవసరాన్ని చెప్పండి", step2Title: "నిపుణుడిని ఎంచుకోండి", step3Title: "అభ్యర్థన పంపి కలవండి",
+  growBusiness: "మీ వ్యాపారాన్ని పెంచుకోండి", joinProfessional: "నిపుణుడిగా చేరండి", discoverProfessionals: "నిపుణులను కనుగొనండి",
+  findRightExpert: "సమీపంలో సరైన నిపుణుడిని కనుగొనండి", allServices: "అన్ని సేవలు", searchPlaceholder: "సేవ, ప్రొవైడర్ లేదా వ్యాపారాన్ని వెతకండి",
+  search: "వెతకండి", searchingNear: "ఈ ప్రాంతం దగ్గర", change: "మార్చండి", filters: "ఫిల్టర్లు", reset: "రీసెట్", distance: "దూరం",
+  trustAvailability: "నమ్మకం మరియు లభ్యత", verifiedOnly: "ధృవీకరించిన ప్రొవైడర్లు మాత్రమే", availableToday: "ఈ రోజు అందుబాటులో",
+  professionalsFound: "నిపుణులు దొరికారు", recommended: "సిఫార్సు", nearestFirst: "సమీపంలో ఉన్నవారు ముందు", highestRated: "అత్యధిక రేటింగ్",
+  lowestPrice: "తక్కువ ధర", noProfessionals: "నిపుణులు దొరకలేదు", widenSearch: "దూరాన్ని పెంచండి లేదా ఫిల్టర్లను తగ్గించండి.",
+  completeDirectory: "పూర్తి సేవల జాబితా", chooseService: "సమీపంలోని నిపుణులను కనుగొనడానికి సేవను ఎంచుకోండి.",
+  viewProfile: "ప్రొఫైల్ చూడండి", requestService: "సేవను అభ్యర్థించండి", save: "సేవ్", saved: "సేవ్ అయింది", available: "ఈ రోజు అందుబాటులో",
+  customers: "కస్టమర్లు", safety: "భద్రత", professionals: "నిపుణులు", plansPricing: "ప్లాన్లు మరియు ధరలు", company: "కంపెనీ",
+  about: "మా గురించి", contact: "సంప్రదించండి", privacyTerms: "గోప్యత మరియు నిబంధనలు", explore: "వెతకండి", requests: "అభ్యర్థనలు",
+  inbox: "ఇన్‌బాక్స్", account: "ఖాతా", exactMatch: "ఖచ్చితమైన సరిపోలిక", suggestedService: "సూచించిన సేవ", languageLabel: "భాష",
+  welcome: "Nearleoకు స్వాగతం", signInAccount: "మీ ఖాతాలో సైన్ ఇన్ చేయండి", createNearlioAccount: "Nearleo ఖాతాను సృష్టించండి",
+  createAccount: "ఖాతాను సృష్టించండి", fullName: "పూర్తి పేరు", emailAddress: "ఇమెయిల్ చిరునామా", mobileNumber: "మొబైల్ నంబర్",
+  emailMobile: "ఇమెయిల్ లేదా మొబైల్ నంబర్", password: "పాస్‌వర్డ్", pleaseWait: "దయచేసి వేచి ఉండండి…", agreeSignIn: "అంగీకరించి సైన్ ఇన్ చేయండి",
+  agreeCreate: "అంగీకరించి ఖాతాను సృష్టించండి", readTerms: "నిబంధనలు చదవండి"
+});
+
+export const translations = { EN: english, ML: malayalam, HI: hindi, TA: tamil, KN: kannada, TE: telugu } as const;
 export type Language = keyof typeof translations;
-export type Translation = typeof english;
+export type Translation = TranslationTable;
+
+export const languageOptions: ReadonlyArray<{ code: Language; label: string; lang: string }> = [
+  { code: "EN", label: "English", lang: "en" },
+  { code: "ML", label: "മലയാളം", lang: "ml" },
+  { code: "HI", label: "हिन्दी", lang: "hi" },
+  { code: "TA", label: "தமிழ்", lang: "ta" },
+  { code: "KN", label: "ಕನ್ನಡ", lang: "kn" },
+  { code: "TE", label: "తెలుగు", lang: "te" },
+];
 
 export const malayalamServiceNames: Record<string, string> = {
   "Plumber":"പ്ലംബർ", "Electrician":"ഇലക്ട്രീഷ്യൻ", "Carpenter":"കാർപെന്റർ", "Mason":"മേസ്തിരി", "Interlock paving":"ഇന്റർലോക്ക് പാവിംഗ്",
@@ -136,6 +271,52 @@ export const malayalamServiceNames: Record<string, string> = {
   "Printing service":"പ്രിന്റിംഗ് സേവനം", "Signboard maker":"സൈൻബോർഡ് നിർമ്മാതാവ്", "Other local services":"മറ്റ് പ്രാദേശിക സേവനങ്ങൾ", "All services":"എല്ലാ സേവനങ്ങളും"
 };
 
+const hindiServiceNames: Record<string, string> = {
+  "Plumber":"प्लंबर", "Electrician":"इलेक्ट्रीशियन", "Carpenter":"बढ़ई", "Mason":"राजमिस्त्री", "Interlock paving":"इंटरलॉक पेविंग",
+  "Hollow-brick work":"हॉलो ब्रिक का काम", "Painter":"पेंटर", "Plastering worker":"प्लास्टर कारीगर", "Tile worker":"टाइल कारीगर",
+  "House-cleaning service":"घर की सफाई", "Air-conditioner installation and repair":"एसी इंस्टॉलेशन और मरम्मत", "Appliance repair":"उपकरण मरम्मत",
+  "Mechanic":"मैकेनिक", "Car mechanic":"कार मैकेनिक", "Photographer":"फोटोग्राफर", "CCTV installation":"सीसीटीवी इंस्टॉलेशन",
+  "Home nurse":"होम नर्स", "Tutor":"ट्यूटर", "Web developer":"वेब डेवलपर", "Other local services":"अन्य स्थानीय सेवाएँ", "All services":"सभी सेवाएँ"
+};
+
+const tamilServiceNames: Record<string, string> = {
+  "Plumber":"பிளம்பர்", "Electrician":"எலக்ட்ரீஷியன்", "Carpenter":"தச்சர்", "Mason":"கொத்தனார்", "Interlock paving":"இன்டர்லாக் பதித்தல்",
+  "Hollow-brick work":"ஹாலோ பிரிக் வேலை", "Painter":"பெயிண்டர்", "Plastering worker":"பூச்சு வேலை செய்பவர்", "Tile worker":"டைல் வேலை செய்பவர்",
+  "House-cleaning service":"வீடு சுத்தம் செய்யும் சேவை", "Air-conditioner installation and repair":"ஏசி நிறுவல் மற்றும் பழுதுபார்ப்பு", "Appliance repair":"வீட்டு உபகரண பழுதுபார்ப்பு",
+  "Mechanic":"மெக்கானிக்", "Car mechanic":"கார் மெக்கானிக்", "Photographer":"புகைப்படக் கலைஞர்", "CCTV installation":"சிசிடிவி நிறுவல்",
+  "Home nurse":"வீட்டு செவிலியர்", "Tutor":"தனிப்பயிற்சி ஆசிரியர்", "Web developer":"வலைத்தள உருவாக்குநர்", "Other local services":"மற்ற உள்ளூர் சேவைகள்", "All services":"அனைத்து சேவைகள்"
+};
+
+const kannadaServiceNames: Record<string, string> = {
+  "Plumber":"ಪ್ಲಂಬರ್", "Electrician":"ಎಲೆಕ್ಟ್ರಿಷಿಯನ್", "Carpenter":"ಬಡಗಿ", "Mason":"ಗಾರೆ ಕೆಲಸಗಾರ", "Interlock paving":"ಇಂಟರ್‌ಲಾಕ್ ಪೇವಿಂಗ್",
+  "Hollow-brick work":"ಹಾಲೋ ಬ್ರಿಕ್ ಕೆಲಸ", "Painter":"ಪೇಂಟರ್", "Plastering worker":"ಪ್ಲಾಸ್ಟರಿಂಗ್ ಕೆಲಸಗಾರ", "Tile worker":"ಟೈಲ್ ಕೆಲಸಗಾರ",
+  "House-cleaning service":"ಮನೆ ಸ್ವಚ್ಛತಾ ಸೇವೆ", "Air-conditioner installation and repair":"ಎಸಿ ಅಳವಡಿಕೆ ಮತ್ತು ದುರಸ್ತಿ", "Appliance repair":"ಗೃಹೋಪಕರಣ ದುರಸ್ತಿ",
+  "Mechanic":"ಮೆಕ್ಯಾನಿಕ್", "Car mechanic":"ಕಾರ್ ಮೆಕ್ಯಾನಿಕ್", "Photographer":"ಛಾಯಾಗ್ರಾಹಕ", "CCTV installation":"ಸಿಸಿಟಿವಿ ಅಳವಡಿಕೆ",
+  "Home nurse":"ಹೋಮ್ ನರ್ಸ್", "Tutor":"ಬೋಧಕರು", "Web developer":"ವೆಬ್ ಡೆವಲಪರ್", "Other local services":"ಇತರೆ ಸ್ಥಳೀಯ ಸೇವೆಗಳು", "All services":"ಎಲ್ಲಾ ಸೇವೆಗಳು"
+};
+
+const teluguServiceNames: Record<string, string> = {
+  "Plumber":"ప్లంబర్", "Electrician":"ఎలక్ట్రిషియన్", "Carpenter":"వడ్రంగి", "Mason":"తాపీ మేస్త్రీ", "Interlock paving":"ఇంటర్‌లాక్ పేవింగ్",
+  "Hollow-brick work":"హాలో బ్రిక్ పని", "Painter":"పెయింటర్", "Plastering worker":"ప్లాస్టరింగ్ పనివారు", "Tile worker":"టైల్ పనివారు",
+  "House-cleaning service":"ఇంటి శుభ్రపరిచే సేవ", "Air-conditioner installation and repair":"ఏసీ ఇన్‌స్టాలేషన్ మరియు మరమ్మతు", "Appliance repair":"గృహోపకరణాల మరమ్మతు",
+  "Mechanic":"మెకానిక్", "Car mechanic":"కార్ మెకానిక్", "Photographer":"ఫోటోగ్రాఫర్", "CCTV installation":"సీసీటీవీ ఇన్‌స్టాలేషన్",
+  "Home nurse":"హోమ్ నర్స్", "Tutor":"ట్యూటర్", "Web developer":"వెబ్ డెవలపర్", "Other local services":"ఇతర స్థానిక సేవలు", "All services":"అన్ని సేవలు"
+};
+
+const serviceNamesByLanguage: Partial<Record<Language, Record<string, string>>> = {
+  ML: malayalamServiceNames,
+  HI: hindiServiceNames,
+  TA: tamilServiceNames,
+  KN: kannadaServiceNames,
+  TE: teluguServiceNames,
+};
+
 export function serviceLabel(service: string, language: Language) {
-  return language === "ML" ? malayalamServiceNames[service] ?? service : service;
+  return serviceNamesByLanguage[language]?.[service] ?? service;
+}
+
+export function serviceSearchLabels(service: string) {
+  return Object.values(serviceNamesByLanguage)
+    .map((labels) => labels?.[service])
+    .filter((label): label is string => Boolean(label));
 }

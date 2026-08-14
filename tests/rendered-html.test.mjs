@@ -211,22 +211,33 @@ test("service entry and provider discovery tolerate spelling mistakes", async ()
   assert.match(app, /Choose your main service from the suggestions/);
 });
 
-test("English and Malayalam language modes persist and localize service search", async () => {
-  const [app, i18n, styles] = await Promise.all([
+test("six Indian language modes persist and localize service search", async () => {
+  const [app, i18n, styles, home] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/i18n.ts"),
     readSource("app/globals.css"),
+    readSource("app/page.tsx"),
   ]);
 
   assert.match(app, /nearlio-language/);
   assert.match(app, /document\.documentElement\.lang/);
-  assert.match(app, /onClick=\{\(\)=>setLanguage\("ML"\)\}>മലയാളം<\/button>/);
-  assert.match(app, /malayalamServiceNames\[name\]/);
+  assert.match(app, /languageOptions\.map/);
+  assert.match(app, /serviceSearchLabels\(name\)/);
   assert.match(i18n, /വിശ്വസ്തരായ പ്രാദേശിക വിദഗ്ധരെ കണ്ടെത്തൂ/);
   assert.match(i18n, /"Electrician":"ഇലക്ട്രീഷ്യൻ"/);
+  assert.match(i18n, /code: "HI", label: "हिन्दी"/);
+  assert.match(i18n, /code: "TA", label: "தமிழ்"/);
+  assert.match(i18n, /code: "KN", label: "ಕನ್ನಡ"/);
+  assert.match(i18n, /code: "TE", label: "తెలుగు"/);
+  assert.match(i18n, /"Electrician":"इलेक्ट्रीशियन"/);
+  assert.match(i18n, /"Electrician":"எலக்ட்ரீஷியன்"/);
   assert.match(styles, /html\[data-language="ML"\]/);
+  assert.match(styles, /html\[data-language="HI"\]/);
+  assert.match(styles, /html\[data-language="TA"\]/);
+  assert.match(styles, /\.language-switch select/);
   assert.match(styles, /grid-template-areas:"brand account" "location language"/);
   assert.doesNotMatch(styles, /location-mini\{display:none!important\}/);
+  assert.match(home, /"hi-IN", "ta-IN", "kn-IN", "te-IN"/);
 });
 
 test("provider profiles publish immediately with optional verification media", async () => {
