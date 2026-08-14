@@ -88,7 +88,7 @@ test("mobile users can manage account and change provider search location", asyn
   assert.match(styles, /\.account-menu/);
   assert.match(styles, /\.search-location-mobile\{display:flex/);
   assert.match(styles, /\.gps-pin\{/);
-  assert.match(styles, /\.search-bar-page\{grid-template-columns:180px minmax\(220px,1fr\) auto\}/);
+  assert.match(styles, /\.search-bar-page\{grid-template-columns:minmax\(280px,1fr\) auto\}/);
   assert.doesNotMatch(app, /nearby-location-list|availableLocations/);
   assert.match(app, /window\.setTimeout\(\(\)=>searchPlace\(query,sequence\),250\)/);
   assert.match(app, /Suggestions appear automatically/);
@@ -209,6 +209,19 @@ test("service entry and provider discovery tolerate spelling mistakes", async ()
   assert.match(app, /Type your service, even with a spelling mistake/);
   assert.match(app, /Type a service, even with a spelling mistake/);
   assert.match(app, /Choose your main service from the suggestions/);
+});
+
+test("service discovery renders one search field without a duplicate selected row", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.doesNotMatch(app, /<select className="service-menu"/);
+  assert.match(app, /language=\{language\} showAllOnEmpty/);
+  assert.match(app, /showAllOnEmpty\?serviceNames:\[\]/);
+  assert.match(styles, /\.search-bar-page\{grid-template-columns:minmax\(280px,1fr\) auto\}/);
+  assert.match(styles, /@media\(max-width:760px\)\{\.search-bar-page\{grid-template-columns:1fr\}/);
 });
 
 test("six Indian language modes persist and localize service search", async () => {
