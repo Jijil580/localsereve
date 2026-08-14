@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SITE_URL } from "../lib/seo-services";
 import InitialLoadingScreen from "./initial-loading-screen";
 import PwaInstall from "./pwa-install";
+import GlobalLanguage from "./global-language";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
@@ -84,6 +85,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="antialiased">
         <InitialLoadingScreen />
+        <GlobalLanguage />
         {children}
         <PwaInstall />
       </body>

@@ -611,3 +611,37 @@ test("Nearleo publishes its N logo to search engines and shows a branded loading
   assert.match(styles, /\.nearleo-loader-mark/);
   assert.match(styles, /@keyframes nearleoLoaderProgress/);
 });
+
+test("all Nearleo pages and the full service catalogue support six languages", async () => {
+  const [i18n, interfaceI18n, publicPageI18n, globalLanguage, layout, styles] = await Promise.all([
+    readSource("app/i18n.ts"),
+    readSource("app/interface-i18n.ts"),
+    readSource("app/public-page-i18n.ts"),
+    readSource("app/global-language.tsx"),
+    readSource("app/layout.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  for (const code of ["EN", "ML", "HI", "TA", "KN", "TE"]) {
+    assert.match(i18n, new RegExp(`code: "${code}"`));
+  }
+  for (const map of ["malayalamServiceNames", "hindiServiceNames", "tamilServiceNames", "kannadaServiceNames", "teluguServiceNames"]) {
+    assert.match(i18n, new RegExp(`${map}: Record<string, string>`));
+  }
+  assert.match(i18n, /"Signboard maker":"സൈൻബോർഡ് നിർമ്മാതാവ്"/);
+  assert.match(i18n, /"Signboard maker":"साइनबोर्ड निर्माता"/);
+  assert.match(i18n, /"Signboard maker":"பெயர்ப்பலகை தயாரிப்பாளர்"/);
+  assert.match(i18n, /"Signboard maker":"ನಾಮಫಲಕ ತಯಾರಕ"/);
+  assert.match(i18n, /"Signboard maker":"సైన్‌బోర్డ్ తయారీదారు"/);
+  assert.match(interfaceI18n, /"PROVIDER DASHBOARD"/);
+  assert.match(interfaceI18n, /"User Terms & Privacy Notice"/);
+  assert.match(publicPageI18n, /"Nearleo service directory"/);
+  assert.match(publicPageI18n, /"Find interlock workers in Iritty"/);
+  assert.match(publicPageI18n, /"Provider verification"/);
+  assert.match(globalLanguage, /document\.createTreeWalker/);
+  assert.match(globalLanguage, /new MutationObserver/);
+  assert.match(globalLanguage, /\["placeholder", "aria-label", "title", "alt"\]/);
+  assert.match(globalLanguage, /localStorage\.setItem\("nearlio-language"/);
+  assert.match(layout, /<GlobalLanguage \/>/);
+  assert.match(styles, /\.global-language-switch/);
+});
