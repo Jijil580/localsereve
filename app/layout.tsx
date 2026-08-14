@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "../lib/seo-services";
+import InitialLoadingScreen from "./initial-loading-screen";
 import PwaInstall from "./pwa-install";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
@@ -23,7 +24,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Nearleo" },
   formatDetection: { telephone: false },
-  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/app-icon-192.png", sizes: "192x192", type: "image/png" }], shortcut: "/favicon.svg", apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }] },
+  icons: {
+    icon: [
+      { url: "/app-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/app-icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+    ],
+    shortcut: "/app-icon-192.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   robots: {
     index: true,
     follow: true,
@@ -70,6 +79,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
+        <InitialLoadingScreen />
         {children}
         <PwaInstall />
       </body>

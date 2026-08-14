@@ -11,9 +11,11 @@ const structuredData = [
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
-      url: `${SITE_URL}/nearleo-logo.svg`,
+      url: `${SITE_URL}/app-icon-512.png`,
+      contentUrl: `${SITE_URL}/app-icon-512.png`,
       width: 512,
       height: 512,
+      caption: "Nearleo logo",
     },
     email: "support@nealeo.com",
     description: "A marketplace that helps local customers discover and contact local service professionals.",

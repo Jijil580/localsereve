@@ -348,7 +348,7 @@ test("Nearleo exposes a canonical, crawlable SEO foundation", async () => {
   assert.match(layout, /max-image-preview/);
   assert.match(home, /application\/ld\+json/);
   assert.match(home, /"@type": "Organization"/);
-  assert.match(home, /nearleo-logo\.svg/);
+  assert.match(home, /app-icon-512\.png/);
   assert.match(robots, /disallow: \["\/admin\/", "\/api\/"\]/);
   assert.match(sitemap, /sitemap/);
   assert.match(directory, /Nearleo service directory/);
@@ -435,7 +435,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v21/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v22/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -508,7 +508,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v21/);
+  assert.match(worker, /nearleo-shell-v22/);
 });
 
 test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
@@ -540,7 +540,7 @@ test("homepage rotates an animated Indian seasonal greeting using India time", a
   assert.match(styles, /Compact seasonal banner/);
   assert.match(styles, /min-height:118px/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
-  assert.match(worker, /nearleo-shell-v21/);
+  assert.match(worker, /nearleo-shell-v22/);
 });
 
 test("Nearleo offers a complete browser-to-home-screen installation flow", async () => {
@@ -565,6 +565,32 @@ test("Nearleo offers a complete browser-to-home-screen installation flow", async
   assert.match(manifest, /app-icon-512\.png/);
   assert.match(manifest, /app-icon-maskable-512\.png/);
   assert.match(manifest, /start_url: "\/\?source=pwa"/);
-  assert.match(worker, /nearleo-shell-v21/);
+  assert.match(worker, /nearleo-shell-v22/);
   assert.match(styles, /\.pwa-install-card/);
+});
+
+test("Nearleo publishes its N logo to search engines and shows a branded loading screen", async () => {
+  const [layout, home, favicon, initialLoader, routeLoader, styles] = await Promise.all([
+    readSource("app/layout.tsx"),
+    readSource("app/page.tsx"),
+    readSource("public/favicon.svg"),
+    readSource("app/initial-loading-screen.tsx"),
+    readSource("app/loading.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(layout, /app-icon-192\.png/);
+  assert.match(layout, /app-icon-512\.png/);
+  assert.match(layout, /shortcut: "\/app-icon-192\.png"/);
+  assert.match(layout, /<InitialLoadingScreen \/>/);
+  assert.match(home, /contentUrl: `\$\{SITE_URL\}\/app-icon-512\.png`/);
+  assert.match(home, /caption: "Nearleo logo"/);
+  assert.match(favicon, /viewBox="0 0 512 512"/);
+  assert.match(favicon, /fill="white"/);
+  assert.match(initialLoader, /nearleo-page-loader/);
+  assert.match(initialLoader, /Nearleo is loading/);
+  assert.match(routeLoader, /nearleo-route-loader/);
+  assert.match(styles, /background:radial-gradient\(circle at 50% 38%,#3486f3/);
+  assert.match(styles, /\.nearleo-loader-mark/);
+  assert.match(styles, /@keyframes nearleoLoaderProgress/);
 });
