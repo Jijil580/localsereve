@@ -132,6 +132,102 @@ export const seoServices: SeoService[] = [
     summary: "Browse local tutors by subject, location and profile to find learning support near you.",
     commonNeeds: ["School subject support", "Exam preparation", "Individual learning help"],
   },
+  {
+    name: "Lottery service",
+    slug: "lottery-service",
+    summary: "Find published local lottery service and shop profiles, then confirm licensing, ticket availability and opening hours directly.",
+    commonNeeds: ["Nearby lottery shop", "Ticket availability", "Opening-hour enquiry"],
+  },
+  {
+    name: "Retail store",
+    slug: "retail-store",
+    summary: "Browse local retail stores and contact them directly for products, stock, prices and opening hours.",
+    commonNeeds: ["Product availability", "Store location", "Price and opening-hour enquiry"],
+  },
+  {
+    name: "Rubber tapping worker",
+    slug: "rubber-tapping-worker",
+    summary: "Find nearby rubber tapping workers and discuss plantation size, schedule, experience and service charges directly.",
+    commonNeeds: ["Regular rubber tapping", "Seasonal tapping work", "Plantation work enquiry"],
+  },
+  {
+    name: "Coconut picker",
+    slug: "coconut-picker",
+    summary: "Connect with local coconut pickers for coconut harvesting and tree-climbing work near you.",
+    commonNeeds: ["Coconut harvesting", "Scheduled tree climbing", "Multiple-tree work"],
+  },
+  {
+    name: "Barber",
+    slug: "barber",
+    summary: "Discover nearby barbers and barber shops, compare profiles and contact them for services and availability.",
+    commonNeeds: ["Haircut", "Grooming service", "Barber-shop availability"],
+  },
+  {
+    name: "Chicken shop",
+    slug: "chicken-shop",
+    summary: "Browse local chicken shop profiles and confirm availability, prices, preparation options and opening hours directly.",
+    commonNeeds: ["Fresh chicken availability", "Price enquiry", "Shop opening hours"],
+  },
+  {
+    name: "Beef stall",
+    slug: "beef-stall",
+    summary: "Find published local beef stall profiles and confirm availability, prices and opening hours directly.",
+    commonNeeds: ["Product availability", "Price enquiry", "Shop opening hours"],
+  },
+  {
+    name: "Mobile shop",
+    slug: "mobile-shop",
+    summary: "Find nearby mobile shops for phones, accessories and device-related enquiries.",
+    commonNeeds: ["Phone availability", "Mobile accessories", "Store and price enquiry"],
+  },
+  {
+    name: "Restaurant",
+    slug: "restaurant",
+    summary: "Discover local restaurant profiles and contact them for menus, opening hours, reservations and dining enquiries.",
+    commonNeeds: ["Menu enquiry", "Opening hours", "Table and order enquiry"],
+  },
+  {
+    name: "Autorickshaw service",
+    slug: "autorickshaw-service",
+    summary: "Find local autorickshaw services and discuss pickup point, destination, availability and fare directly.",
+    commonNeeds: ["Local trip", "Pickup enquiry", "Fare and availability"],
+  },
+  {
+    name: "Traveller van service",
+    slug: "traveller-van-service",
+    summary: "Browse traveller van services for local trips, group travel, events and outstation journeys.",
+    commonNeeds: ["Group travel", "Event transport", "Outstation journey"],
+  },
+  {
+    name: "Ambulance service",
+    slug: "ambulance-service",
+    summary: "Find published ambulance service profiles and confirm coverage and availability directly. For a life-threatening emergency, contact the appropriate emergency authority immediately.",
+    commonNeeds: ["Patient transport enquiry", "Service-area confirmation", "Availability and charges"],
+  },
+  {
+    name: "Pharmacy",
+    slug: "pharmacy",
+    summary: "Find nearby pharmacy profiles and contact them directly for medicine availability, opening hours and store location.",
+    commonNeeds: ["Medicine availability", "Opening-hour enquiry", "Pharmacy location"],
+  },
+  {
+    name: "Dental clinic",
+    slug: "dental-clinic",
+    summary: "Browse published dental clinic profiles and contact the clinic to confirm services, credentials and appointments.",
+    commonNeeds: ["Appointment enquiry", "Clinic services", "Location and opening hours"],
+  },
+  {
+    name: "Hospital",
+    slug: "hospital",
+    summary: "Find published hospital profiles and contact the facility for departments, availability and directions. Nearleo is not an emergency service.",
+    commonNeeds: ["Department enquiry", "Facility directions", "Availability information"],
+  },
+  {
+    name: "Medical laboratory",
+    slug: "medical-laboratory",
+    summary: "Browse medical laboratory profiles and contact them for available tests, preparation guidance, collection options and opening hours.",
+    commonNeeds: ["Test availability", "Sample collection enquiry", "Opening hours"],
+  },
 ];
 
 export function findSeoService(slug: string) {

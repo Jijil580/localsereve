@@ -364,7 +364,11 @@ export const malayalamServiceNames: Record<string, string> = {
   "Fitness trainer":"ഫിറ്റ്നസ് ട്രെയിനർ", "Yoga trainer":"യോഗ ട്രെയിനർ", "Tutor":"ട്യൂട്ടർ", "Music teacher":"സംഗീത അധ്യാപകൻ", "Dance teacher":"നൃത്ത അധ്യാപകൻ",
   "Language teacher":"ഭാഷാ അധ്യാപകൻ", "Graphic designer":"ഗ്രാഫിക് ഡിസൈനർ", "Web developer":"വെബ് ഡെവലപ്പർ", "Digital marketing professional":"ഡിജിറ്റൽ മാർക്കറ്റിംഗ് വിദഗ്ധൻ",
   "Accountant":"അക്കൗണ്ടന്റ്", "Tax consultant":"നികുതി ഉപദേഷ്ടാവ്", "Legal consultant":"നിയമ ഉപദേഷ്ടാവ്", "Document-writing service":"ഡോക്യുമെന്റ് റൈറ്റിംഗ് സേവനം",
-  "Printing service":"പ്രിന്റിംഗ് സേവനം", "Signboard maker":"സൈൻബോർഡ് നിർമ്മാതാവ്", "Other local services":"മറ്റ് പ്രാദേശിക സേവനങ്ങൾ", "All services":"എല്ലാ സേവനങ്ങളും"
+  "Printing service":"പ്രിന്റിംഗ് സേവനം", "Signboard maker":"സൈൻബോർഡ് നിർമ്മാതാവ്", "Lottery service":"ലോട്ടറി സേവനം", "Retail store":"റീട്ടെയിൽ കട",
+  "Rubber tapping worker":"റബ്ബർ ടാപ്പിംഗ് തൊഴിലാളി", "Coconut picker":"തേങ്ങ പറിക്കുന്ന തൊഴിലാളി", "Barber":"ബാർബർ", "Chicken shop":"ചിക്കൻ കട",
+  "Beef stall":"ബീഫ് സ്റ്റാൾ", "Mobile shop":"മൊബൈൽ കട", "Restaurant":"റെസ്റ്റോറന്റ്", "Autorickshaw service":"ഓട്ടോറിക്ഷ സേവനം",
+  "Traveller van service":"ട്രാവലർ വാൻ സേവനം", "Ambulance service":"ആംബുലൻസ് സേവനം", "Pharmacy":"ഫാർമസി", "Dental clinic":"ദന്ത ക്ലിനിക്",
+  "Hospital":"ആശുപത്രി", "Medical laboratory":"മെഡിക്കൽ ലബോറട്ടറി", "Other local services":"മറ്റ് പ്രാദേശിക സേവനങ്ങൾ", "All services":"എല്ലാ സേവനങ്ങളും"
 };
 
 const hindiServiceNames: Record<string, string> = {
@@ -394,7 +398,11 @@ const hindiServiceNames: Record<string, string> = {
   "Fitness trainer":"फिटनेस ट्रेनर", "Yoga trainer":"योग प्रशिक्षक", "Tutor":"ट्यूटर", "Music teacher":"संगीत शिक्षक", "Dance teacher":"नृत्य शिक्षक",
   "Language teacher":"भाषा शिक्षक", "Graphic designer":"ग्राफिक डिजाइनर", "Web developer":"वेब डेवलपर", "Digital marketing professional":"डिजिटल मार्केटिंग विशेषज्ञ",
   "Accountant":"लेखाकार", "Tax consultant":"कर सलाहकार", "Legal consultant":"कानूनी सलाहकार", "Document-writing service":"दस्तावेज लेखन सेवा",
-  "Printing service":"प्रिंटिंग सेवा", "Signboard maker":"साइनबोर्ड निर्माता", "Other local services":"अन्य स्थानीय सेवाएँ", "All services":"सभी सेवाएँ"
+  "Printing service":"प्रिंटिंग सेवा", "Signboard maker":"साइनबोर्ड निर्माता", "Lottery service":"लॉटरी सेवा", "Retail store":"खुदरा दुकान",
+  "Rubber tapping worker":"रबर टैपिंग कामगार", "Coconut picker":"नारियल तोड़ने वाला", "Barber":"नाई", "Chicken shop":"चिकन दुकान",
+  "Beef stall":"बीफ स्टॉल", "Mobile shop":"मोबाइल दुकान", "Restaurant":"रेस्टोरेंट", "Autorickshaw service":"ऑटोरिक्शा सेवा",
+  "Traveller van service":"ट्रैवलर वैन सेवा", "Ambulance service":"एम्बुलेंस सेवा", "Pharmacy":"फ़ार्मेसी", "Dental clinic":"दंत क्लिनिक",
+  "Hospital":"अस्पताल", "Medical laboratory":"चिकित्सा प्रयोगशाला", "Other local services":"अन्य स्थानीय सेवाएँ", "All services":"सभी सेवाएँ"
 };
 
 const tamilServiceNames: Record<string, string> = {
@@ -424,7 +432,11 @@ const tamilServiceNames: Record<string, string> = {
   "Fitness trainer":"உடற்பயிற்சி பயிற்சியாளர்", "Yoga trainer":"யோகா பயிற்சியாளர்", "Tutor":"தனிப்பயிற்சி ஆசிரியர்", "Music teacher":"இசை ஆசிரியர்", "Dance teacher":"நடன ஆசிரியர்",
   "Language teacher":"மொழி ஆசிரியர்", "Graphic designer":"வரைகலை வடிவமைப்பாளர்", "Web developer":"வலைத்தள உருவாக்குநர்", "Digital marketing professional":"டிஜிட்டல் சந்தைப்படுத்தல் நிபுணர்",
   "Accountant":"கணக்காளர்", "Tax consultant":"வரி ஆலோசகர்", "Legal consultant":"சட்ட ஆலோசகர்", "Document-writing service":"ஆவண எழுத்து சேவை",
-  "Printing service":"அச்சிடும் சேவை", "Signboard maker":"பெயர்ப்பலகை தயாரிப்பாளர்", "Other local services":"மற்ற உள்ளூர் சேவைகள்", "All services":"அனைத்து சேவைகள்"
+  "Printing service":"அச்சிடும் சேவை", "Signboard maker":"பெயர்ப்பலகை தயாரிப்பாளர்", "Lottery service":"லாட்டரி சேவை", "Retail store":"சில்லறைக் கடை",
+  "Rubber tapping worker":"ரப்பர் பால் வெட்டும் தொழிலாளர்", "Coconut picker":"தேங்காய் பறிப்பவர்", "Barber":"முடி திருத்துநர்", "Chicken shop":"கோழி இறைச்சிக் கடை",
+  "Beef stall":"மாட்டிறைச்சிக் கடை", "Mobile shop":"மொபைல் கடை", "Restaurant":"உணவகம்", "Autorickshaw service":"ஆட்டோ ரிக்ஷா சேவை",
+  "Traveller van service":"டிராவலர் வேன் சேவை", "Ambulance service":"ஆம்புலன்ஸ் சேவை", "Pharmacy":"மருந்தகம்", "Dental clinic":"பல் மருத்துவ நிலையம்",
+  "Hospital":"மருத்துவமனை", "Medical laboratory":"மருத்துவ ஆய்வகம்", "Other local services":"மற்ற உள்ளூர் சேவைகள்", "All services":"அனைத்து சேவைகள்"
 };
 
 const kannadaServiceNames: Record<string, string> = {
@@ -454,7 +466,11 @@ const kannadaServiceNames: Record<string, string> = {
   "Fitness trainer":"ಫಿಟ್ನೆಸ್ ತರಬೇತುದಾರ", "Yoga trainer":"ಯೋಗ ತರಬೇತುದಾರ", "Tutor":"ಬೋಧಕರು", "Music teacher":"ಸಂಗೀತ ಶಿಕ್ಷಕ", "Dance teacher":"ನೃತ್ಯ ಶಿಕ್ಷಕ",
   "Language teacher":"ಭಾಷಾ ಶಿಕ್ಷಕ", "Graphic designer":"ಗ್ರಾಫಿಕ್ ವಿನ್ಯಾಸಗಾರ", "Web developer":"ವೆಬ್ ಡೆವಲಪರ್", "Digital marketing professional":"ಡಿಜಿಟಲ್ ಮಾರ್ಕೆಟಿಂಗ್ ತಜ್ಞ",
   "Accountant":"ಲೆಕ್ಕಾಧಿಕಾರಿ", "Tax consultant":"ತೆರಿಗೆ ಸಲಹೆಗಾರ", "Legal consultant":"ಕಾನೂನು ಸಲಹೆಗಾರ", "Document-writing service":"ದಾಖಲೆ ಬರವಣಿಗೆ ಸೇವೆ",
-  "Printing service":"ಮುದ್ರಣ ಸೇವೆ", "Signboard maker":"ನಾಮಫಲಕ ತಯಾರಕ", "Other local services":"ಇತರೆ ಸ್ಥಳೀಯ ಸೇವೆಗಳು", "All services":"ಎಲ್ಲಾ ಸೇವೆಗಳು"
+  "Printing service":"ಮುದ್ರಣ ಸೇವೆ", "Signboard maker":"ನಾಮಫಲಕ ತಯಾರಕ", "Lottery service":"ಲಾಟರಿ ಸೇವೆ", "Retail store":"ಚಿಲ್ಲರೆ ಅಂಗಡಿ",
+  "Rubber tapping worker":"ರಬ್ಬರ್ ಟ್ಯಾಪಿಂಗ್ ಕಾರ್ಮಿಕ", "Coconut picker":"ತೆಂಗಿನಕಾಯಿ ಕೀಳುವವರು", "Barber":"ಕ್ಷೌರಿಕ", "Chicken shop":"ಕೋಳಿ ಅಂಗಡಿ",
+  "Beef stall":"ಬೀಫ್ ಸ್ಟಾಲ್", "Mobile shop":"ಮೊಬೈಲ್ ಅಂಗಡಿ", "Restaurant":"ಉಪಹಾರ ಗೃಹ", "Autorickshaw service":"ಆಟೋರಿಕ್ಷಾ ಸೇವೆ",
+  "Traveller van service":"ಟ್ರಾವೆಲರ್ ವ್ಯಾನ್ ಸೇವೆ", "Ambulance service":"ಆಂಬ್ಯುಲೆನ್ಸ್ ಸೇವೆ", "Pharmacy":"ಔಷಧಾಲಯ", "Dental clinic":"ದಂತ ಚಿಕಿತ್ಸಾಲಯ",
+  "Hospital":"ಆಸ್ಪತ್ರೆ", "Medical laboratory":"ವೈದ್ಯಕೀಯ ಪ್ರಯೋಗಾಲಯ", "Other local services":"ಇತರೆ ಸ್ಥಳೀಯ ಸೇವೆಗಳು", "All services":"ಎಲ್ಲಾ ಸೇವೆಗಳು"
 };
 
 const teluguServiceNames: Record<string, string> = {
@@ -484,7 +500,11 @@ const teluguServiceNames: Record<string, string> = {
   "Fitness trainer":"ఫిట్‌నెస్ ట్రైనర్", "Yoga trainer":"యోగా శిక్షకుడు", "Tutor":"ట్యూటర్", "Music teacher":"సంగీత ఉపాధ్యాయుడు", "Dance teacher":"నృత్య ఉపాధ్యాయుడు",
   "Language teacher":"భాషా ఉపాధ్యాయుడు", "Graphic designer":"గ్రాఫిక్ డిజైనర్", "Web developer":"వెబ్ డెవలపర్", "Digital marketing professional":"డిజిటల్ మార్కెటింగ్ నిపుణుడు",
   "Accountant":"అకౌంటెంట్", "Tax consultant":"పన్ను సలహాదారు", "Legal consultant":"న్యాయ సలహాదారు", "Document-writing service":"పత్రాల రచనా సేవ",
-  "Printing service":"ప్రింటింగ్ సేవ", "Signboard maker":"సైన్‌బోర్డ్ తయారీదారు", "Other local services":"ఇతర స్థానిక సేవలు", "All services":"అన్ని సేవలు"
+  "Printing service":"ప్రింటింగ్ సేవ", "Signboard maker":"సైన్‌బోర్డ్ తయారీదారు", "Lottery service":"లాటరీ సేవ", "Retail store":"రిటైల్ దుకాణం",
+  "Rubber tapping worker":"రబ్బర్ ట్యాపింగ్ కార్మికుడు", "Coconut picker":"కొబ్బరికాయలు కోసే కార్మికుడు", "Barber":"క్షౌరశాల సేవ", "Chicken shop":"చికెన్ దుకాణం",
+  "Beef stall":"బీఫ్ స్టాల్", "Mobile shop":"మొబైల్ దుకాణం", "Restaurant":"రెస్టారెంట్", "Autorickshaw service":"ఆటోరిక్షా సేవ",
+  "Traveller van service":"ట్రావెలర్ వ్యాన్ సేవ", "Ambulance service":"అంబులెన్స్ సేవ", "Pharmacy":"ఫార్మసీ", "Dental clinic":"దంత వైద్యశాల",
+  "Hospital":"ఆసుపత్రి", "Medical laboratory":"వైద్య ప్రయోగశాల", "Other local services":"ఇతర స్థానిక సేవలు", "All services":"అన్ని సేవలు"
 };
 
 const serviceNamesByLanguage: Partial<Record<Language, Record<string, string>>> = {

@@ -648,3 +648,26 @@ test("all Nearleo pages and the full service catalogue support six languages", a
   assert.match(layout, /<GlobalLanguage \/>/);
   assert.match(styles, /\.global-language-switch/);
 });
+
+test("community, retail, transport and health categories are searchable and translated", async () => {
+  const [app, i18n, seo] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/i18n.ts"),
+    readSource("lib/seo-services.ts"),
+  ]);
+  const requestedCategories = [
+    "Lottery service", "Retail store", "Rubber tapping worker", "Coconut picker", "Barber", "Chicken shop",
+    "Beef stall", "Mobile shop", "Restaurant", "Autorickshaw service", "Traveller van service", "Ambulance service",
+    "Pharmacy", "Dental clinic", "Hospital", "Medical laboratory",
+  ];
+
+  for (const category of requestedCategories) {
+    assert.match(app, new RegExp(`"${category}"`));
+    assert.equal((i18n.match(new RegExp(`"${category}"`, "g")) ?? []).length, 5);
+    assert.match(seo, new RegExp(`name: "${category}"`));
+  }
+  assert.match(app, /Pharmacy:\["pharamcy","medical shop","chemist"\]/);
+  assert.match(app, /"Coconut picker":\["coconut picking","coconut climbing","coconut tree climber","coconut plucker"\]/);
+  assert.match(app, /"Traveller van service":\["traveller","traveler","tempo traveller","tourist van"\]/);
+  assert.match(seo, /Nearleo is not an emergency service/);
+});

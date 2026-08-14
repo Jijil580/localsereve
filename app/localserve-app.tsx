@@ -40,12 +40,35 @@ const serviceNames = [
   "Stage decorator", "Catering service", "Cook or chef", "Makeup artist", "Beautician", "Hair stylist", "Mehendi artist", "Tailor",
   "Laundry and ironing", "Babysitter", "Elder-care assistant", "Home nurse", "Physiotherapist", "Fitness trainer", "Yoga trainer", "Tutor",
   "Music teacher", "Dance teacher", "Language teacher", "Graphic designer", "Web developer", "Digital marketing professional", "Accountant",
-  "Tax consultant", "Legal consultant", "Document-writing service", "Printing service", "Signboard maker", "Other local services",
+  "Tax consultant", "Legal consultant", "Document-writing service", "Printing service", "Signboard maker", "Lottery service", "Retail store",
+  "Rubber tapping worker", "Coconut picker", "Barber", "Chicken shop", "Beef stall", "Mobile shop", "Restaurant",
+  "Autorickshaw service", "Traveller van service", "Ambulance service", "Pharmacy", "Dental clinic", "Hospital", "Medical laboratory",
+  "Other local services",
 ];
 const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carpenter:"🪚",Mason:"🧱","Interlock paving":"▦","Hollow-brick work":"▤",Painter:"🎨","Plastering worker":"🏠","Tile worker":"◫","Marble and granite worker":"◇","Flooring specialist":"▦","False-ceiling worker":"⌂",Welder:"⚙"};
+Object.assign(categoryIcons,{"Lottery service":"🎟️","Retail store":"🏪","Rubber tapping worker":"🌳","Coconut picker":"🥥",Barber:"💈","Chicken shop":"🍗","Beef stall":"🥩","Mobile shop":"📱",Restaurant:"🍽️","Autorickshaw service":"🛺","Traveller van service":"🚐","Ambulance service":"🚑",Pharmacy:"💊","Dental clinic":"🦷",Hospital:"🏥","Medical laboratory":"🧪"});
 const categories = [...serviceNames.map(name => [categoryIcons[name]||"🛠", name, "Browse service"]), ["⋯", "All services", "Explore categories"]];
 const featuredCategories = [...categories.slice(0,9), categories[categories.length-1]];
-const serviceAliases:Record<string,string[]>={"Interlock paving":["interlock","interlocking paver","paving blocks"],"Hollow-brick work":["hollow brick","hollobricks","hollow blocks"]};
+const serviceAliases:Record<string,string[]>={
+  "Interlock paving":["interlock","interlocking paver","paving blocks"],
+  "Hollow-brick work":["hollow brick","hollobricks","hollow blocks"],
+  "Lottery service":["lottery","lottery ticket","lotto"],
+  "Retail store":["retail shop","shop","store"],
+  "Rubber tapping worker":["rubber tapping","rubber tapper","latex tapping"],
+  "Coconut picker":["coconut picking","coconut climbing","coconut tree climber","coconut plucker"],
+  Barber:["barber shop","haircut","hair cutting","mens salon"],
+  "Chicken shop":["chicken stall","poultry shop","poultry store"],
+  "Beef stall":["beef shop","meat stall","butcher shop"],
+  "Mobile shop":["phone shop","mobile store","smartphone shop"],
+  Restaurant:["restaurants","hotel","food","dining"],
+  "Autorickshaw service":["auto","autorickshaw","auto rickshaw","tuk tuk"],
+  "Traveller van service":["traveller","traveler","tempo traveller","tourist van"],
+  "Ambulance service":["ambulance","emergency transport"],
+  Pharmacy:["pharamcy","medical shop","chemist"],
+  "Dental clinic":["dentist","dental hospital","tooth clinic"],
+  Hospital:["healthcare centre","health care center"],
+  "Medical laboratory":["laboratory","lab","diagnostic lab","blood test"],
+};
 
 function editDistance(left:string,right:string){const previous=Array.from({length:right.length+1},(_,index)=>index);for(let row=1;row<=left.length;row++){let diagonal=previous[0];previous[0]=row;for(let column=1;column<=right.length;column++){const above=previous[column];previous[column]=Math.min(previous[column]+1,previous[column-1]+1,diagonal+(left[row-1]===right[column-1]?0:1));diagonal=above}}return previous[right.length]}
 function matchingServices(value:string,language:Language="EN"){const needle=value.trim().toLocaleLowerCase();if(!needle)return[];return serviceNames.map(name=>{const normalized=name.toLowerCase();const localized=serviceSearchLabels(name).map(label=>label.toLocaleLowerCase());const selected=serviceLabel(name,language).toLocaleLowerCase();const terms=[normalized,...normalized.split(/\s+|[-/]/),...(serviceAliases[name]||[]),selected,...localized];const direct=terms.some(term=>term&&term.includes(needle))?0:Math.min(...terms.filter(Boolean).map(term=>editDistance(needle,term)));return{name,score:direct}}).filter(item=>item.score<=Math.max(2,Math.floor(needle.length*.4))).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name)).slice(0,7).map(item=>item.name)}
