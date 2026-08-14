@@ -434,7 +434,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v18/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v19/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -507,7 +507,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v18/);
+  assert.match(worker, /nearleo-shell-v19/);
 });
 
 test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
@@ -537,5 +537,29 @@ test("homepage rotates an animated Indian seasonal greeting using India time", a
   assert.match(styles, /\.festival-flag/);
   assert.match(styles, /@keyframes festivalFlagWave/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
-  assert.match(worker, /nearleo-shell-v18/);
+  assert.match(worker, /nearleo-shell-v19/);
+});
+
+test("Nearleo offers a complete browser-to-home-screen installation flow", async () => {
+  const [app, layout, manifest, worker, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/layout.tsx"),
+    readSource("app/manifest.ts"),
+    readSource("public/sw.js"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /beforeinstallprompt/);
+  assert.match(app, /appinstalled/);
+  assert.match(app, /Install Nearleo app/);
+  assert.match(app, /Add to Home Screen/);
+  assert.match(app, /display-mode: standalone/);
+  assert.match(layout, /apple-touch-icon\.png/);
+  assert.match(layout, /mobile-web-app-capable/);
+  assert.match(manifest, /app-icon-192\.png/);
+  assert.match(manifest, /app-icon-512\.png/);
+  assert.match(manifest, /app-icon-maskable-512\.png/);
+  assert.match(manifest, /start_url: "\/\?source=pwa"/);
+  assert.match(worker, /nearleo-shell-v19/);
+  assert.match(styles, /\.pwa-install-card/);
 });

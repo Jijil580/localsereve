@@ -15,6 +15,7 @@ type MapLocation = { latitude: number; longitude: number; label?: string; name?:
 type RequestReply = { providerId:string;providerName:string;providerBusiness:string;message:string;quoteAmount?:number;availability?:string;createdAt:string };
 type ServiceRequest = { _id:string;requestNumber:string;customerName?:string;service:string;description:string;address:string;preferredDate:string;preferredTime:string;urgency:string;status:string;quoteCount:number;whatsappNumber?:string;responses?:RequestReply[];assignedProviderId?:string;assignedProviderName?:string;createdAt:string };
 type ProviderReview = { id:string;customerName:string;rating:number;comment:string;createdAt:string;updatedAt?:string };
+type BeforeInstallPromptEvent = Event & { prompt:()=>Promise<void>;userChoice:Promise<{outcome:"accepted"|"dismissed";platform:string}> };
 type Provider = {
   id: string; name: string; business: string; service: string; rating: number; reviews: number; likes: number; liked: boolean;
   distance: number | null; experience: number; price: number; available: boolean; emergency?: boolean;
@@ -117,6 +118,42 @@ function SeasonalFestivalBanner({language,onExplore}:{language:Language;onExplor
     </div>
     <span className="seasonal-shimmer" aria-hidden="true"/>
   </section>;
+}
+
+function NearleoInstallPrompt({language}:{language:Language}){
+  const [installEvent,setInstallEvent]=useState<BeforeInstallPromptEvent|null>(null);
+  const [visible,setVisible]=useState(false);
+  const [ios,setIos]=useState(false);
+  const [instructions,setInstructions]=useState(false);
+  const malayalam=language==="ML";
+  useEffect(()=>{
+    const appleStandalone="standalone" in navigator&&Boolean((navigator as Navigator&{standalone?:boolean}).standalone);
+    const installed=window.matchMedia("(display-mode: standalone)").matches||appleStandalone;
+    if(installed||window.sessionStorage.getItem("nearleo-install-dismissed")==="1")return;
+    const appleDevice=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    const mobileDevice=appleDevice||/android/i.test(navigator.userAgent);
+    setIos(appleDevice);setVisible(mobileDevice);
+    const captureInstall=(event:Event)=>{event.preventDefault();setInstallEvent(event as BeforeInstallPromptEvent);setVisible(true)};
+    const installedApp=()=>{setVisible(false);setInstallEvent(null)};
+    window.addEventListener("beforeinstallprompt",captureInstall);
+    window.addEventListener("appinstalled",installedApp);
+    return()=>{window.removeEventListener("beforeinstallprompt",captureInstall);window.removeEventListener("appinstalled",installedApp)};
+  },[]);
+  async function install(){
+    if(installEvent){await installEvent.prompt();const choice=await installEvent.userChoice;if(choice.outcome==="accepted")setVisible(false);setInstallEvent(null);return}
+    setInstructions(true);
+  }
+  function dismiss(){window.sessionStorage.setItem("nearleo-install-dismissed","1");setVisible(false)}
+  if(!visible)return null;
+  return <aside className={`pwa-install-card ${instructions?"show-instructions":""}`} aria-label="Install Nearleo app">
+    <button type="button" className="pwa-install-main" onClick={install}>
+      <img src="/nearleo-logo.svg" alt="" aria-hidden="true"/>
+      <span><b>{malayalam?"Nearleo ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക":"Install Nearleo app"}</b><small>{malayalam?"മൊബൈൽ ആപ്പുപോലെ ഉപയോഗിക്കാം":"Open faster from your home screen"}</small></span>
+      <i aria-hidden="true">↓</i>
+    </button>
+    <button type="button" className="pwa-install-close" onClick={dismiss} aria-label="Dismiss install suggestion">×</button>
+    {instructions&&<div className="pwa-install-instructions" role="status"><b>{ios?(malayalam?"iPhone / iPad-ൽ":"On iPhone or iPad"):(malayalam?"Android-ൽ":"On Android")}</b><p>{ios?(malayalam?"ബ്രൗസറിലെ Share ബട്ടൺ അമർത്തി ‘Add to Home Screen’ തിരഞ്ഞെടുക്കുക.":"Tap the browser Share button, then choose ‘Add to Home Screen’."):(malayalam?"ബ്രൗസർ മെനു (⋮) തുറന്ന് ‘Install app’ അല്ലെങ്കിൽ ‘Add to Home screen’ തിരഞ്ഞെടുക്കുക.":"Open the browser menu (⋮), then choose ‘Install app’ or ‘Add to Home screen’.")}</p></div>}
+  </aside>;
 }
 
 export default function NearleoApp() {
@@ -326,6 +363,7 @@ export default function NearleoApp() {
 
       <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></div><p>{t.tagline}</p><small className="powered-by">{t.poweredBy} <b>Lumier Technologies</b></small></div><div><b>{t.customers}</b><button onClick={() => goSearch()}>{t.findServices}</button><button onClick={openRequest}>{t.postRequest}</button><button onClick={() => setModal("safety")}>{t.safety}</button></div><div><b>{t.professionals}</b><button onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.joinNearlio}</button><button onClick={() => setModal("pricing")}>{t.plansPricing}</button><button onClick={() => setModal("provider-help")}>{t.providerHelp}</button></div><div><b>{t.company}</b><button onClick={() => setModal("about")}>{t.about}</button><button onClick={() => setModal("contact")}>{t.contact}</button><button onClick={() => setModal("terms")}>{t.privacyTerms}</button></div><div className="footer-bottom">© 2026 Nearleo. {t.tagline} <span>{t.poweredBy} Lumier Technologies · support@nealeo.com</span></div></footer>
 
+      <NearleoInstallPrompt language={language}/>
       <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂",t.home,"home"],["⌕",t.explore,"search"],["＋",t.requests,"requests"],["✉",t.inbox,"messages"],["◉",t.account,"dashboard"]].map(([icon,label,id]) => <button aria-current={view===id ? "page" : undefined} className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} user={currentUser} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
       {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);refreshProviders();notify(`Welcome, ${user.fullName.split(" ")[0]}!`);const pendingShare=window.sessionStorage.getItem("nearleo-share-after-login");if(pendingShare){window.sessionStorage.removeItem("nearleo-share-after-login");window.location.assign(pendingShare);return}if(postAuthAction==="request"){setModal("request")}else if(postAuthAction==="contact"){setModal(null)}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
