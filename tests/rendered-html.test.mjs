@@ -635,6 +635,9 @@ test("all Nearleo pages and the full service catalogue support six languages", a
   assert.match(i18n, /"Signboard maker":"సైన్‌బోర్డ్ తయారీదారు"/);
   assert.match(interfaceI18n, /"PROVIDER DASHBOARD"/);
   assert.match(interfaceI18n, /"User Terms & Privacy Notice"/);
+  assert.match(interfaceI18n, /function dynamicTranslation/);
+  assert.match(interfaceI18n, /years experience/);
+  assert.match(interfaceI18n, /Unable to\|Something went wrong/);
   assert.match(publicPageI18n, /"Nearleo service directory"/);
   assert.match(publicPageI18n, /"Find interlock workers in Iritty"/);
   assert.match(publicPageI18n, /"Provider verification"/);

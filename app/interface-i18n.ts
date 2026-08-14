@@ -1,4 +1,4 @@
-import { Language, serviceLabel, translations } from "./i18n";
+import { Language, malayalamServiceNames, serviceLabel, translations } from "./i18n";
 import { hasPublicPageTranslation, publicPageTranslation } from "./public-page-i18n";
 
 type RegionalCopy = readonly [malayalam: string, hindi: string, tamil: string, kannada: string, telugu: string];
@@ -253,6 +253,56 @@ const coreKeyByEnglish = new Map<string, keyof typeof translations.EN>(
   Object.entries(translations.EN).map(([key, value]) => [value, key as keyof typeof translations.EN]),
 );
 
+const canonicalServices = Object.keys(malayalamServiceNames);
+
+function labelledService(value: string, language: Language) {
+  const canonical = canonicalServices.find((service) => service.toLocaleLowerCase() === value.trim().toLocaleLowerCase());
+  return canonical ? serviceLabel(canonical, language) : value;
+}
+
+function dynamicTranslation(value: string, language: Exclude<Language, "EN">) {
+  const index = languageIndex[language];
+  const words = {
+    welcome: ["സ്വാഗതം", "स्वागत", "வரவேற்கிறோம்", "ಸ್ವಾಗತ", "స్వాగతం"],
+    contact: ["ബന്ധപ്പെടുക", "संपर्क करें", "தொடர்புகொள்ளுங்கள்", "ಸಂಪರ್ಕಿಸಿ", "సంప్రదించండి"],
+    request: ["അഭ്യർത്ഥിക്കുക", "अनुरोध करें", "கோருங்கள்", "ವಿನಂತಿಸಿ", "అభ్యర్థించండి"],
+    search: ["തിരയുക", "खोजें", "தேடுங்கள்", "ಹುಡುಕಿ", "వెతకండి"],
+    profiles: ["പ്രൊഫൈലുകൾ", "प्रोफ़ाइल", "சுயவிவரங்கள்", "ಪ್ರೊಫೈಲ್‌ಗಳು", "ప్రొఫైళ్లు"],
+    yearsExperience: ["വർഷത്തെ പരിചയം", "वर्ष का अनुभव", "ஆண்டுகள் அனுபவம்", "ವರ್ಷಗಳ ಅನುಭವ", "సంవత్సరాల అనుభవం"],
+    years: ["വർഷം", "वर्ष", "ஆண்டுகள்", "ವರ್ಷಗಳು", "సంవత్సరాలు"],
+    reviews: ["റിവ്യൂകൾ", "समीक्षाएँ", "மதிப்புரைகள்", "ವಿಮರ್ಶೆಗಳು", "సమీక్షలు"],
+    completedJobs: ["പൂർത്തിയാക്കിയ ജോലികൾ", "पूरे किए काम", "முடித்த வேலைகள்", "ಪೂರ್ಣಗೊಳಿಸಿದ ಕೆಲಸಗಳು", "పూర్తి చేసిన పనులు"],
+    part: ["ഭാഗം", "भाग", "பகுதி", "ಭಾಗ", "భాగం"],
+    of: ["ൽ", "में से", "இல்", "ರಲ್ಲಿ", "లో"],
+    unable: ["ഈ പ്രവർത്തനം പൂർത്തിയാക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക.", "यह कार्य पूरा नहीं हुआ। फिर कोशिश करें।", "இந்த செயலை முடிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.", "ಈ ಕಾರ್ಯ ಪೂರ್ಣಗೊಳ್ಳಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.", "ఈ చర్యను పూర్తి చేయలేకపోయాం. మళ్లీ ప్రయత్నించండి."],
+    signIn: ["തുടരാൻ ലോഗിൻ ചെയ്യുക.", "जारी रखने के लिए साइन इन करें।", "தொடர உள்நுழையவும்.", "ಮುಂದುವರಿಸಲು ಸೈನ್ ಇನ್ ಮಾಡಿ.", "కొనసాగడానికి సైన్ ఇన్ చేయండి."],
+  } as const;
+
+  let match = value.match(/^Welcome,\s*(.+)!$/);
+  if (match) return `${words.welcome[index]}, ${match[1]}!`;
+  match = value.match(/^Contact\s+(.+)$/);
+  if (match) return `${labelledService(match[1], language)} ${words.contact[index]}`;
+  match = value.match(/^Request\s+(.+?)\s+service$/i);
+  if (match) return `${labelledService(match[1], language)} ${words.request[index]}`;
+  match = value.match(/^Search\s+(.+?)\s+profiles$/i);
+  if (match) return `${labelledService(match[1], language)} ${words.profiles[index]} ${words.search[index]}`;
+  match = value.match(/^(.+?)\s+request$/i);
+  if (match) return `${labelledService(match[1], language)} ${publicPageTranslation("request", language)}`;
+  match = value.match(/^(\d+)\s+years experience$/i);
+  if (match) return `${match[1]} ${words.yearsExperience[index]}`;
+  match = value.match(/^(\d+)\s+years$/i);
+  if (match) return `${match[1]} ${words.years[index]}`;
+  match = value.match(/^(\d+)\s+reviews$/i);
+  if (match) return `${match[1]} ${words.reviews[index]}`;
+  match = value.match(/^(\d+)\s+completed jobs?$/i);
+  if (match) return `${match[1]} ${words.completedJobs[index]}`;
+  match = value.match(/^Nearleo welcome, part\s+(\d+)\s+of\s+(\d+)$/i);
+  if (match) return `Nearleo ${words.welcome[index]} · ${words.part[index]} ${match[1]} ${words.of[index]} ${match[2]}`;
+  if (/^(Unable to|Something went wrong)/i.test(value)) return words.unable[index];
+  if (/^(Sign in|Log in|Customer sign-in required|Provider sign-in required|Admin sign-in required|Authentication required)/i.test(value)) return words.signIn[index];
+  return value;
+}
+
 export function translateInterfaceText(value: string, language: Language) {
   if (language === "EN") return value;
   const service = serviceLabel(value, language);
@@ -261,7 +311,9 @@ export function translateInterfaceText(value: string, language: Language) {
   if (coreKey) return translations[language][coreKey];
   const copy = interfaceCopy[value];
   if (copy) return copy[languageIndex[language]];
-  return publicPageTranslation(value, language);
+  const pageCopy = publicPageTranslation(value, language);
+  if (pageCopy !== value) return pageCopy;
+  return dynamicTranslation(value, language);
 }
 
 export function hasInterfaceTranslation(value: string) {
