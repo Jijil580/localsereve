@@ -76,6 +76,49 @@ function OpeningIntro({onFinish}:{onFinish:()=>void}) {
   </section>;
 }
 
+type SeasonalMoment = {
+  id:string;month:number;day:number;leadDays:number;trailDays:number;
+  label:string;title:string;message:string;malayalamLabel:string;malayalamTitle:string;malayalamMessage:string;
+};
+
+const seasonalMoments:SeasonalMoment[] = [
+  {id:"new-year",month:1,day:1,leadDays:2,trailDays:2,label:"New Year",title:"A new year of local possibilities",message:"Start the year by discovering skilled professionals and supporting trusted work in your community.",malayalamLabel:"പുതുവത്സരം",malayalamTitle:"പ്രാദേശിക സാധ്യതകളുടെ പുതുവത്സരം",malayalamMessage:"വിദഗ്ധരായ പ്രൊഫഷണലുകളെ കണ്ടെത്തിയും പ്രാദേശിക സേവനങ്ങളെ പിന്തുണച്ചും പുതുവത്സരം ആരംഭിക്കാം."},
+  {id:"republic-day",month:1,day:26,leadDays:3,trailDays:2,label:"26 January · Republic Day",title:"Celebrating service to every community",message:"Nearleo honours the people, skills and local businesses that strengthen our republic every day.",malayalamLabel:"ജനുവരി 26 · റിപ്പബ്ലിക് ദിനം",malayalamTitle:"ഓരോ സമൂഹത്തിനുമുള്ള സേവനത്തെ ആദരിക്കുന്നു",malayalamMessage:"നമ്മുടെ രാജ്യത്തെ ഓരോ ദിവസവും ശക്തിപ്പെടുത്തുന്ന ജനങ്ങളെയും കഴിവുകളെയും പ്രാദേശിക സംരംഭങ്ങളെയും Nearleo ആദരിക്കുന്നു."},
+  {id:"independence-day",month:8,day:15,leadDays:3,trailDays:2,label:"15 August · Independence Day",title:"Celebrating the hands that build India",message:"Nearleo salutes every local professional whose skill, service and hard work move our communities forward.",malayalamLabel:"ഓഗസ്റ്റ് 15 · സ്വാതന്ത്ര്യദിനം",malayalamTitle:"ഇന്ത്യയെ പടുത്തുയർത്തുന്ന കൈകൾക്ക് ആദരം",malayalamMessage:"നമ്മുടെ സമൂഹത്തെ മുന്നോട്ട് നയിക്കുന്ന ഓരോ പ്രാദേശിക പ്രൊഫഷണലിന്റെയും കഴിവിനും സേവനത്തിനും കഠിനാധ്വാനത്തിനും Nearleo ആദരം അർപ്പിക്കുന്നു."},
+  {id:"gandhi-jayanti",month:10,day:2,leadDays:2,trailDays:1,label:"2 October · Gandhi Jayanti",title:"Honouring dignity in every kind of work",message:"A respectful salute to honest service, self-reliance and the people who keep our communities moving.",malayalamLabel:"ഒക്ടോബർ 2 · ഗാന്ധി ജയന്തി",malayalamTitle:"ഓരോ തൊഴിലിന്റെയും അന്തസ്സിനെ ആദരിക്കുന്നു",malayalamMessage:"സത്യസന്ധമായ സേവനത്തിനും സ്വാശ്രയത്വത്തിനും സമൂഹത്തെ മുന്നോട്ട് നയിക്കുന്നവർക്കും ആദരം."},
+  {id:"kerala-piravi",month:11,day:1,leadDays:2,trailDays:1,label:"1 November · Kerala Piravi",title:"Celebrating Kerala's skill and community",message:"Nearleo celebrates the local professionals, makers and neighbourhoods that make Kerala remarkable.",malayalamLabel:"നവംബർ 1 · കേരളപ്പിറവി",malayalamTitle:"കേരളത്തിന്റെ കഴിവിനും കൂട്ടായ്മയ്ക്കും ആഘോഷം",malayalamMessage:"കേരളത്തെ മനോഹരമാക്കുന്ന പ്രാദേശിക പ്രൊഫഷണലുകളെയും നിർമാതാക്കളെയും സമൂഹങ്ങളെയും Nearleo ആഘോഷിക്കുന്നു."},
+  {id:"christmas",month:12,day:25,leadDays:3,trailDays:2,label:"Christmas season",title:"Warm wishes for every home and community",message:"Celebrating care, connection and the local professionals who help make every season special.",malayalamLabel:"ക്രിസ്മസ് കാലം",malayalamTitle:"ഓരോ വീടിനും സമൂഹത്തിനും ഹൃദയം നിറഞ്ഞ ആശംസകൾ",malayalamMessage:"കരുതലും കൂട്ടായ്മയും ഓരോ ആഘോഷവും മനോഹരമാക്കുന്ന പ്രാദേശിക പ്രൊഫഷണലുകളും ആഘോഷിക്കപ്പെടട്ടെ."},
+];
+
+function activeSeasonalMoment(now=new Date()){
+  const parts=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",year:"numeric",month:"numeric",day:"numeric"}).formatToParts(now);
+  const number=(type:"year"|"month"|"day")=>Number(parts.find(part=>part.type===type)?.value||0);
+  const year=number("year"),month=number("month"),day=number("day"),today=Date.UTC(year,month-1,day),oneDay=86_400_000;
+  return seasonalMoments.find(moment=>[year-1,year,year+1].some(eventYear=>{const difference=(today-Date.UTC(eventYear,moment.month-1,moment.day))/oneDay;return difference>=-moment.leadDays&&difference<=moment.trailDays}))||null;
+}
+
+function SeasonalFestivalBanner({language,onExplore}:{language:Language;onExplore:()=>void}){
+  const [moment,setMoment]=useState<SeasonalMoment|null>(null);
+  useEffect(()=>setMoment(activeSeasonalMoment()),[]);
+  if(!moment)return null;
+  const malayalam=language==="ML";
+  const monthShort=new Intl.DateTimeFormat("en-IN",{month:"short",timeZone:"Asia/Kolkata"}).format(new Date(Date.UTC(2026,moment.month-1,1))).toUpperCase();
+  return <section className={`seasonal-banner seasonal-${moment.id}`} aria-label={malayalam?moment.malayalamLabel:moment.label}>
+    <div className="seasonal-banner-copy">
+      <span className="seasonal-kicker"><i aria-hidden="true">✦</i>{malayalam?moment.malayalamLabel:moment.label}</span>
+      <h2>{malayalam?moment.malayalamTitle:moment.title}</h2>
+      <p>{malayalam?moment.malayalamMessage:moment.message}</p>
+      <button type="button" onClick={onExplore}>{malayalam?"പ്രാദേശിക പ്രൊഫഷണലുകളെ കണ്ടെത്തുക":"Find local professionals"}<span aria-hidden="true">→</span></button>
+    </div>
+    <div className="festival-visual" aria-hidden="true">
+      <span className="festival-spark festival-spark-one">✦</span><span className="festival-spark festival-spark-two">✦</span><span className="festival-spark festival-spark-three">•</span>
+      <div className="festival-flag"><i className="festival-band festival-saffron"/><i className="festival-band festival-white"><b className="ashoka-wheel"/></i><i className="festival-band festival-green"/></div>
+      <span className="festival-date"><b>{moment.day}</b><small>{monthShort}</small></span>
+    </div>
+    <span className="seasonal-shimmer" aria-hidden="true"/>
+  </section>;
+}
+
 export default function NearleoApp() {
   const [introVisible, setIntroVisible] = useState(true);
   const [view, setView] = useState<View>("home");
@@ -206,6 +249,7 @@ export default function NearleoApp() {
 
       <main>
         {view === "home" && <>
+          <SeasonalFestivalBanner language={language} onExplore={()=>goSearch()}/>
           <section className="hero hero-reference">
             <div className="hero-copy">
               <div className="eyebrow"><span>✓</span> {t.trustedNearby}</div>
