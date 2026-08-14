@@ -434,7 +434,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v19/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v20/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -507,7 +507,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v19/);
+  assert.match(worker, /nearleo-shell-v20/);
 });
 
 test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
@@ -536,8 +536,10 @@ test("homepage rotates an animated Indian seasonal greeting using India time", a
   assert.match(styles, /\.seasonal-banner/);
   assert.match(styles, /\.festival-flag/);
   assert.match(styles, /@keyframes festivalFlagWave/);
+  assert.match(styles, /Compact seasonal banner/);
+  assert.match(styles, /min-height:118px/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
-  assert.match(worker, /nearleo-shell-v19/);
+  assert.match(worker, /nearleo-shell-v20/);
 });
 
 test("Nearleo offers a complete browser-to-home-screen installation flow", async () => {
@@ -560,6 +562,6 @@ test("Nearleo offers a complete browser-to-home-screen installation flow", async
   assert.match(manifest, /app-icon-512\.png/);
   assert.match(manifest, /app-icon-maskable-512\.png/);
   assert.match(manifest, /start_url: "\/\?source=pwa"/);
-  assert.match(worker, /nearleo-shell-v19/);
+  assert.match(worker, /nearleo-shell-v20/);
   assert.match(styles, /\.pwa-install-card/);
 });
