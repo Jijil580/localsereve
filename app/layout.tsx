@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "../lib/seo-services";
+import PwaInstall from "./pwa-install";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
@@ -68,7 +69,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <PwaInstall />
+      </body>
     </html>
   );
 }

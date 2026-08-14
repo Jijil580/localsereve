@@ -406,8 +406,9 @@ test("priority Kannur and Iritty search phrases have dedicated landing pages", a
 });
 
 test("customers can leave one-to-five-star provider reviews and providers can add social links", async () => {
-  const [app, reviewRoute, profileRoute, providersRoute, styles, environment] = await Promise.all([
+  const [app, pwaInstall, reviewRoute, profileRoute, providersRoute, styles, environment] = await Promise.all([
     readSource("app/localserve-app.tsx"),
+    readSource("app/pwa-install.tsx"),
     readSource("app/api/providers/[id]/reviews/route.ts"),
     readSource("app/api/providers/me/route.ts"),
     readSource("app/api/providers/route.ts"),
@@ -421,7 +422,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(app, /Instagram/);
   assert.match(app, /Facebook/);
   assert.match(app, /YouTube/);
-  assert.match(app, /updateViaCache:"none"/);
+  assert.match(pwaInstall, /updateViaCache: "none"/);
   assert.match(reviewRoute, /session\.role !== "customer"/);
   assert.match(reviewRoute, /rating < 1 \|\| rating > 5/);
   assert.match(reviewRoute, /createIndex\(\{ customerId: 1, providerId: 1 \}, \{ unique: true \}\)/);
@@ -434,7 +435,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v20/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v21/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -507,7 +508,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v20/);
+  assert.match(worker, /nearleo-shell-v21/);
 });
 
 test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
@@ -539,29 +540,31 @@ test("homepage rotates an animated Indian seasonal greeting using India time", a
   assert.match(styles, /Compact seasonal banner/);
   assert.match(styles, /min-height:118px/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
-  assert.match(worker, /nearleo-shell-v20/);
+  assert.match(worker, /nearleo-shell-v21/);
 });
 
 test("Nearleo offers a complete browser-to-home-screen installation flow", async () => {
-  const [app, layout, manifest, worker, styles] = await Promise.all([
-    readSource("app/localserve-app.tsx"),
+  const [pwaInstall, layout, manifest, worker, styles] = await Promise.all([
+    readSource("app/pwa-install.tsx"),
     readSource("app/layout.tsx"),
     readSource("app/manifest.ts"),
     readSource("public/sw.js"),
     readSource("app/globals.css"),
   ]);
 
-  assert.match(app, /beforeinstallprompt/);
-  assert.match(app, /appinstalled/);
-  assert.match(app, /Install Nearleo app/);
-  assert.match(app, /Add to Home Screen/);
-  assert.match(app, /display-mode: standalone/);
+  assert.match(pwaInstall, /beforeinstallprompt/);
+  assert.match(pwaInstall, /appinstalled/);
+  assert.match(pwaInstall, /Install Nearleo app/);
+  assert.match(pwaInstall, /Add to Home Screen/);
+  assert.match(pwaInstall, /display-mode: standalone/);
+  assert.match(pwaInstall, /navigator\.serviceWorker/);
+  assert.match(layout, /<PwaInstall \/>/);
   assert.match(layout, /apple-touch-icon\.png/);
   assert.match(layout, /mobile-web-app-capable/);
   assert.match(manifest, /app-icon-192\.png/);
   assert.match(manifest, /app-icon-512\.png/);
   assert.match(manifest, /app-icon-maskable-512\.png/);
   assert.match(manifest, /start_url: "\/\?source=pwa"/);
-  assert.match(worker, /nearleo-shell-v20/);
+  assert.match(worker, /nearleo-shell-v21/);
   assert.match(styles, /\.pwa-install-card/);
 });
