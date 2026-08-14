@@ -1,5 +1,5 @@
-const CACHE_NAME = "nearleo-shell-v22";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/nearleo-logo.svg", "/app-icon-192.png", "/app-icon-512.png", "/near-lio-carpenter.jpg", "/near-lio-tile-worker.jpg", "/near-lio-plastering-worker.jpg", "/near-lio-photographer.jpg"];
+const CACHE_NAME = "nearleo-shell-v23";
+const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.ico", "/nearleo-favicon-96.png", "/favicon.svg", "/nearleo-logo.svg", "/app-icon-192.png", "/app-icon-512.png", "/near-lio-carpenter.jpg", "/near-lio-tile-worker.jpg", "/near-lio-plastering-worker.jpg", "/near-lio-photographer.jpg"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));

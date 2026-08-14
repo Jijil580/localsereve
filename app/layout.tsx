@@ -26,11 +26,13 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
+      { url: "/nearleo-favicon-96.png", sizes: "96x96", type: "image/png" },
       { url: "/app-icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/app-icon-512.png", sizes: "512x512", type: "image/png" },
       { url: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
     ],
-    shortcut: "/app-icon-192.png",
+    shortcut: "/favicon.ico",
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   robots: {
@@ -76,6 +78,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" href="/nearleo-favicon-96.png" type="image/png" sizes="96x96" />
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
