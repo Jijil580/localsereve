@@ -1,4 +1,4 @@
-const CACHE_NAME = "nearleo-shell-v23";
+const CACHE_NAME = "nearleo-shell-v24";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.ico", "/nearleo-favicon-96.png", "/favicon.svg", "/nearleo-logo.svg", "/app-icon-192.png", "/app-icon-512.png", "/near-lio-carpenter.jpg", "/near-lio-tile-worker.jpg", "/near-lio-plastering-worker.jpg", "/near-lio-photographer.jpg"];
 
 self.addEventListener("install", event => {

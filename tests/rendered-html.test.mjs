@@ -459,7 +459,7 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(styles, /\.direct-contact-grid/);
   assert.doesNotMatch(environment, /TURN_|STUN_/);
   assert.doesNotMatch(app, /WebRtcCallCenter|Request Audio Call|Call Approval/);
-  assert.match(await readSource("public/sw.js"), /nearleo-shell-v23/);
+  assert.match(await readSource("public/sw.js"), /nearleo-shell-v24/);
 });
 
 test("provider banners show persistent likes, average rating or New, and completed works", async () => {
@@ -532,7 +532,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);
-  assert.match(worker, /nearleo-shell-v23/);
+  assert.match(worker, /nearleo-shell-v24/);
 });
 
 test("provider profiles fall back to uploaded work imagery when no dedicated DP exists", async () => {
@@ -545,7 +545,7 @@ test("provider profiles fall back to uploaded work imagery when no dedicated DP 
   assert.match(providersRoute, /row\.profilePhotoId \? `\/api\/providers\/photo\/\$\{row\._id\}` : Array\.isArray\(row\.portfolioImageIds\) && row\.portfolioImageIds\.length \? `\/api\/providers\/portfolio\/\$\{row\._id\}\/0`/);
 });
 
-test("homepage rotates an animated Indian seasonal greeting using India time", async () => {
+test("homepage rotates an animated Kerala Onam Week greeting using India time", async () => {
   const [app, styles, worker] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
@@ -554,17 +554,17 @@ test("homepage rotates an animated Indian seasonal greeting using India time", a
 
   assert.match(app, /function SeasonalFestivalBanner/);
   assert.match(app, /timeZone:"Asia\/Kolkata"/);
-  assert.match(app, /id:"independence-day",month:8,day:15/);
-  assert.match(app, /Celebrating the hands that build India/);
-  assert.match(app, /ഇന്ത്യയെ പടുത്തുയർത്തുന്ന കൈകൾക്ക് ആദരം/);
+  assert.match(app, /id:"onam-week",month:8,day:26/);
+  assert.match(app, /Onam Week: celebrating Kerala together/);
+  assert.match(app, /ഓണവാരം: കേരളം ഒന്നായി ആഘോഷിക്കാം/);
   assert.match(app, /<SeasonalFestivalBanner language=\{language\}/);
   assert.match(styles, /\.seasonal-banner/);
-  assert.match(styles, /\.festival-flag/);
-  assert.match(styles, /@keyframes festivalFlagWave/);
+  assert.match(styles, /\.onam-pookalam/);
+  assert.match(styles, /@keyframes onamPetalBloom/);
   assert.match(styles, /Compact seasonal banner/);
   assert.match(styles, /min-height:118px/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
-  assert.match(worker, /nearleo-shell-v23/);
+  assert.match(worker, /nearleo-shell-v24/);
 });
 
 test("Nearleo offers a complete browser-to-home-screen installation flow", async () => {
@@ -589,7 +589,7 @@ test("Nearleo offers a complete browser-to-home-screen installation flow", async
   assert.match(manifest, /app-icon-512\.png/);
   assert.match(manifest, /app-icon-maskable-512\.png/);
   assert.match(manifest, /start_url: "\/\?source=pwa"/);
-  assert.match(worker, /nearleo-shell-v23/);
+  assert.match(worker, /nearleo-shell-v24/);
   assert.match(styles, /\.pwa-install-card/);
 });
 
