@@ -370,7 +370,8 @@ function SearchView(props:any) {
 
 function AllServicesCatalogue({onChoose,language}:{onChoose:(service:string)=>void;language:Language}) {
   const t=translations[language];
-  return <section className="all-services-catalogue" id="all-services"><div className="all-services-heading"><span className="kicker">{t.completeDirectory}</span><h2>{t.allServices}</h2><p>{t.chooseService}</p></div><div className="all-services-grid">{categories.slice(0,-1).map(([icon,name])=><button key={name} onClick={()=>onChoose(name)}><span>{icon}</span><b>{serviceLabel(name,language)}</b><i>›</i></button>)}</div></section>;
+  const serviceTilePhoto=(service:string)=>{const name=service.toLowerCase();if(/photo|video|drone/.test(name))return "/near-lio-photographer.jpg";if(/tile|marble|granite|floor|interlock|hollow|mason/.test(name))return "/near-lio-tile-worker.jpg";if(/plaster|paint|waterproof|roof|false-ceiling/.test(name))return "/near-lio-plastering-worker.jpg";return "/near-lio-carpenter.jpg"};
+  return <section className="all-services-catalogue" id="all-services"><div className="all-services-heading"><span className="kicker">{t.completeDirectory}</span><h2>{t.allServices}</h2><p>{t.chooseService}</p></div><div className="all-services-grid">{categories.slice(0,-1).map(([icon,name])=><button key={name} onClick={()=>onChoose(name)}><img src={serviceTilePhoto(name)} alt="" loading="lazy"/><span className="service-tile-shade"/><div className="service-tile-copy"><em>{icon}</em><b>{serviceLabel(name,language)}</b></div><i>›</i></button>)}</div></section>;
 }
 
 const requestStatusLabels:Record<string,string>={open:"Request posted",quoted:"Replies received",accepted:"Provider selected",in_progress:"Work in progress",completed:"Completed",cancelled:"Cancelled"};

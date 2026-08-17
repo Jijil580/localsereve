@@ -684,3 +684,13 @@ test("community, retail, transport and health categories are searchable and tran
   assert.match(app, /"Traveller van service":\["traveller","traveler","tempo traveller","tourist van"\]/);
   assert.match(seo, /Nearleo is not an emergency service/);
 });
+
+test("the full service catalogue uses consistent blue professional imagery", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /function AllServicesCatalogue/);
+  assert.match(app, /serviceTilePhoto/);
+  assert.match(app, /near-lio-carpenter\.jpg/);
+  assert.match(app, /service-tile-shade/);
+  assert.match(styles, /Image-led service catalogue/);
+  assert.match(styles, /\.service-tile-copy/);
+});
