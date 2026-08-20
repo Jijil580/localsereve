@@ -179,15 +179,19 @@ test("motion continues through the main mobile experience", async () => {
   assert.match(styles, /\.motion-reveal\.motion-in/);
 });
 
-test("mobile homepage places search before promotional content", async () => {
-  const styles = await readSource("app/globals.css");
+test("mobile homepage places the trusted-professionals heading before search and promotional content", async () => {
+  const [styles, app] = await Promise.all([
+    readSource("app/globals.css"),
+    readSource("app/localserve-app.tsx"),
+  ]);
 
   assert.match(styles, /\.hero-reference\{display:flex!important;flex-direction:column\}/);
   assert.match(styles, /\.hero-reference \.hero-copy\{order:1!important;display:flex/);
-  assert.match(styles, /\.hero-reference \.hero-search-expanded\{order:-10/);
+  assert.doesNotMatch(styles, /\.hero-reference \.hero-search-expanded\{order:-10/);
   assert.match(styles, /\.hero-reference \.hero-collage\{order:2!important/);
   assert.match(styles, /\.hero-reference \.location-field\{display:flex!important/);
   assert.match(styles, /Trusted local professionals/);
+  assert.ok(app.indexOf('<h1>{t.heroTitle}') < app.indexOf('<form className="hero-search hero-search-expanded"'));
 });
 
 test("interlock and hollow-brick services are searchable categories", async () => {

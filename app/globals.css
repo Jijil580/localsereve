@@ -416,7 +416,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* Mobile discovery starts with search before promotional content. */
 @media(max-width:760px){
   .hero-reference .hero-copy{order:1!important;display:flex;flex-direction:column;padding-top:14px!important}
-  .hero-reference .hero-search-expanded{order:-10;margin:0 0 25px!important}
+  .hero-reference .hero-search-expanded{margin:0 0 25px!important}
   .hero-reference .hero-collage{order:2!important}
   .hero-reference .location-field{display:flex!important;min-height:50px;border-top:1px solid #e3eaf4;padding:9px 12px}
 }
