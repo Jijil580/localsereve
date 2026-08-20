@@ -735,3 +735,11 @@ test("quick Explore services cards show the same service-specific imagery", asyn
   assert.match(styles, /category-card-visual/);
   assert.match(styles, /category-card-shade/);
 });
+
+test("homepage puts search and service exploration before the animated worker montage", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  const search = app.indexOf('className="hero hero-reference hero-copy-only"');
+  const explore = app.indexOf('className="section categories-section"');
+  const montage = app.indexOf('className="home-worker-showcase"');
+  assert.ok(search >= 0 && explore > search && montage > explore);
+});

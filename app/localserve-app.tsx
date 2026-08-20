@@ -274,7 +274,7 @@ export default function NearleoApp() {
       <main>
         {view === "home" && <>
           <SeasonalFestivalBanner language={language} onExplore={()=>goSearch()}/>
-          <section className="hero hero-reference">
+          <section className="hero hero-reference hero-copy-only">
             <div className="hero-copy">
               <div className="eyebrow"><span>✓</span> {t.trustedNearby}</div>
               <h1>{t.heroTitle} <span>{t.nearYou}</span></h1>
@@ -285,14 +285,6 @@ export default function NearleoApp() {
                 <label className="hero-radius"><span>◴</span><span><small>{t.radius}</small><select value={radius} onChange={event=>setRadius(Number(event.target.value))} aria-label={t.radius}><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="60">60 km</option></select></span></label>
               </form>
               <div className="hero-proof-row"><div><span>✓</span><b>{t.reviewedProfiles}</b></div><div><span>₹</span><b>{t.startingPrices}</b></div><div><span><LocationPinIcon/></span><b>{t.locationDiscovery}</b></div><div><span>↯</span><b>{t.savedReplies}</b></div></div>
-            </div>
-            <div className="hero-collage" aria-label="Verified Nearleo service professionals">
-              <article className="collage-card collage-electrician"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=700&q=85" alt="Electrician at work"/><span><b>{serviceLabel("Electrician",language)}</b><small>{t.localExpertise}</small></span></article>
-              <article className="collage-card collage-main"><img src="/near-lio-carpenter.jpg" alt="Carpenter planing a wooden cabinet"/><span><b>{serviceLabel("Carpenter",language)}</b><small>{t.skilledService}</small></span></article>
-              <article className="collage-card collage-tile"><img src="/near-lio-tile-worker.jpg" alt="Tile worker installing wall tiles"/><span><b>{serviceLabel("Tile worker",language)}</b><small>{t.nearbyProfessionals}</small></span></article>
-              <article className="collage-card collage-plaster"><img src="/near-lio-plastering-worker.jpg" alt="Plastering worker smoothing an interior wall"/><span><b>{serviceLabel("Plastering worker",language)}</b><small>{t.approvedProfiles}</small></span></article>
-              <article className="collage-card collage-photographer"><img src="/near-lio-photographer.jpg" alt="Professional cameraman filming an event"/><span><b>{serviceLabel("Photographer",language)}</b><small>{t.directEnquiries}</small></span></article>
-              <div className="happy-customers"><b>Nearleo</b><span>{t.builtForCommunities}</span></div>
             </div>
           </section>
 
@@ -311,6 +303,18 @@ export default function NearleoApp() {
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div><button onClick={() => goSearch()}>{t.viewAllServices} →</button></div>
             <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
+          </section>
+
+          <section className="home-worker-showcase" aria-label="Verified Nearleo service professionals">
+            <div className="home-worker-showcase-head"><span className="kicker">LOCAL EXPERTS</span><h2>{t.trustedNearby}</h2><p>{t.heroDescription}</p></div>
+            <div className="hero-collage">
+              <article className="collage-card collage-electrician"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=700&q=85" alt="Electrician at work"/><span><b>{serviceLabel("Electrician",language)}</b><small>{t.localExpertise}</small></span></article>
+              <article className="collage-card collage-main"><img src="/near-lio-carpenter.jpg" alt="Carpenter planing a wooden cabinet"/><span><b>{serviceLabel("Carpenter",language)}</b><small>{t.skilledService}</small></span></article>
+              <article className="collage-card collage-tile"><img src="/near-lio-tile-worker.jpg" alt="Tile worker installing wall tiles"/><span><b>{serviceLabel("Tile worker",language)}</b><small>{t.nearbyProfessionals}</small></span></article>
+              <article className="collage-card collage-plaster"><img src="/near-lio-plastering-worker.jpg" alt="Plastering worker smoothing an interior wall"/><span><b>{serviceLabel("Plastering worker",language)}</b><small>{t.approvedProfiles}</small></span></article>
+              <article className="collage-card collage-photographer"><img src="/near-lio-photographer.jpg" alt="Professional cameraman filming an event"/><span><b>{serviceLabel("Photographer",language)}</b><small>{t.directEnquiries}</small></span></article>
+              <div className="happy-customers"><b>Nearleo</b><span>{t.builtForCommunities}</span></div>
+            </div>
           </section>
 
           <section className="section seo-home-directory" aria-labelledby="seo-home-directory-title">
