@@ -750,7 +750,9 @@ test("mobile Explore services cards automatically advance while preserving touch
   assert.match(app, /rail\.scrollTo\(\{left:atEnd\?0:rail\.scrollLeft\+138,behavior:"smooth"\}\)/);
   assert.match(app, /onPointerDown=\{\(\)=>\{categoryRailPaused\.current=true\}\}/);
   assert.match(app, /prefers-reduced-motion: reduce/);
+  assert.match(app, /\{categories\.map\(\(\[icon,name\]\) => <button className="category-card/);
   assert.match(styles, /\.category-rail-shell:after/);
+  assert.match(styles, /\.categories-section \.category-card:nth-child\(n\+11\)\{display:flex\}/);
   assert.match(styles, /min-width:142px/);
 });
 

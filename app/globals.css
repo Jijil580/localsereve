@@ -474,3 +474,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 /* Compact seasonal greeting belongs beside the brand, not ahead of discovery. */
 .header-festival-chip{display:inline-flex;align-items:center;gap:6px;max-width:160px;margin-left:-18px;padding:7px 9px;border:1px solid #f1d89e;border-radius:999px;background:linear-gradient(115deg,#fff8e5,#f1faef);color:#176c45;box-shadow:0 5px 13px rgba(130,100,27,.09);font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden}.header-festival-chip>span{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:conic-gradient(#f2b434,#de6032,#17814d,#f2b434);color:#fff;font-size:8px}.header-festival-chip b{overflow:hidden;text-overflow:ellipsis}.header-festival-chip i{color:#b86b18;font-size:11px;font-style:normal}.premium-assurance-bottom{margin-top:54px;margin-bottom:52px}.premium-proof-row{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding-top:4px}.premium-proof-row>div{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e0eaf7;border-radius:11px;background:#f7faff;color:#173c71;font-size:11px}.premium-proof-row span{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#e8f2ff;color:#1769df;font-weight:900}.premium-proof-row svg{width:14px;height:14px}@media(max-width:900px){.header-festival-chip{margin-left:0}.premium-proof-row{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.header-festival-chip{max-width:82px;margin-left:-4px;padding:5px 6px;font-size:7px}.header-festival-chip>span{width:14px;height:14px;font-size:6px}.header-festival-chip i{display:none}.premium-assurance-bottom{margin-top:36px;margin-bottom:28px}.premium-proof-row{grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.premium-proof-row>div{align-items:flex-start;padding:9px;font-size:9px;line-height:1.25}.premium-proof-row span{width:22px;height:22px;min-width:22px;font-size:10px}.hero-copy-only .hero-copy>p{margin-bottom:18px}}
+
+/* Compact mobile discovery: keep the search and complete service rail in the first view. */
+.categories-section .category-card:nth-child(n+11){display:none}
+@media(max-width:760px){
+  .topbar{min-height:94px;padding:8px 14px;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"brand festival account" "location location language";column-gap:6px;row-gap:6px}
+  .header-festival-chip{grid-area:festival;align-self:center;max-width:78px;margin:0;padding:5px 6px;font-size:7px}
+  .header-festival-chip>span{display:none}
+  .hero-copy-only .hero-copy{padding:16px 16px 12px}
+  .hero-reference h1{margin:7px 0 9px;font-size:34px;line-height:1.04}
+  .hero-reference .hero-copy>p{margin:0 0 12px;font-size:12px;line-height:1.45}
+  .hero-search-expanded{margin-bottom:11px!important}
+  .hero-view-all{margin-top:8px}
+  .categories-section{padding-top:12px}
+  .categories-section .section-head{margin-bottom:11px}
+  .categories-section .section-head h2{font-size:23px}
+  .categories-section .category-card:nth-child(n+11){display:flex}
+  .categories-section .category-grid{padding-bottom:10px}
+  .categories-section .category-card{min-width:128px;width:128px;min-height:138px;padding:11px;border-radius:17px}
+  .categories-section .category-card b{font-size:11px}
+  .categories-section .category-icon{width:35px;height:35px}
+}
