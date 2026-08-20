@@ -172,12 +172,14 @@ export default function NearleoApp() {
   useEffect(()=>{
     if(view!=="home"||window.matchMedia("(min-width: 761px), (prefers-reduced-motion: reduce)").matches)return;
     const rail=categoryRailRef.current;if(!rail)return;
-    const timer=window.setInterval(()=>{
+    const advance=()=>{
       if(categoryRailPaused.current)return;
       const atEnd=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-8;
       rail.scrollTo({left:atEnd?0:rail.scrollLeft+138,behavior:"smooth"});
-    },2800);
-    return()=>window.clearInterval(timer);
+    };
+    const initialTimer=window.setTimeout(advance,900);
+    const timer=window.setInterval(advance,1800);
+    return()=>{window.clearTimeout(initialTimer);window.clearInterval(timer)};
   },[view]);
 
   useEffect(() => {
@@ -291,6 +293,7 @@ export default function NearleoApp() {
           <section className="hero hero-reference hero-copy-only">
             <div className="hero-copy">
               <h1>{t.heroTitle} <span>{t.nearYou}</span></h1>
+              <div className="hero-inline-motion" aria-hidden="true"><span/><img src="/service-tiles/individual/electrician.webp" alt=""/><img src="/near-lio-carpenter.jpg" alt=""/><img src="/near-lio-tile-worker.jpg" alt=""/><b>✦</b></div>
               <p>{t.heroDescription}</p>
               <form className="hero-search hero-search-expanded" onSubmit={e => {e.preventDefault(); goSearch()}}>
                 <label className="search-field"><span>⌕</span><span><small>{t.service}</small><ServiceAutocomplete value={query} onChange={setQuery} onSelect={goSearch} placeholder={t.servicePlaceholder} ariaLabel={t.searchPlaceholder} language={language} /></span></label>

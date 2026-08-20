@@ -483,6 +483,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .header-festival-chip>span{display:none}
   .hero-copy-only .hero-copy{padding:16px 16px 12px}
   .hero-reference h1{margin:7px 0 9px;font-size:34px;line-height:1.04}
+  .hero-inline-motion{position:relative;display:flex;align-items:center;gap:8px;height:88px;margin:0 0 10px;padding:8px 11px;overflow:hidden;border:1px solid #d8e6f7;border-radius:17px;background:linear-gradient(110deg,#eef6ff,#fff 55%,#e9f3ff);box-shadow:0 10px 22px rgba(20,66,130,.08)}
+  .hero-inline-motion>span{position:absolute;z-index:0;width:150px;height:150px;right:-52px;top:-55px;border-radius:50%;background:radial-gradient(circle,rgba(43,124,239,.22),rgba(43,124,239,0) 68%);animation:nearleoWorkerGlow 3.2s ease-in-out infinite}
+  .hero-inline-motion img{position:relative;z-index:1;width:70px;height:70px;flex:none;object-fit:cover;border:3px solid #fff;border-radius:15px;box-shadow:0 6px 16px rgba(14,59,124,.14)}
+  .hero-inline-motion img:nth-of-type(1){animation:nearleoWorkerFloat 3.4s ease-in-out infinite}
+  .hero-inline-motion img:nth-of-type(2){margin-left:-20px;animation:nearleoWorkerFloat 3.4s .45s ease-in-out infinite}
+  .hero-inline-motion img:nth-of-type(3){margin-left:-20px;animation:nearleoWorkerFloat 3.4s .9s ease-in-out infinite}
+  .hero-inline-motion b{position:absolute;z-index:2;right:16px;bottom:12px;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#1769e0;color:#fff;font-size:13px;box-shadow:0 5px 14px rgba(23,105,224,.28);animation:nearleoWorkerFloat 2.3s .3s ease-in-out infinite}
   .hero-reference .hero-copy>p{margin:0 0 12px;font-size:12px;line-height:1.45}
   .hero-search-expanded{margin-bottom:11px!important}
   .hero-view-all{margin-top:8px}
@@ -495,3 +502,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .categories-section .category-card b{font-size:11px}
   .categories-section .category-icon{width:35px;height:35px}
 }
+@keyframes nearleoWorkerFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes nearleoWorkerGlow{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
+@media(min-width:761px){.hero-inline-motion{display:none}}
+@media(prefers-reduced-motion:reduce){.hero-inline-motion *{animation:none!important}}
