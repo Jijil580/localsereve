@@ -316,7 +316,7 @@ export default function NearleoApp() {
                 <button type="button" className="location-field" onClick={useLocation}><LocationPinIcon/><span><small>{t.yourLocation}</small>{customerLocation?.label||t.location}</span></button>
                 <label className="hero-radius"><span>◴</span><span><small>{t.radius}</small><select value={radius} onChange={event=>setRadius(Number(event.target.value))} aria-label={t.radius}><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="60">60 km</option></select></span></label>
               </form>
-              <button type="button" className="hero-view-all" onClick={() => goSearch()}>{t.viewAllServices} <span aria-hidden="true">→</span></button>
+              <button type="button" className="hero-view-all" onClick={() => goSearch("All services")}><i aria-hidden="true">▦</i>{t.viewAllServices} <span aria-hidden="true">→</span></button>
             </div>
           </section>
 
