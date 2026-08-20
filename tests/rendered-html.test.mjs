@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 const sourceRoot = new URL("../", import.meta.url);
@@ -718,9 +718,11 @@ test("the customer inbox surfaces provider quotation messages", async () => {
   assert.match(app, /onRequests=\{\(\)=>setView\("requests"\)\}/);
 });
 
-test("service images are grouped by real work type instead of one repeated tile photo", async () => {
+test("every service uses its own dedicated mobile-ready visual", async () => {
   const app = await readSource("app/localserve-app.tsx");
-  for (const asset of ["electrician", "plumber", "construction", "mechanic", "healthcare", "food", "education", "digital", "agriculture"]) {
-    assert.match(app, new RegExp(`/service-tiles/${asset}\\.png`));
-  }
+  const images = await readdir(new URL("public/service-tiles/individual/", sourceRoot));
+  assert.equal(images.length, 116);
+  assert.match(app, /\/service-tiles\/individual\/\$\{service\.toLowerCase\(\)\.replace/);
+  assert.ok(images.includes("beautician.webp"));
+  assert.ok(images.includes("dental-clinic.webp"));
 });
