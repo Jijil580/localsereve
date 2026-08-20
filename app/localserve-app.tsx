@@ -159,6 +159,7 @@ export default function NearleoApp() {
   const [modal, setModal] = useState<"booking" | "request" | "auth" | "profile" | "profile-view" | "location" | "about" | "contact" | "safety" | "pricing" | "provider-help" | "terms" | null>(null);
   const [toast, setToast] = useState("");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>("EN");
   const [role, setRole] = useState<"customer" | "provider" | "admin">("customer");
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
@@ -188,16 +189,28 @@ export default function NearleoApp() {
     if(languageOptions.some(option=>option.code===savedLanguage))setLanguage(savedLanguage as Language);
     const launchParams=new URLSearchParams(window.location.search);
     const requestedService=launchParams.get("service");
+    const initialView=(requestedService?"search":window.history.state?.nearleoView||"home") as View;
+    setView(initialView);
+    window.history.replaceState({...window.history.state,nearleoView:initialView},"",window.location.href);
     if(requestedService){
       setIntroVisible(false);
-      setView("search");
       if(requestedService!=="All services"&&serviceNames.includes(requestedService))setQuery(requestedService);
     }
     if(launchParams.get("contactLogin")==="1"){
       setIntroVisible(false);setAuthMode("login");setPostAuthAction("contact");setModal("auth");notify("Please log in to call, WhatsApp or mail this provider.");
-      window.history.replaceState({},"",requestedService?`/?service=${encodeURIComponent(requestedService)}`:"/");
+      window.history.replaceState({nearleoView:requestedService?"search":"home"},"",requestedService?`/?service=${encodeURIComponent(requestedService)}`:"/");
     }
   }, []);
+
+  useEffect(()=>{
+    const onPopState=(event:PopStateEvent)=>{
+      setSideMenuOpen(false);setAccountMenuOpen(false);setModal(null);setSelected(null);
+      setView((event.state?.nearleoView||"home") as View);
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    window.addEventListener("popstate",onPopState);
+    return()=>window.removeEventListener("popstate",onPopState);
+  },[]);
 
   useEffect(()=>{
     localStorage.setItem("nearlio-language",language);
@@ -251,13 +264,14 @@ export default function NearleoApp() {
 
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2600); }
   function updateProviderLike(id:string,count:number,liked:boolean){setProviders(list=>list.map(provider=>provider.id===id?{...provider,likes:count,liked}:provider));setSelected(provider=>provider?.id===id?{...provider,likes:count,liked}:provider)}
-  function goSearch(service?: string) { if (service === "All services") { setQuery(""); setView("search"); setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50); return; } if (service) setQuery(service); setView("search"); window.scrollTo({top:0, behavior:"smooth"}); }
-  function openProtected(nextView: View) { if (!currentUser) {setPostAuthAction(nextView);setModal("auth");return;} setView(nextView); }
+  function navigate(next:View){if(next===view){setSideMenuOpen(false);return;}setSideMenuOpen(false);window.history.pushState({nearleoView:next},"",window.location.href);setView(next);window.scrollTo({top:0,behavior:"smooth"});}
+  function goSearch(service?: string) { if (service === "All services") { setQuery(""); navigate("search"); setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50); return; } if (service) setQuery(service); navigate("search"); }
+  function openProtected(nextView: View) { if (!currentUser) {setPostAuthAction(nextView);setModal("auth");return;} navigate(nextView); }
   function openRequest(){if(!currentUser){setPostAuthAction("request");setModal("auth");return;}setModal("request")}
   function openContactSignIn(){notify("Please log in to call, WhatsApp or mail this provider.");setAuthMode("login");setPostAuthAction("contact");setModal("auth")}
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    setAccountMenuOpen(false); setCurrentUser(null); setView("home"); await refreshProviders(null); notify("You have been signed out.");
+    setAccountMenuOpen(false); setCurrentUser(null); navigate("home"); await refreshProviders(null); notify("You have been signed out.");
   }
   function useLocation() {
     setModal("location");
@@ -265,17 +279,18 @@ export default function NearleoApp() {
   async function saveCustomerLocation(location: MapLocation) {
     setCustomerLocation(location);
     if(currentUser) await fetch("/api/users/location",{method:"PUT",headers:{"content-type":"application/json"},credentials:"include",body:JSON.stringify(location)});
-    await refreshProviders(location);setSort("nearest");setView("search");setModal(null);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50);notify("Nearby professionals are now listed from your location.");
+    await refreshProviders(location);setSort("nearest");navigate("search");setModal(null);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50);notify("Nearby professionals are now listed from your location.");
   }
 
   return (
     <div className="app-shell">
       {introVisible&&<OpeningIntro onFinish={()=>setIntroVisible(false)}/>}
       <header className="topbar">
-        <button className="brand" onClick={() => setView("home")} aria-label="Nearleo by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></button>
+        <button className={`menu-toggle ${sideMenuOpen?"open":""}`} type="button" aria-label={sideMenuOpen?"Close menu":"Open menu"} aria-expanded={sideMenuOpen} aria-controls="nearleo-side-menu" onClick={()=>setSideMenuOpen(open=>!open)}><i/><i/><i/><span className="sr-only">Menu</span></button>
+        <button className="brand" onClick={() => navigate("home")} aria-label="Nearleo by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></button>
         <SeasonalFestivalBanner compact language={language} onExplore={()=>goSearch()}/>
         <nav className="desktop-nav" aria-label="Main navigation">
-          <button aria-current={view === "home" ? "page" : undefined} className={view === "home" ? "active" : ""} onClick={() => setView("home")}>{t.home}</button>
+          <button aria-current={view === "home" ? "page" : undefined} className={view === "home" ? "active" : ""} onClick={() => navigate("home")}>{t.home}</button>
           <button aria-current={view === "search" ? "page" : undefined} className={view === "search" ? "active" : ""} onClick={() => goSearch()}>{t.findServices}</button>
           <button aria-current={view === "requests" ? "page" : undefined} className={view === "requests" ? "active" : ""} onClick={() => openProtected("requests")}>{t.myRequests}</button>
           <button aria-current={view === "messages" ? "page" : undefined} className={view === "messages" ? "active" : ""} onClick={() => openProtected("messages")}>{t.messages}</button>
@@ -283,10 +298,11 @@ export default function NearleoApp() {
         <div className="header-actions">
           <button className="location-mini" onClick={useLocation}><LocationPinIcon/><span>{customerLocation?.label||t.setLocation}</span></button>
           <label className="language-switch" aria-label={t.languageLabel}><span aria-hidden="true">文</span><select value={language} onChange={event=>setLanguage(event.target.value as Language)} aria-label={t.languageLabel}>{languageOptions.map(option=><option key={option.code} value={option.code} lang={option.lang}>{option.label}</option>)}</select></label>
-          <button className="ghost-btn desktop-only" onClick={() => {setRole("provider"); currentUser ? setView("dashboard") : setModal("auth")}}>{t.forProfessionals}</button>
-          {currentUser ? <div className="account-menu-wrap"><button className="account-chip" aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen(open=>!open)}><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><b>{currentUser.fullName.split(" ")[0]}</b><i>⌄</i></button>{accountMenuOpen&&<div className="account-menu" role="menu"><div className="account-menu-head"><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><div><b>{currentUser.fullName}</b><small>{currentUser.role} account</small></div></div><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);setRole(currentUser.role);setView("dashboard")}}><span>◉</span><div><b>{t.profileDashboard}</b><small>{t.manageAccount}</small></div></button><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);useLocation()}}><span>⌖</span><div><b>{t.changeLocation}</b><small>{customerLocation?.label||t.chooseSearchArea}</small></div></button><button role="menuitem" className="account-logout" onClick={signOut}><span>↪</span><div><b>{t.logOut}</b><small>{t.endSession}</small></div></button></div>}</div> : <button className="primary-btn small" onClick={() => setModal("auth")}>{t.signIn}</button>}
+          <button className="ghost-btn desktop-only" onClick={() => {setRole("provider"); currentUser ? navigate("dashboard") : setModal("auth")}}>{t.forProfessionals}</button>
+          {currentUser ? <div className="account-menu-wrap"><button className="account-chip" aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={() => setAccountMenuOpen(open=>!open)}><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><b>{currentUser.fullName.split(" ")[0]}</b><i>⌄</i></button>{accountMenuOpen&&<div className="account-menu" role="menu"><div className="account-menu-head"><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><div><b>{currentUser.fullName}</b><small>{currentUser.role} account</small></div></div><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);setRole(currentUser.role);navigate("dashboard")}}><span>◉</span><div><b>{t.profileDashboard}</b><small>{t.manageAccount}</small></div></button><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);useLocation()}}><span>⌖</span><div><b>{t.changeLocation}</b><small>{customerLocation?.label||t.chooseSearchArea}</small></div></button><button role="menuitem" className="account-logout" onClick={signOut}><span>↪</span><div><b>{t.logOut}</b><small>{t.endSession}</small></div></button></div>}</div> : <button className="primary-btn small" onClick={() => setModal("auth")}>{t.signIn}</button>}
         </div>
       </header>
+      {sideMenuOpen&&<><button type="button" className="side-menu-backdrop" aria-label="Close navigation menu" onClick={()=>setSideMenuOpen(false)}/><aside id="nearleo-side-menu" className="side-menu" aria-label="Nearleo quick navigation"><div className="side-menu-head"><div className="side-menu-brand"><span className="brand-mark">N</span><span><b>Nearleo</b><small>by Lumier</small></span></div><button type="button" aria-label="Close menu" onClick={()=>setSideMenuOpen(false)}>×</button></div><nav><button type="button" onClick={()=>goSearch("All services")}><span>▦</span><div><b>All services</b><small>Browse every local service</small></div><i>›</i></button><button type="button" onClick={()=>{setSideMenuOpen(false);setModal("provider-help")}}><span>?</span><div><b>Help &amp; support</b><small>Get help using Nearleo</small></div><i>›</i></button><button type="button" onClick={()=>{setSideMenuOpen(false);setModal("contact")}}><span>✉</span><div><b>Contact</b><small>support@nealeo.com</small></div><i>›</i></button></nav><button type="button" className="side-menu-listing" onClick={()=>{setSideMenuOpen(false);setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>List your service <span>→</span></button></aside></>}
 
       <main>
         {view === "home" && <>
@@ -344,12 +360,12 @@ export default function NearleoApp() {
 
           <section className="section provider-section">
             <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={() => goSearch()}>{t.seeAllProfessionals} →</button></div>
-            {providers.length ? <div className="provider-grid">{providers.slice(0,3).map(p => <ProviderCard key={p.id} provider={p} user={currentUser} saved={saved.includes(p.id)} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => setSaved(s => s.includes(p.id) ? s.filter(x=>x!==p.id) : [...s,p.id])} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
+            {providers.length ? <div className="provider-grid">{providers.slice(0,3).map(p => <ProviderCard key={p.id} provider={p} user={currentUser} saved={saved.includes(p.id)} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => setSaved(s => s.includes(p.id) ? s.filter(x=>x!==p.id) : [...s,p.id])} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
           </section>
 
           <section className="how-section"><div className="how-copy"><span className="kicker light">{t.simpleSecure}</span><h2>{t.easyTitle}</h2><p>{t.easyDescription}</p><button className="light-btn" onClick={openRequest}>{t.postRequest}</button></div><div className="steps">{[["01",t.step1Title,t.step1Body],["02",t.step2Title,t.step2Body],["03",t.step3Title,t.step3Body]].map(([n,h,p]) => <div className="step" key={n}><span>{n}</span><div><h3>{h}</h3><p>{p}</p></div></div>)}</div></section>
 
-          <section className="cta-band"><div><span className="kicker">{t.growBusiness}</span><h2>{t.professionalCta}</h2><p>{t.professionalCtaBody}</p></div><button onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.joinProfessional} →</button></section>
+          <section className="cta-band"><div><span className="kicker">{t.growBusiness}</span><h2>{t.professionalCta}</h2><p>{t.professionalCtaBody}</p></div><button onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.joinProfessional} →</button></section>
 
           <section className="premium-assurance premium-assurance-bottom" aria-labelledby="nearleo-standard-title">
             <div className="assurance-intro"><span className="kicker">{t.nearleoStandard}</span><h2 id="nearleo-standard-title">{t.trustTitle}</h2></div>
@@ -365,15 +381,15 @@ export default function NearleoApp() {
 
         {view === "search" && <><SearchView query={query} setQuery={setQuery} radius={radius} setRadius={setRadius} sort={sort} setSort={setSort} verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly} availableOnly={availableOnly} setAvailableOnly={setAvailableOnly} results={results} saved={saved} setSaved={setSaved} setSelected={setSelected} setModal={setModal} currentUser={currentUser} openContactSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} locationLabel={customerLocation?.label||t.setLocation} openLocation={useLocation} onPostRequest={openRequest} language={language} copy={t} />{!query&&<AllServicesCatalogue onChoose={service=>{setQuery(service);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50)}} language={language}/>}</>}
         {view === "requests" && currentUser && <RequestsView onPost={openRequest} />}
-        {view === "messages" && <CleanMessagesView onFind={goSearch} onRequests={()=>setView("requests")} />}
+        {view === "messages" && <CleanMessagesView onFind={goSearch} onRequests={()=>navigate("requests")} />}
         {view === "dashboard" && currentUser && <ProviderDashboard role={role} user={currentUser} onAction={notify} onRequest={openRequest} onSetup={()=>setModal("profile")} onView={()=>setModal("profile-view")} />}
       </main>
 
-      <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></div><p>{t.tagline}</p><small className="powered-by">{t.poweredBy} <b>Lumier Technologies</b></small></div><div><b>{t.customers}</b><button onClick={() => goSearch()}>{t.findServices}</button><button onClick={openRequest}>{t.postRequest}</button><button onClick={() => setModal("safety")}>{t.safety}</button></div><div><b>{t.professionals}</b><button onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.joinNearlio}</button><button onClick={() => setModal("pricing")}>{t.plansPricing}</button><button onClick={() => setModal("provider-help")}>{t.providerHelp}</button></div><div><b>{t.company}</b><button onClick={() => setModal("about")}>{t.about}</button><button onClick={() => setModal("contact")}>{t.contact}</button><button onClick={() => setModal("terms")}>{t.privacyTerms}</button></div><div className="footer-bottom">© 2026 Nearleo. {t.tagline} <span>{t.poweredBy} Lumier Technologies · support@nealeo.com</span></div></footer>
+      <footer><div className="footer-brand"><div className="brand"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></div><p>{t.tagline}</p><small className="powered-by">{t.poweredBy} <b>Lumier Technologies</b></small></div><div><b>{t.customers}</b><button onClick={() => goSearch()}>{t.findServices}</button><button onClick={openRequest}>{t.postRequest}</button><button onClick={() => setModal("safety")}>{t.safety}</button></div><div><b>{t.professionals}</b><button onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.joinNearlio}</button><button onClick={() => setModal("pricing")}>{t.plansPricing}</button><button onClick={() => setModal("provider-help")}>{t.providerHelp}</button></div><div><b>{t.company}</b><button onClick={() => setModal("about")}>{t.about}</button><button onClick={() => setModal("contact")}>{t.contact}</button><button onClick={() => setModal("terms")}>{t.privacyTerms}</button></div><div className="footer-bottom">© 2026 Nearleo. {t.tagline} <span>{t.poweredBy} Lumier Technologies · support@nealeo.com</span></div></footer>
 
-      <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂",t.home,"home"],["⌕",t.explore,"search"],["＋",t.requests,"requests"],["✉",t.inbox,"messages"],["◉",t.account,"dashboard"]].map(([icon,label,id]) => <button aria-current={view===id ? "page" : undefined} className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : setView(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
+      <nav className="mobile-nav" aria-label="Mobile navigation">{[["⌂",t.home,"home"],["⌕",t.explore,"search"],["＋",t.requests,"requests"],["✉",t.inbox,"messages"],["◉",t.account,"dashboard"]].map(([icon,label,id]) => <button aria-current={view===id ? "page" : undefined} className={view===id ? "active" : ""} onClick={() => (["requests","messages","dashboard"].includes(id) ? openProtected(id as View) : navigate(id as View))} key={id}><span>{icon}</span>{label}</button>)}</nav>
       {selected && !modal && <ProviderDrawer provider={selected} user={currentUser} saved={saved.includes(selected.id)} onClose={() => setSelected(null)} onBook={() => setModal("booking")} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => setSaved(s => s.includes(selected.id) ? s.filter(x=>x!==selected.id) : [...s,selected.id])} />}
-      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);setView("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);refreshProviders();notify(`Welcome, ${user.fullName.split(" ")[0]}!`);const pendingShare=window.sessionStorage.getItem("nearleo-share-after-login");if(pendingShare){window.sessionStorage.removeItem("nearleo-share-after-login");window.location.assign(pendingShare);return}if(postAuthAction==="request"){setModal("request")}else if(postAuthAction==="contact"){setModal(null)}else if(modal==="booking"){setModal("booking")}else{setModal(null);setView(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");setView("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")setView("requests")}} />}
+      {modal && <AppModal type={modal} provider={selected} user={currentUser} customerLocation={customerLocation} language={language} authMode={authMode} onLocationSaved={saveCustomerLocation} onClose={() => {setModal(null);setPostAuthAction(null)}} onFindServices={() => {setModal(null);goSearch()}} onJoinProvider={() => {setRole("provider");if(currentUser){setModal(null);navigate("dashboard")}else setModal("auth")}} onAuthenticated={(user) => {setCurrentUser(user);setRole(user.role);refreshProviders();notify(`Welcome, ${user.fullName.split(" ")[0]}!`);const pendingShare=window.sessionStorage.getItem("nearleo-share-after-login");if(pendingShare){window.sessionStorage.removeItem("nearleo-share-after-login");window.location.assign(pendingShare);return}if(postAuthAction==="request"){setModal("request")}else if(postAuthAction==="contact"){setModal(null)}else if(modal==="booking"){setModal("booking")}else{setModal(null);navigate(postAuthAction||"dashboard")}setPostAuthAction(null)}} onProfileSaved={(user) => {setCurrentUser(user);setRole("provider");setModal(null);refreshProviders();notify("Profile saved and published on Nearleo.");navigate("dashboard")}} onSuccess={(msg) => {setModal(null); notify(msg); if(modal!=="auth")navigate("requests")}} />}
       {toast && <div className="toast" role="status">✓ {toast}</div>}
     </div>
   );

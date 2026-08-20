@@ -79,7 +79,7 @@ test("mobile users can manage account and change provider search location", asyn
   assert.doesNotMatch(app, /className="mobile-signout"/);
   assert.match(app, /className="search-location-mobile" onClick=\{props\.openLocation\}/);
   assert.match(app, /\{t\.searchingNear\}/);
-  assert.match(app, /setSort\("nearest"\);setView\("search"\)/);
+  assert.match(app, /setSort\("nearest"\);navigate\("search"\)/);
   assert.match(app, /!customerLocation \|\| p\.distance === null \|\| p\.distance <= radius/);
   assert.match(app, /className="search-location-control"/);
   assert.doesNotMatch(app, /className="search-submit"/);
@@ -719,7 +719,7 @@ test("the customer inbox surfaces provider quotation messages", async () => {
   assert.match(app, /fetch\("\/api\/requests",\{credentials:"include"\}\)/);
   assert.match(app, /Provider replies/);
   assert.match(app, /reply\.quoteAmount/);
-  assert.match(app, /onRequests=\{\(\)=>setView\("requests"\)\}/);
+  assert.match(app, /onRequests=\{\(\)=>navigate\("requests"\)\}/);
 });
 
 test("every service uses its own dedicated mobile-ready visual", async () => {
@@ -776,4 +776,17 @@ test("homepage keeps the seasonal greeting compact and moves trust guidance to t
   const assurance = app.lastIndexOf('className="premium-assurance premium-assurance-bottom"');
   assert.ok(assurance > explore);
   assert.match(app, /premium-proof-row/);
+});
+
+test("mobile navigation uses browser history and offers an animated quick menu", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /window\.history\.pushState\(\{nearleoView:next\}/);
+  assert.match(app, /window\.addEventListener\("popstate",onPopState\)/);
+  assert.match(app, /id="nearleo-side-menu"/);
+  assert.match(app, /All services/);
+  assert.match(app, /Help &amp; support/);
+  assert.match(app, /support@nealeo\.com/);
+  assert.match(styles, /\.menu-toggle\.open i:nth-child\(1\)/);
+  assert.match(styles, /\.side-menu\{/);
+  assert.match(styles, /@keyframes sideMenuIn/);
 });
