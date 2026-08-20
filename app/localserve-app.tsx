@@ -288,7 +288,6 @@ export default function NearleoApp() {
       <header className="topbar">
         <button className={`menu-toggle ${sideMenuOpen?"open":""}`} type="button" aria-label={sideMenuOpen?"Close menu":"Open menu"} aria-expanded={sideMenuOpen} aria-controls="nearleo-side-menu" onClick={()=>setSideMenuOpen(open=>!open)}><i/><i/><i/><span className="sr-only">Menu</span></button>
         <button className="brand" onClick={() => navigate("home")} aria-label="Nearleo by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></button>
-        <SeasonalFestivalBanner compact language={language} onExplore={()=>goSearch()}/>
         <nav className="desktop-nav" aria-label="Main navigation">
           <button aria-current={view === "home" ? "page" : undefined} className={view === "home" ? "active" : ""} onClick={() => navigate("home")}>{t.home}</button>
           <button aria-current={view === "search" ? "page" : undefined} className={view === "search" ? "active" : ""} onClick={() => goSearch()}>{t.findServices}</button>
