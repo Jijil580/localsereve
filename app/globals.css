@@ -556,8 +556,8 @@ body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
 .provider-section{background:radial-gradient(circle at 6% 10%,rgba(167,137,255,.18),transparent 22%),radial-gradient(circle at 93% 78%,rgba(255,190,98,.22),transparent 25%),linear-gradient(135deg,#eef5ff,#fff2fb 50%,#f5fff4)}
 .all-services-catalogue{background:radial-gradient(circle at 92% 8%,rgba(255,178,111,.25),transparent 21%),linear-gradient(145deg,#eef6ff,#f9f0ff 49%,#effff8)}
 @media(max-width:760px){
-  .topbar{grid-template-columns:34px minmax(0,1fr) auto;grid-template-areas:"menu brand account" "location location language"}
-  .topbar>.brand{position:absolute;z-index:1;left:50%;top:15px;transform:translateX(-50%);justify-self:auto}
+  .topbar{min-height:120px;grid-template-columns:34px minmax(0,1fr) auto;grid-template-rows:58px 42px;grid-template-areas:"menu brand account" "location location language";row-gap:7px}
+  .topbar>.brand{position:absolute;z-index:1;left:50%;top:13px;transform:translateX(-50%);justify-self:auto}
   .menu-toggle,.account-menu-wrap,.header-actions>.primary-btn.small{z-index:2}
   .hero-reference{background:radial-gradient(circle at 94% 9%,rgba(255,196,81,.31),transparent 23%),radial-gradient(circle at 4% 71%,rgba(96,169,255,.25),transparent 27%),linear-gradient(140deg,#eaf4ff,#f8f0ff 53%,#fff3e2)}
 }
