@@ -561,6 +561,29 @@ body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
 .topbar>.brand{gap:11px;letter-spacing:-.035em}.topbar>.brand .brand-mark{position:relative;overflow:hidden;width:44px;height:44px;border-radius:15px 15px 15px 6px;background:linear-gradient(145deg,#4c8cff 0%,#1769e0 48%,#263fa8 100%);box-shadow:0 10px 22px rgba(23,105,224,.28),inset 0 1px 0 rgba(255,255,255,.42);font-size:27px;font-weight:900;text-shadow:0 2px 4px rgba(3,32,101,.22)}.topbar>.brand .brand-mark::after{content:"";position:absolute;width:30px;height:30px;right:-13px;top:-12px;border-radius:50%;background:rgba(255,255,255,.3)}.topbar>.brand .brand-wordmark>span{font-size:23px;font-weight:900;background:linear-gradient(100deg,#0b244c,#1769e0);-webkit-background-clip:text;background-clip:text;color:transparent}.topbar>.brand .brand-wordmark>span>span{color:inherit}.topbar>.brand:hover .brand-mark{transform:translateY(-1px) rotate(-2deg);box-shadow:0 13px 25px rgba(23,105,224,.34),inset 0 1px 0 rgba(255,255,255,.42)}.topbar>.brand .brand-mark{transition:transform .2s ease,box-shadow .2s ease}.side-menu-brand .brand-mark{background:linear-gradient(145deg,#4c8cff,#1769e0 52%,#263fa8)}.side-menu-brand small{display:none}
 @media(max-width:760px){.topbar>.brand .brand-mark{width:42px;height:42px;font-size:26px;border-radius:14px 14px 14px 6px}.topbar>.brand .brand-wordmark>span{font-size:22px}}
 
+/* Keep discovery above the fold and let the service rail move like a calm stream. */
+@media(max-width:760px){
+  .hero-copy-only .hero-copy{padding:7px 14px 3px}
+  .hero-reference h1{margin:0 0 3px;font-size:27px;line-height:1}
+  .hero-inline-motion{height:40px;margin-bottom:4px;padding:3px 7px;border-radius:12px}
+  .hero-inline-motion img{width:34px;height:34px;border-radius:9px}
+  .hero-inline-motion b{right:8px;bottom:6px;width:19px;height:19px}
+  .hero-search-expanded{min-height:48px;margin-top:3px!important;margin-bottom:4px!important;padding:4px;border-radius:15px}
+  .hero-search-expanded .search-field{min-height:40px;padding-inline:10px}
+  .hero-search-expanded .search-field input{height:28px}
+  .hero-trust-highlights{margin-top:5px;gap:4px}
+  .hero-trust-highlights span{min-height:30px;padding:3px 4px}
+  .hero-view-all{min-height:43px;margin-top:6px!important}
+  .categories-section{margin-top:0;padding-top:2px!important;padding-bottom:30px}
+  .category-rail-shell{padding-top:0}
+  .categories-section .category-grid{scroll-snap-type:none;scroll-behavior:auto;will-change:scroll-position;padding-top:1px}
+  .categories-section .category-card{min-height:124px;animation:nearleoTileCurrent 3.8s ease-in-out infinite}
+  .categories-section .category-card:nth-child(3n+2){animation-delay:-1.25s}
+  .categories-section .category-card:nth-child(3n){animation-delay:-2.5s}
+}
+@keyframes nearleoTileCurrent{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.categories-section .category-card{animation:none!important}}
+
 /* Brighter, welcoming colour surfaces while the Nearleo identity remains clear. */
 .app-shell{background:radial-gradient(circle at 3% 14%,rgba(113,176,255,.24),transparent 18%),radial-gradient(circle at 97% 31%,rgba(255,174,111,.2),transparent 19%),radial-gradient(circle at 12% 82%,rgba(118,226,189,.18),transparent 20%),linear-gradient(180deg,#eef6ff 0%,#fff8ee 45%,#f0fffa 100%)}
 .hero-reference{background:radial-gradient(circle at 92% 14%,rgba(255,189,72,.38),transparent 24%),radial-gradient(circle at 9% 78%,rgba(79,147,255,.28),transparent 27%),linear-gradient(126deg,#eaf4ff 0%,#f1f0ff 48%,#fff2df 100%)}

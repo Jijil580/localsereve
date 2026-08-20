@@ -168,19 +168,26 @@ export default function NearleoApp() {
   const [customerLocation, setCustomerLocation] = useState<MapLocation | null>(null);
   const categoryRailRef=useRef<HTMLDivElement>(null);
   const categoryRailPaused=useRef(false);
+  const categoryRailDirection=useRef<1|-1>(1);
   const t = translations[language];
 
   useEffect(()=>{
     if(view!=="home"||window.matchMedia("(min-width: 761px), (prefers-reduced-motion: reduce)").matches)return;
     const rail=categoryRailRef.current;if(!rail)return;
-    const advance=()=>{
-      if(categoryRailPaused.current)return;
-      const atEnd=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-8;
-      rail.scrollTo({left:atEnd?0:rail.scrollLeft+138,behavior:"smooth"});
+    let frame=0;
+    let previous=performance.now();
+    const flow=(now:number)=>{
+      const elapsed=Math.min(now-previous,40);previous=now;
+      if(!categoryRailPaused.current){
+        const maxScroll=Math.max(0,rail.scrollWidth-rail.clientWidth);
+        if(rail.scrollLeft>=maxScroll-1)categoryRailDirection.current=-1;
+        else if(rail.scrollLeft<=1)categoryRailDirection.current=1;
+        rail.scrollLeft+=categoryRailDirection.current*elapsed*.034;
+      }
+      frame=window.requestAnimationFrame(flow);
     };
-    const initialTimer=window.setTimeout(advance,900);
-    const timer=window.setInterval(advance,1800);
-    return()=>{window.clearTimeout(initialTimer);window.clearInterval(timer)};
+    frame=window.requestAnimationFrame(flow);
+    return()=>window.cancelAnimationFrame(frame);
   },[view]);
 
   useEffect(() => {
