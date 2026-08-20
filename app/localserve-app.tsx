@@ -284,11 +284,12 @@ export default function NearleoApp() {
                 <button type="button" className="location-field" onClick={useLocation}><LocationPinIcon/><span><small>{t.yourLocation}</small>{customerLocation?.label||t.location}</span></button>
                 <label className="hero-radius"><span>◴</span><span><small>{t.radius}</small><select value={radius} onChange={event=>setRadius(Number(event.target.value))} aria-label={t.radius}><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="60">60 km</option></select></span></label>
               </form>
+              <button type="button" className="hero-view-all" onClick={() => goSearch()}>{t.viewAllServices} <span aria-hidden="true">→</span></button>
             </div>
           </section>
 
           <section className="section categories-section">
-            <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div><button onClick={() => goSearch()}>{t.viewAllServices} →</button></div>
+            <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div></div>
             <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
           </section>
 
