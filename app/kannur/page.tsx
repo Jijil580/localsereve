@@ -52,7 +52,7 @@ export default async function KannurPage() {
     <main className="seo-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <header className="seo-header">
-        <Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo<small>by Lumier</small></strong></Link>
+        <Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo</strong></Link>
         <Link className="seo-home-link" href="/services">All services</Link>
       </header>
 

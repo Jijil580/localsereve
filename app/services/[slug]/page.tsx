@@ -68,7 +68,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
       <header className="seo-header">
         <Link className="seo-brand" href="/" aria-label="Nearleo home">
           <span>N</span>
-          <strong>Nearleo<small>by Lumier</small></strong>
+          <strong>Nearleo</strong>
         </Link>
         <Link className="seo-home-link" href="/services">All services</Link>
       </header>

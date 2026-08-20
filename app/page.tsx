@@ -7,7 +7,7 @@ const structuredData = [
     "@type": "Organization",
     "@id": `${SITE_URL}/#organization`,
     name: "Nearleo",
-    alternateName: "Nearleo by Lumier",
+    alternateName: "Nearleo",
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",

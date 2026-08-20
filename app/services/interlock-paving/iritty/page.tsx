@@ -57,7 +57,7 @@ export default async function IrittyInterlockPage() {
   return (
     <main className="seo-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <header className="seo-header"><Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo<small>by Lumier</small></strong></Link><Link className="seo-home-link" href="/kannur">Kannur directory</Link></header>
+      <header className="seo-header"><Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo</strong></Link><Link className="seo-home-link" href="/kannur">Kannur directory</Link></header>
       <nav className="seo-breadcrumb" aria-label="Breadcrumb"><Link href="/">Home</Link><span>/</span><Link href="/kannur">Kannur</Link><span>/</span><Link href="/services/interlock-paving/kannur">Interlock paving</Link><span>/</span><b>Iritty</b></nav>
 
       <section className="seo-hero seo-location-hero">

@@ -20,7 +20,7 @@ export default function ServicesPage() {
       <header className="seo-header">
         <Link className="seo-brand" href="/" aria-label="Nearleo home">
           <span>N</span>
-          <strong>Nearleo<small>by Lumier</small></strong>
+          <strong>Nearleo</strong>
         </Link>
         <Link className="seo-home-link" href="/">Find professionals</Link>
       </header>

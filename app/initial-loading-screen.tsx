@@ -25,7 +25,6 @@ export default function InitialLoadingScreen() {
       <div className="nearleo-loader-brand">
         <span className="nearleo-loader-mark" aria-hidden="true">N</span>
         <strong>Nearleo</strong>
-        <small>by Lumier</small>
         <i className="nearleo-loader-progress" aria-hidden="true" />
       </div>
     </div>

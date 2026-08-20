@@ -23,7 +23,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
         </div>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "12px 18px 12px 50px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ width: 58, height: 58, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 17, color: "white", background: "#1769e0", fontSize: 35, fontWeight: 900 }}>N</span><div style={{ display: "flex", flexDirection: "column" }}><b style={{ fontSize: 31 }}>Nearleo</b><span style={{ color: "#1769e0", fontSize: 15, fontWeight: 700 }}>by Lumier</span></div></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}><span style={{ width: 58, height: 58, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 17, color: "white", background: "#1769e0", fontSize: 35, fontWeight: 900 }}>N</span><div style={{ display: "flex", flexDirection: "column" }}><b style={{ fontSize: 31 }}>Nearleo</b></div></div>
         <div style={{ display: "flex", alignSelf: "flex-start", marginTop: 57, padding: "11px 16px", borderRadius: 12, color: "white", background: "#1769e0", fontSize: 20, fontWeight: 800 }}>{provider.service}</div>
         <h1 style={{ margin: "18px 0 9px", maxWidth: 605, color: "#071f45", fontSize: 54, lineHeight: 1.03, letterSpacing: -2 }}>{provider.business}</h1>
         <p style={{ margin: 0, color: "#345170", fontSize: 25, fontWeight: 700 }}>{provider.name}</p>

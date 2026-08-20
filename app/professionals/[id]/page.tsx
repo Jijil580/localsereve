@@ -89,7 +89,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   return (
     <main className="seo-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
-      <header className="seo-header"><Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo<small>by Lumier</small></strong></Link><Link className="seo-home-link" href="/kannur">Kannur directory</Link></header>
+      <header className="seo-header"><Link className="seo-brand" href="/" aria-label="Nearleo home"><span>N</span><strong>Nearleo</strong></Link><Link className="seo-home-link" href="/kannur">Kannur directory</Link></header>
       <nav className="seo-breadcrumb" aria-label="Breadcrumb"><Link href="/">Home</Link><span>/</span><Link href="/kannur">Kannur</Link><span>/</span><b>{provider.business}</b></nav>
 
       <section className="public-profile-hero">
