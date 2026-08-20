@@ -5,6 +5,13 @@ import { getMongoDb } from "../../../lib/mongodb";
 export const runtime = "nodejs";
 
 function text(value: unknown, maximum: number) { return typeof value === "string" ? value.trim().slice(0, maximum) : ""; }
+function requestLocation(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+  const point = value as { latitude?: unknown; longitude?: unknown; label?: unknown };
+  const latitude = Number(point.latitude); const longitude = Number(point.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+  return { type: "Point" as const, coordinates: [longitude, latitude] as [number, number], label: text(point.label, 120) };
+}
 
 export async function GET() {
   const session = await getSession();
@@ -28,13 +35,15 @@ export async function POST(request: Request) {
     const preferredTime = text(body.preferredTime, 30);
     const urgency = text(body.urgency, 30) || "Flexible";
     const whatsappDigits = text(body.whatsappNumber, 20).replace(/\D/g, "");
+    const location = requestLocation(body.location);
     const preferredProviderId = typeof body.preferredProviderId === "string" && ObjectId.isValid(body.preferredProviderId) ? new ObjectId(body.preferredProviderId) : null;
     const allowWhatsApp = body.allowWhatsApp === true && whatsappDigits.length >= 10 && whatsappDigits.length <= 15;
     if (!service || description.length < 10 || !address || !/^\d{4}-\d{2}-\d{2}$/.test(preferredDate)) return Response.json({ error: "Complete the service, description, address and preferred date" }, { status: 400 });
     const now = new Date();
-    const record = { requestNumber: `REQ-${Date.now().toString(36).toUpperCase()}`, customerId: new ObjectId(session.id), customerName: session.fullName, service, description, address, preferredDate, preferredTime, urgency, allowWhatsApp, whatsappNumber: allowWhatsApp ? whatsappDigits : "", preferredProviderId, responses: [], status: "open", quoteCount: 0, statusHistory: [{ status: "open", changedAt: now, changedBy: new ObjectId(session.id) }], createdAt: now, updatedAt: now };
+    const record = { requestNumber: `REQ-${Date.now().toString(36).toUpperCase()}`, customerId: new ObjectId(session.id), customerName: session.fullName, service, description, address, preferredDate, preferredTime, urgency, allowWhatsApp, whatsappNumber: allowWhatsApp ? whatsappDigits : "", preferredProviderId, location, responses: [], status: "open", quoteCount: 0, statusHistory: [{ status: "open", changedAt: now, changedBy: new ObjectId(session.id) }], createdAt: now, updatedAt: now };
     const db = await getMongoDb();
     await db.collection("serviceRequests").createIndex({ customerId: 1, createdAt: -1 });
+    await db.collection("serviceRequests").createIndex({ location: "2dsphere" });
     const result = await db.collection("serviceRequests").insertOne(record);
     return Response.json({ data: { ...record, _id: String(result.insertedId), customerId: session.id } }, { status: 201 });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to post request" }, { status: 500 }); }

@@ -694,3 +694,33 @@ test("the full service catalogue uses consistent blue professional imagery", asy
   assert.match(styles, /Image-led service catalogue/);
   assert.match(styles, /\.service-tile-copy/);
 });
+
+test("new customer requests carry location and are limited to nearby matching providers", async () => {
+  const [app, requestsRoute, providerRequests] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/requests/route.ts"),
+    readSource("app/api/provider/requests/route.ts"),
+  ]);
+  assert.match(app, /customerLocation=\{customerLocation\}/);
+  assert.match(app, /Nearby providers will be matched within 35 km/);
+  assert.match(requestsRoute, /function requestLocation/);
+  assert.match(requestsRoute, /location = requestLocation\(body\.location\)/);
+  assert.match(providerRequests, /MAX_MATCH_DISTANCE_KM = 35/);
+  assert.match(providerRequests, /distanceKm\(profile\.location, row\.location\)/);
+});
+
+test("the customer inbox surfaces provider quotation messages", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  assert.match(app, /function CleanMessagesView\(\{onFind,onRequests\}/);
+  assert.match(app, /fetch\("\/api\/requests",\{credentials:"include"\}\)/);
+  assert.match(app, /Provider replies/);
+  assert.match(app, /reply\.quoteAmount/);
+  assert.match(app, /onRequests=\{\(\)=>setView\("requests"\)\}/);
+});
+
+test("service images are grouped by real work type instead of one repeated tile photo", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  for (const asset of ["electrician", "plumber", "construction", "mechanic", "healthcare", "food", "education", "digital", "agriculture"]) {
+    assert.match(app, new RegExp(`/service-tiles/${asset}\\.png`));
+  }
+});
