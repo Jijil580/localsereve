@@ -726,3 +726,12 @@ test("every service uses its own dedicated mobile-ready visual", async () => {
   assert.ok(images.includes("beautician.webp"));
   assert.ok(images.includes("dental-clinic.webp"));
 });
+
+test("quick Explore services cards show the same service-specific imagery", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /category-card-visual/);
+  assert.match(app, /className="category-image"/);
+  assert.match(app, /name==="All services"\?"Other local services":name/);
+  assert.match(styles, /category-card-visual/);
+  assert.match(styles, /category-card-shade/);
+});

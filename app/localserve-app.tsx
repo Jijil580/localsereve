@@ -50,6 +50,7 @@ const categoryIcons:Record<string,string>={Plumber:"🔧",Electrician:"⚡",Carp
 Object.assign(categoryIcons,{"Lottery service":"🎟️","Retail store":"🏪","Rubber tapping worker":"🌳","Coconut picker":"🥥",Barber:"💈","Chicken shop":"🍗","Beef stall":"🥩","Mobile shop":"📱",Restaurant:"🍽️","Autorickshaw service":"🛺","Traveller van service":"🚐","Ambulance service":"🚑",Pharmacy:"💊","Dental clinic":"🦷",Hospital:"🏥","Medical laboratory":"🧪"});
 const categories = [...serviceNames.map(name => [categoryIcons[name]||"🛠", name, "Browse service"]), ["⋯", "All services", "Explore categories"]];
 const featuredCategories = [...categories.slice(0,9), categories[categories.length-1]];
+const serviceTilePhoto=(service:string)=>`/service-tiles/individual/${service.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")}.webp`;
 const serviceAliases:Record<string,string[]>={
   "Interlock paving":["interlock","interlocking paver","paving blocks"],
   "Hollow-brick work":["hollow brick","hollobricks","hollow blocks"],
@@ -309,7 +310,7 @@ export default function NearleoApp() {
 
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div><button onClick={() => goSearch()}>{t.viewAllServices} →</button></div>
-            <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card" key={name} onClick={() => goSearch(name)}><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
+            <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
           </section>
 
           <section className="section seo-home-directory" aria-labelledby="seo-home-directory-title">
@@ -371,7 +372,6 @@ function SearchView(props:any) {
 
 function AllServicesCatalogue({onChoose,language}:{onChoose:(service:string)=>void;language:Language}) {
   const t=translations[language];
-  const serviceTilePhoto=(service:string)=>`/service-tiles/individual/${service.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")}.webp`;
   return <section className="all-services-catalogue" id="all-services"><div className="all-services-heading"><span className="kicker">{t.completeDirectory}</span><h2>{t.allServices}</h2><p>{t.chooseService}</p></div><div className="all-services-grid">{categories.slice(0,-1).map(([icon,name])=><button key={name} onClick={()=>onChoose(name)}><Image className="service-tile-image" src={serviceTilePhoto(name)} alt={`${serviceLabel(name,language)} professional`} fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="service-tile-shade"/><div className="service-tile-copy"><em>{icon}</em><b>{serviceLabel(name,language)}</b></div><i>›</i></button>)}</div></section>;
 }
 
