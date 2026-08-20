@@ -317,6 +317,13 @@ export default function NearleoApp() {
               </form>
               <button type="button" className="hero-view-all" onClick={() => goSearch("All services")}><i aria-hidden="true">▦</i>{t.viewAllServices} <span aria-hidden="true">→</span></button>
             </div>
+            <aside className="hero-side-banner" aria-label="Skilled local professionals near you">
+              <span className="hero-side-orbit hero-side-orbit-one"/><span className="hero-side-orbit hero-side-orbit-two"/>
+              <article className="hero-side-card hero-side-main"><img src="/near-lio-carpenter.jpg" alt="Carpenter at work"/><span><b>Carpenter</b><small>Skilled nearby</small></span></article>
+              <article className="hero-side-card hero-side-top"><img src="/service-tiles/individual/electrician.webp" alt="Electrician at work"/><span><b>Electrician</b><small>Available today</small></span></article>
+              <article className="hero-side-card hero-side-bottom"><img src="/near-lio-tile-worker.jpg" alt="Tile worker at work"/><span><b>Tile worker</b><small>Local expert</small></span></article>
+              <div className="hero-side-trust"><b>✦</b><span><strong>Local experts</strong><small>One search away</small></span></div>
+            </aside>
           </section>
 
           <section className="section categories-section">
