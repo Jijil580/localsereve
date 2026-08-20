@@ -740,6 +740,20 @@ test("quick Explore services cards show the same service-specific imagery", asyn
   assert.match(styles, /category-card-shade/);
 });
 
+test("mobile Explore services cards automatically advance while preserving touch control", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+
+  assert.match(app, /const categoryRailRef=useRef<HTMLDivElement>\(null\)/);
+  assert.match(app, /rail\.scrollTo\(\{left:atEnd\?0:rail\.scrollLeft\+138,behavior:"smooth"\}\)/);
+  assert.match(app, /onPointerDown=\{\(\)=>\{categoryRailPaused\.current=true\}\}/);
+  assert.match(app, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /\.category-rail-shell:after/);
+  assert.match(styles, /min-width:142px/);
+});
+
 test("homepage puts search and service exploration before the animated worker montage", async () => {
   const app = await readSource("app/localserve-app.tsx");
   const search = app.indexOf('className="hero hero-reference hero-copy-only"');

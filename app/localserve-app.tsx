@@ -165,7 +165,20 @@ export default function NearleoApp() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [postAuthAction,setPostAuthAction]=useState<View|"request"|"contact"|null>(null);
   const [customerLocation, setCustomerLocation] = useState<MapLocation | null>(null);
+  const categoryRailRef=useRef<HTMLDivElement>(null);
+  const categoryRailPaused=useRef(false);
   const t = translations[language];
+
+  useEffect(()=>{
+    if(view!=="home"||window.matchMedia("(min-width: 761px), (prefers-reduced-motion: reduce)").matches)return;
+    const rail=categoryRailRef.current;if(!rail)return;
+    const timer=window.setInterval(()=>{
+      if(categoryRailPaused.current)return;
+      const atEnd=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-8;
+      rail.scrollTo({left:atEnd?0:rail.scrollLeft+138,behavior:"smooth"});
+    },2800);
+    return()=>window.clearInterval(timer);
+  },[view]);
 
   useEffect(() => {
     if(localStorage.getItem("nearlio-intro-seen")==="1")setIntroVisible(false);
@@ -290,7 +303,7 @@ export default function NearleoApp() {
 
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div></div>
-            <div className="category-grid">{featuredCategories.map(([icon,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div>
+            <div className="category-rail-shell"><div className="category-grid" ref={categoryRailRef} aria-label={t.exploreServices} onPointerDown={()=>{categoryRailPaused.current=true}} onPointerUp={()=>{window.setTimeout(()=>{categoryRailPaused.current=false},2200)}} onFocus={()=>{categoryRailPaused.current=true}} onBlur={()=>{categoryRailPaused.current=false}}>{featuredCategories.map(([icon,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><span className="category-icon">{icon}</span><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div></div>
           </section>
 
           <section className="home-worker-showcase" aria-label="Verified Nearleo service professionals">
