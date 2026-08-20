@@ -505,3 +505,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @keyframes nearleoWorkerGlow{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
 @media(min-width:761px){.hero-inline-motion{display:none}}
 @media(prefers-reduced-motion:reduce){.hero-inline-motion *{animation:none!important}}
+
+/* Colourful Nearleo surfaces: soft colour keeps the marketplace lively without reducing readability. */
+body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
+.hero-reference{background:radial-gradient(circle at 85% 8%,rgba(255,195,89,.28),transparent 25%),radial-gradient(circle at 7% 72%,rgba(113,167,255,.19),transparent 29%),linear-gradient(122deg,#f7fbff 0%,#eef4ff 54%,#fff7ea 100%)}
+.categories-section{background:radial-gradient(circle at 7% 0,rgba(183,146,255,.2),transparent 24%),linear-gradient(135deg,#fbf9ff,#f0f7ff 56%,#f7fffc)}
+.home-worker-showcase{border-radius:28px;background:radial-gradient(circle at 4% 10%,rgba(112,223,196,.22),transparent 26%),radial-gradient(circle at 94% 88%,rgba(255,177,112,.18),transparent 28%),linear-gradient(135deg,#f2fffb,#f3f6ff 52%,#fff8ee)}
+.provider-section{background:radial-gradient(circle at 90% 3%,rgba(155,192,255,.23),transparent 25%),linear-gradient(135deg,#eef5ff,#f7f3ff 58%,#fff8f0)}
+.seo-home-directory{background:linear-gradient(135deg,#fff8ef,#f3f5ff 52%,#f1fffa)}
+.premium-assurance-bottom{background:linear-gradient(135deg,#f4f9ff,#fff8ec 52%,#f3fff8)}
+.cta-band{background:radial-gradient(circle at 90% 15%,rgba(255,187,83,.27),transparent 24%),linear-gradient(135deg,#edf4ff,#f4efff 52%,#fff6ec)}
+.search-page,.dash-page{background:radial-gradient(circle at 100% 0,rgba(126,180,255,.15),transparent 28%),linear-gradient(145deg,#f7faff,#fff8f1 58%,#f3fffb)}
+@media(max-width:760px){.home-worker-showcase{margin-inline:10px;padding:12px 6px}.categories-section{background:linear-gradient(145deg,#fbf9ff,#f1f8ff 55%,#fff9ef)}}
