@@ -532,3 +532,13 @@ body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
 }
 @keyframes sideMenuIn{from{opacity:0;transform:translateX(-100%)}to{opacity:1;transform:translateX(0)}}@keyframes sideMenuFade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.menu-toggle i,.side-menu-backdrop,.side-menu{transition:none!important;animation:none!important}}
+
+/* Colour-coded mobile navigation gives each main action an immediate visual cue. */
+@media(max-width:760px){
+  .mobile-nav button{color:#617087;transition:color .2s ease,background .2s ease,transform .2s ease}
+  .mobile-nav button span{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:#eef2f8;font-size:17px;line-height:1;transition:background .2s ease,color .2s ease,transform .2s ease,box-shadow .2s ease}
+  .mobile-nav button:nth-child(1) span{background:#e7f0ff;color:#1769df}.mobile-nav button:nth-child(2) span{background:#f0eaff;color:#7651c8}.mobile-nav button:nth-child(3) span{background:#e5f8f3;color:#058368}.mobile-nav button:nth-child(4) span{background:#fff0e6;color:#d36a22}.mobile-nav button:nth-child(5) span{background:#e7f7ee;color:#168454}
+  .mobile-nav button.active{color:#102f67;background:linear-gradient(135deg,#edf4ff,#f8fbff)}.mobile-nav button.active span{color:#fff;transform:translateY(-2px) scale(1.06);box-shadow:0 7px 15px rgba(19,77,173,.22)}
+  .mobile-nav button:nth-child(1).active span{background:linear-gradient(135deg,#1769e0,#4687ee)}.mobile-nav button:nth-child(2).active span{background:linear-gradient(135deg,#7150ca,#9b7bea)}.mobile-nav button:nth-child(3).active span{background:linear-gradient(135deg,#048166,#22ae8d)}.mobile-nav button:nth-child(4).active span{background:linear-gradient(135deg,#cf651f,#ee9a55)}.mobile-nav button:nth-child(5).active span{background:linear-gradient(135deg,#118052,#46b882)}
+  .mobile-nav button:active span{transform:scale(.92)}
+}
