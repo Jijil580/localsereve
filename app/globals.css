@@ -555,6 +555,8 @@ body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
 /* Let the real service photography carry the catalogue—no emoji overlays. */
 .category-card-visual>b{margin-top:auto}.category-card-visual .category-icon,.service-tile-copy em{display:none!important}
 
+@media(max-width:760px){.hero-view-all{display:flex;width:100%;min-height:48px;justify-content:center;margin-top:10px!important;border-color:transparent!important;background:linear-gradient(115deg,#1769e0 0%,#3762cf 52%,#7954c9 100%)!important;box-shadow:0 12px 24px rgba(37,86,194,.28),0 0 0 4px rgba(115,155,244,.12);color:#fff!important;font-size:13px!important}.hero-view-all i{width:25px;height:25px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);font-size:14px}.hero-view-all span{color:#fff!important;font-size:21px;line-height:1}.hero-view-all::before{background:linear-gradient(105deg,transparent 18%,rgba(255,255,255,.32) 49%,transparent 78%)}}
+
 /* Brighter, welcoming colour surfaces while the Nearleo identity remains clear. */
 .app-shell{background:radial-gradient(circle at 3% 14%,rgba(113,176,255,.24),transparent 18%),radial-gradient(circle at 97% 31%,rgba(255,174,111,.2),transparent 19%),radial-gradient(circle at 12% 82%,rgba(118,226,189,.18),transparent 20%),linear-gradient(180deg,#eef6ff 0%,#fff8ee 45%,#f0fffa 100%)}
 .hero-reference{background:radial-gradient(circle at 92% 14%,rgba(255,189,72,.38),transparent 24%),radial-gradient(circle at 9% 78%,rgba(79,147,255,.28),transparent 27%),linear-gradient(126deg,#eaf4ff 0%,#f1f0ff 48%,#fff2df 100%)}
