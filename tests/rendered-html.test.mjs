@@ -329,7 +329,7 @@ test("empty service selection lists every published provider", async () => {
 
   assert.match(app, /!customerLocation \|\| p\.distance === null \|\| p\.distance <= radius/);
   assert.match(app, /new URLSearchParams\(\{ limit: "200" \}\)/);
-  assert.match(app, /service === "All services"[\s\S]*document\.querySelector\("\.results"\)/);
+  assert.match(app, /service === "All services"[\s\S]*window\.scrollTo\(\{top:0/);
   assert.match(providersRoute, /Math\.min\(200,/);
   assert.match(providersRoute, /providersWithoutCoordinates/);
   assert.doesNotMatch(providersRoute, /maxDistance:/);
