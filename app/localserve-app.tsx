@@ -122,11 +122,12 @@ function activeSeasonalMoment(now=new Date()){
   return seasonalMoments.find(moment=>[year-1,year,year+1].some(eventYear=>{const difference=(today-Date.UTC(eventYear,moment.month-1,moment.day))/oneDay;return difference>=-moment.leadDays&&difference<=moment.trailDays}))||null;
 }
 
-function SeasonalFestivalBanner({language,onExplore}:{language:Language;onExplore:()=>void}){
+function SeasonalFestivalBanner({language,onExplore,compact=false}:{language:Language;onExplore:()=>void;compact?:boolean}){
   const [moment,setMoment]=useState<SeasonalMoment|null>(null);
   useEffect(()=>setMoment(activeSeasonalMoment()),[]);
   if(!moment)return null;
   const malayalam=language==="ML";
+  if(compact)return <button type="button" className={`header-festival-chip seasonal-${moment.id}`} onClick={onExplore} aria-label={malayalam?moment.malayalamLabel:moment.label}><span aria-hidden="true">✦</span><b>{malayalam?moment.malayalamLabel:moment.label}</b><i aria-hidden="true">⌄</i></button>;
   return <section className={`seasonal-banner seasonal-${moment.id}`} aria-label={malayalam?moment.malayalamLabel:moment.label}>
     <div className="seasonal-banner-copy">
       <span className="seasonal-kicker"><i aria-hidden="true">✦</i>{malayalam?moment.malayalamLabel:moment.label}</span>
@@ -257,6 +258,7 @@ export default function NearleoApp() {
       {introVisible&&<OpeningIntro onFinish={()=>setIntroVisible(false)}/>}
       <header className="topbar">
         <button className="brand" onClick={() => setView("home")} aria-label="Nearleo by Lumier home"><span className="brand-mark">N</span><span className="brand-wordmark"><span>Near<span>leo</span></span><small>by Lumier</small></span></button>
+        <SeasonalFestivalBanner compact language={language} onExplore={()=>goSearch()}/>
         <nav className="desktop-nav" aria-label="Main navigation">
           <button aria-current={view === "home" ? "page" : undefined} className={view === "home" ? "active" : ""} onClick={() => setView("home")}>{t.home}</button>
           <button aria-current={view === "search" ? "page" : undefined} className={view === "search" ? "active" : ""} onClick={() => goSearch()}>{t.findServices}</button>
@@ -273,10 +275,8 @@ export default function NearleoApp() {
 
       <main>
         {view === "home" && <>
-          <SeasonalFestivalBanner language={language} onExplore={()=>goSearch()}/>
           <section className="hero hero-reference hero-copy-only">
             <div className="hero-copy">
-              <div className="eyebrow"><span>✓</span> {t.trustedNearby}</div>
               <h1>{t.heroTitle} <span>{t.nearYou}</span></h1>
               <p>{t.heroDescription}</p>
               <form className="hero-search hero-search-expanded" onSubmit={e => {e.preventDefault(); goSearch()}}>
@@ -284,19 +284,6 @@ export default function NearleoApp() {
                 <button type="button" className="location-field" onClick={useLocation}><LocationPinIcon/><span><small>{t.yourLocation}</small>{customerLocation?.label||t.location}</span></button>
                 <label className="hero-radius"><span>◴</span><span><small>{t.radius}</small><select value={radius} onChange={event=>setRadius(Number(event.target.value))} aria-label={t.radius}><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="60">60 km</option></select></span></label>
               </form>
-              <div className="hero-proof-row"><div><span>✓</span><b>{t.reviewedProfiles}</b></div><div><span>₹</span><b>{t.startingPrices}</b></div><div><span><LocationPinIcon/></span><b>{t.locationDiscovery}</b></div><div><span>↯</span><b>{t.savedReplies}</b></div></div>
-            </div>
-          </section>
-
-          <div className="home-service-motion" aria-label="Popular Nearleo services"><div>{[...homeMotionServices,...homeMotionServices].map((service,index)=><span key={`${service}-${index}`}>✦ {serviceLabel(service,language)}</span>)}</div></div>
-
-          <section className="premium-assurance" aria-labelledby="nearleo-standard-title">
-            <div className="assurance-intro"><span className="kicker">{t.nearleoStandard}</span><h2 id="nearleo-standard-title">{t.trustTitle}</h2></div>
-            <div className="assurance-grid">
-              <article><span aria-hidden="true">01</span><div><b>{t.browseFreely}</b><p>{t.browseFreelyBody}</p></div></article>
-              <article><span aria-hidden="true">02</span><div><b>{t.privacyFirst}</b><p>{t.privacyFirstBody}</p></div></article>
-              <article><span aria-hidden="true">03</span><div><b>{t.verificationClarity}</b><p>{t.verificationClarityBody}</p></div></article>
-              <article><span aria-hidden="true">04</span><div><b>{t.locationControl}</b><p>{t.locationControlBody}</p></div></article>
             </div>
           </section>
 
@@ -316,6 +303,8 @@ export default function NearleoApp() {
               <div className="happy-customers"><b>Nearleo</b><span>{t.builtForCommunities}</span></div>
             </div>
           </section>
+
+          <div className="home-service-motion" aria-label="Popular Nearleo services"><div>{[...homeMotionServices,...homeMotionServices].map((service,index)=><span key={`${service}-${index}`}>✦ {serviceLabel(service,language)}</span>)}</div></div>
 
           <section className="section seo-home-directory" aria-labelledby="seo-home-directory-title">
             <div className="section-head"><div><span className="kicker">Service directory</span><h2 id="seo-home-directory-title">Browse popular local services</h2></div><a href="/services">View service guides →</a></div>
@@ -344,6 +333,17 @@ export default function NearleoApp() {
           <section className="how-section"><div className="how-copy"><span className="kicker light">{t.simpleSecure}</span><h2>{t.easyTitle}</h2><p>{t.easyDescription}</p><button className="light-btn" onClick={openRequest}>{t.postRequest}</button></div><div className="steps">{[["01",t.step1Title,t.step1Body],["02",t.step2Title,t.step2Body],["03",t.step3Title,t.step3Body]].map(([n,h,p]) => <div className="step" key={n}><span>{n}</span><div><h3>{h}</h3><p>{p}</p></div></div>)}</div></section>
 
           <section className="cta-band"><div><span className="kicker">{t.growBusiness}</span><h2>{t.professionalCta}</h2><p>{t.professionalCtaBody}</p></div><button onClick={() => {setRole("provider");currentUser?setView("dashboard"):setModal("auth")}}>{t.joinProfessional} →</button></section>
+
+          <section className="premium-assurance premium-assurance-bottom" aria-labelledby="nearleo-standard-title">
+            <div className="assurance-intro"><span className="kicker">{t.nearleoStandard}</span><h2 id="nearleo-standard-title">{t.trustTitle}</h2></div>
+            <div className="assurance-grid">
+              <article><span aria-hidden="true">01</span><div><b>{t.browseFreely}</b><p>{t.browseFreelyBody}</p></div></article>
+              <article><span aria-hidden="true">02</span><div><b>{t.privacyFirst}</b><p>{t.privacyFirstBody}</p></div></article>
+              <article><span aria-hidden="true">03</span><div><b>{t.verificationClarity}</b><p>{t.verificationClarityBody}</p></div></article>
+              <article><span aria-hidden="true">04</span><div><b>{t.locationControl}</b><p>{t.locationControlBody}</p></div></article>
+            </div>
+            <div className="premium-proof-row"><div><span>✓</span><b>{t.reviewedProfiles}</b></div><div><span>₹</span><b>{t.startingPrices}</b></div><div><span><LocationPinIcon/></span><b>{t.locationDiscovery}</b></div><div><span>↯</span><b>{t.savedReplies}</b></div></div>
+          </section>
         </>}
 
         {view === "search" && <><SearchView query={query} setQuery={setQuery} radius={radius} setRadius={setRadius} sort={sort} setSort={setSort} verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly} availableOnly={availableOnly} setAvailableOnly={setAvailableOnly} results={results} saved={saved} setSaved={setSaved} setSelected={setSelected} setModal={setModal} currentUser={currentUser} openContactSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} locationLabel={customerLocation?.label||t.setLocation} openLocation={useLocation} onPostRequest={openRequest} language={language} copy={t} />{!query&&<AllServicesCatalogue onChoose={service=>{setQuery(service);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50)}} language={language}/>}</>}

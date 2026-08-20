@@ -347,7 +347,7 @@ test("Nearleo uses a premium blue and white visual identity", async () => {
   assert.match(styles, /\.hero-reference\{background:linear-gradient\(112deg,#fff 0%,#f9fbff/);
   assert.match(styles, /footer\{background:linear-gradient\(135deg,#06152f,#0a2e68\)/);
   assert.match(styles, /\.mobile-auth-invite\{border-color:#cbdcf3;background:linear-gradient\(145deg,#fff 0%,#edf4ff/);
-  assert.match(app, /className="premium-assurance"/);
+  assert.match(app, /className="premium-assurance premium-assurance-bottom"/);
   assert.match(i18n, /privacyFirst: "Privacy-first contact"/);
   assert.match(i18n, /Clear verification status/);
   assert.match(layout, /og-blue\.png/);
@@ -557,7 +557,7 @@ test("homepage rotates an animated Kerala Onam Week greeting using India time", 
   assert.match(app, /id:"onam-week",month:8,day:26/);
   assert.match(app, /Onam Week: celebrating Kerala together/);
   assert.match(app, /ഓണവാരം: കേരളം ഒന്നായി ആഘോഷിക്കാം/);
-  assert.match(app, /<SeasonalFestivalBanner language=\{language\}/);
+  assert.match(app, /<SeasonalFestivalBanner compact language=\{language\}/);
   assert.match(styles, /\.seasonal-banner/);
   assert.match(styles, /\.onam-pookalam/);
   assert.match(styles, /@keyframes onamPetalBloom/);
@@ -742,4 +742,14 @@ test("homepage puts search and service exploration before the animated worker mo
   const explore = app.indexOf('className="section categories-section"');
   const montage = app.indexOf('className="home-worker-showcase"');
   assert.ok(search >= 0 && explore > search && montage > explore);
+});
+
+test("homepage keeps the seasonal greeting compact and moves trust guidance to the bottom", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  assert.match(app, /<SeasonalFestivalBanner compact language=\{language\}/);
+  assert.match(app, /header-festival-chip/);
+  const explore = app.indexOf('className="section categories-section"');
+  const assurance = app.lastIndexOf('className="premium-assurance premium-assurance-bottom"');
+  assert.ok(assurance > explore);
+  assert.match(app, /premium-proof-row/);
 });
