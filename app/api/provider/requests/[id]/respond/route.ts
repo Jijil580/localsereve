@@ -24,7 +24,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const now = new Date();
     const result = await db.collection("serviceRequests").findOneAndUpdate(
       { _id: new ObjectId(id), service: servicePattern, status: { $in: ["open", "quoted"] } },
-      { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), message, quoteAmount, availability, createdAt: now } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
+      { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), message, quoteAmount, availability, createdAt: now }, messages: { _id: new ObjectId(), providerId: profile._id, senderUserId: new ObjectId(session.id), senderRole: "provider", senderName: String(profile.businessName ?? session.fullName), text: message, createdAt: now, readByCustomer: false, readByProvider: true } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
       { returnDocument: "after", projection: { responses: 1, quoteCount: 1, status: 1 } },
     );
     if (!result) return Response.json({ error: "Request not found or does not match your service" }, { status: 404 });
