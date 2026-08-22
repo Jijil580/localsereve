@@ -41,7 +41,6 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     } else if (body.action === "cancel") {
       if (!isCustomer) return Response.json({ error: "Only the customer can perform this update" }, { status: 403 });
     } else {
-      if (body.action === "start" && isCustomer) return Response.json({ error: "The selected provider starts the job" }, { status: 403 });
       if (!isCustomer) {
         if (!assignedProviderId) return Response.json({ error: "No provider has been selected" }, { status: 409 });
         const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: { $ne: "disabled" } });

@@ -19,7 +19,23 @@ export async function GET() {
   try {
     const db = await getMongoDb();
     const rows = await db.collection("serviceRequests").find({ customerId: new ObjectId(session.id) }).sort({ updatedAt: -1, createdAt: -1 }).limit(100).toArray();
-    return Response.json({ data: rows.map(row => ({ ...row, whatsappNumber: undefined, _id: String(row._id), customerId: String(row.customerId), assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "", responses: Array.isArray(row.responses) ? row.responses.map((reply: Record<string, unknown>) => { const { providerWhatsApp: _privateNumber, ...safeReply } = reply; return { ...safeReply, providerId: String(reply.providerId ?? "") }; }) : [] })) });
+    const providerIds = Array.from(new Set(rows.flatMap(row => Array.isArray(row.responses) ? row.responses.map((reply: { providerId?: unknown }) => String(reply.providerId ?? "")) : []).filter(ObjectId.isValid))).map(id => new ObjectId(id));
+    const providerRows = providerIds.length ? await db.collection("providers").find({ _id: { $in: providerIds }, status: { $ne: "disabled" } }, { projection: { verified: 1, profilePhotoId: 1, locality: 1, completedJobs: 1 } }).toArray() : [];
+    const providerById = new Map(providerRows.map(provider => [String(provider._id), provider]));
+    const data = rows.map(row => {
+      const repliesByProvider = new Map<string, Record<string, unknown>>();
+      for (const reply of Array.isArray(row.responses) ? row.responses : []) {
+        const providerId = String(reply.providerId ?? "");
+        if (ObjectId.isValid(providerId)) repliesByProvider.set(providerId, reply);
+      }
+      const responses = Array.from(repliesByProvider.entries()).map(([providerId, reply]) => {
+        const { providerWhatsApp: _privateNumber, ...safeReply } = reply;
+        const provider = providerById.get(providerId);
+        return { ...safeReply, providerId, providerVerified: Boolean(provider?.verified), providerPhotoUrl: provider?.profilePhotoId ? `/api/providers/photo/${providerId}` : "", providerLocality: String(provider?.locality ?? ""), providerCompletedJobs: Number(provider?.completedJobs ?? 0) };
+      });
+      return { ...row, whatsappNumber: undefined, _id: String(row._id), customerId: String(row.customerId), assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "", quoteCount: responses.length, responses };
+    });
+    return Response.json({ data });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load requests" }, { status: 500 }); }
 }
 

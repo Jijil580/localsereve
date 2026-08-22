@@ -23,11 +23,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const servicePattern = new RegExp(`^${profile.service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
     const now = new Date();
     const result = await db.collection("serviceRequests").findOneAndUpdate(
-      { _id: new ObjectId(id), service: servicePattern, status: { $in: ["open", "quoted"] } },
+      { _id: new ObjectId(id), service: servicePattern, status: { $in: ["open", "quoted"] }, "responses.providerId": { $ne: profile._id } },
       { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), message, quoteAmount, availability, createdAt: now }, messages: { _id: new ObjectId(), providerId: profile._id, senderUserId: new ObjectId(session.id), senderRole: "provider", senderName: String(profile.businessName ?? session.fullName), text: message, createdAt: now, readByCustomer: false, readByProvider: true } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
       { returnDocument: "after", projection: { responses: 1, quoteCount: 1, status: 1 } },
     );
-    if (!result) return Response.json({ error: "Request not found or does not match your service" }, { status: 404 });
+    if (!result) {
+      const existing = await db.collection("serviceRequests").findOne({ _id: new ObjectId(id), "responses.providerId": profile._id }, { projection: { _id: 1 } });
+      if (existing) return Response.json({ error: "Your reply is already saved. Continue the discussion in Messages." }, { status: 409 });
+      return Response.json({ error: "Request not found or does not match your service" }, { status: 404 });
+    }
     return Response.json({ ok: true, quoteCount: result.quoteCount, status: result.status });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to send reply" }, { status: 500 }); }
 }
