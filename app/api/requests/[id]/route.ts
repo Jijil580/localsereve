@@ -66,7 +66,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       { returnDocument: "after" },
     );
     if (!result) return Response.json({ error: "Request status changed. Refresh and try again." }, { status: 409 });
-    if (transition.to === "completed" && assignedProviderId) await db.collection("providers").updateOne({ _id: assignedProviderId }, { $inc: { completedJobs: 1 } });
+    if (transition.to === "completed" && assignedProviderId) {
+      const completedJobs = await db.collection("serviceRequests").countDocuments({ assignedProviderId, status: "completed" });
+      await db.collection("providers").updateOne({ _id: assignedProviderId }, { $set: { completedJobs, updatedAt: now } });
+    }
     return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, startedAt: result.startedAt, completedAt: result.completedAt, finalAmount: Number(result.finalAmount ?? 0) } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to update request" }, { status: 500 });
