@@ -616,3 +616,22 @@ body{background:linear-gradient(180deg,#f5f8ff 0%,#fffaf4 46%,#f5fffb 100%)}
   .notification-button{grid-area:notification;justify-self:end}
   .hero-reference{background:radial-gradient(circle at 94% 9%,rgba(255,196,81,.31),transparent 23%),radial-gradient(circle at 4% 71%,rgba(96,169,255,.25),transparent 27%),linear-gradient(140deg,#eaf4ff,#f8f0ff 53%,#fff3e2)}
 }
+
+/* Four-action mobile dock and completed-service spending summary. */
+.customer-expense-card{border-color:#b9d8ff;background:linear-gradient(135deg,#edf6ff,#f4efff)}
+.customer-expense-card>i{background:linear-gradient(135deg,#1769df,#6e55d6);color:#fff;box-shadow:0 7px 18px rgba(40,83,190,.2)}
+.customer-expense-card>b{color:#164f9e}
+.completed-payment{background:linear-gradient(90deg,#eafaf3,#f3fff9);border-bottom-color:#bee7d4}
+.completed-payment small{color:#368066}.completed-payment b{color:#075f43}.completed-payment span:first-child b{font-size:17px}
+@media(min-width:761px){.customer-dashboard .stat-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:760px){
+  .premium-mobile-nav{grid-template-columns:repeat(4,1fr);left:12px;right:12px;bottom:9px;height:calc(72px + env(safe-area-inset-bottom));padding:6px 7px env(safe-area-inset-bottom);border:1px solid rgba(190,207,231,.9);border-radius:23px;background:rgba(255,255,255,.96);box-shadow:0 16px 42px rgba(18,56,111,.2);backdrop-filter:blur(18px)}
+  .premium-mobile-nav button{min-height:58px;gap:3px;border-radius:16px;background:transparent;color:#63748b;font-size:9px;font-weight:850;letter-spacing:.01em}
+  .premium-mobile-nav button span{display:grid;width:34px;height:34px;place-items:center;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.65);transition:transform .2s ease,box-shadow .2s ease}
+  .premium-mobile-nav button span svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .premium-mobile-nav button:nth-child(1) span{background:#e6f0ff;color:#1769df}.premium-mobile-nav button:nth-child(2) span{background:#e4f8f1;color:#078263}.premium-mobile-nav button:nth-child(3) span{background:#fff0e5;color:#d66a22}.premium-mobile-nav button:nth-child(4) span{background:#efeaff;color:#7250c9}
+  .premium-mobile-nav button.active{background:linear-gradient(135deg,#edf4ff,#fafcff);color:#112f64;box-shadow:inset 0 0 0 1px #d9e7fa}
+  .premium-mobile-nav button.active span{color:#fff;transform:translateY(-2px);box-shadow:0 8px 17px rgba(27,77,166,.24)}
+  .premium-mobile-nav button:nth-child(1).active span{background:linear-gradient(135deg,#1769df,#4388ef)}.premium-mobile-nav button:nth-child(2).active span{background:linear-gradient(135deg,#078263,#27ae8b)}.premium-mobile-nav button:nth-child(3).active span{background:linear-gradient(135deg,#cf621d,#ed9550)}.premium-mobile-nav button:nth-child(4).active span{background:linear-gradient(135deg,#6946bd,#9576e5)}
+  .customer-expense-card{grid-column:1/-1;min-height:112px}.customer-expense-card>b{font-size:30px}
+}
