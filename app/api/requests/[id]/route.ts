@@ -6,9 +6,10 @@ export const runtime = "nodejs";
 
 const transitions: Record<string, { from: string[]; to: string }> = {
   accept: { from: ["open", "quoted"], to: "accepted" },
-  cancel: { from: ["open", "quoted", "accepted"], to: "cancelled" },
-  start: { from: ["accepted"], to: "in_progress" },
-  complete: { from: ["accepted", "in_progress"], to: "completed" },
+  confirm: { from: ["accepted"], to: "confirmed" },
+  cancel: { from: ["open", "quoted", "accepted", "confirmed"], to: "cancelled" },
+  start: { from: ["confirmed"], to: "in_progress" },
+  complete: { from: ["in_progress"], to: "completed" },
 };
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -38,6 +39,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       if (!reply) return Response.json({ error: "Provider reply not found" }, { status: 404 });
       assignedProviderId = new ObjectId(body.providerId);
       assignedProviderName = String(reply.providerBusiness ?? reply.providerName ?? "Selected provider");
+    } else if (body.action === "confirm") {
+      if (!isCustomer) return Response.json({ error: "Only the customer can confirm the selected provider" }, { status: 403 });
+      if (!assignedProviderId) return Response.json({ error: "Select a provider before confirming the job" }, { status: 409 });
     } else if (body.action === "cancel") {
       if (!isCustomer) return Response.json({ error: "Only the customer can perform this update" }, { status: 403 });
     } else {
@@ -50,6 +54,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     const now = new Date();
     const statusDetails: Record<string, unknown> = {};
+    if (body.action === "confirm") statusDetails.confirmedAt = now;
     if (body.action === "start") statusDetails.startedAt = now;
     if (body.action === "complete") {
       const selectedReply = Array.isArray(record.responses) ? record.responses.find((item: { providerId?: ObjectId; quoteAmount?: unknown }) => String(item.providerId ?? "") === String(assignedProviderId ?? "")) as { quoteAmount?: unknown } | undefined : null;
@@ -69,7 +74,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       const completedJobs = await db.collection("serviceRequests").countDocuments({ assignedProviderId, status: "completed" });
       await db.collection("providers").updateOne({ _id: assignedProviderId }, { $set: { completedJobs, updatedAt: now } });
     }
-    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, startedAt: result.startedAt, completedAt: result.completedAt, finalAmount: Number(result.finalAmount ?? 0) } });
+    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, confirmedAt: result.confirmedAt, startedAt: result.startedAt, completedAt: result.completedAt, finalAmount: Number(result.finalAmount ?? 0) } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to update request" }, { status: 500 });
   }

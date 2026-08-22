@@ -137,13 +137,16 @@ test("production request workflow persists quotes and status transitions", async
     readSource("app/api/requests/[id]/route.ts"),
     readSource("app/api/provider/requests/[id]/respond/route.ts"),
   ]);
-  assert.match(app, /Select provider/);
-  assert.match(app, /Mark job completed/);
+  assert.match(app, /Mark as selected/);
+  assert.match(app, /Confirm job/);
+  assert.match(app, /Mark completed/);
   assert.match(app, /Estimated price/);
   assert.match(requestRoute, /statusHistory/);
   assert.match(requestRoute, /description\.length < 10 \|\| !address/);
   assert.doesNotMatch(requestRoute, /address\.length\s*</);
   assert.match(statusRoute, /in_progress/);
+  assert.match(statusRoute, /confirm: \{ from: \["accepted"\], to: "confirmed" \}/);
+  assert.match(statusRoute, /complete: \{ from: \["in_progress"\], to: "completed" \}/);
   assert.match(statusRoute, /assignedProviderId/);
   assert.match(responseRoute, /quoteAmount/);
   assert.match(responseRoute, /availability/);
