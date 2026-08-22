@@ -18,7 +18,7 @@ export async function GET() {
   if (!session || !ObjectId.isValid(session.id)) return Response.json({ error: "Sign in to view your requests" }, { status: 401 });
   try {
     const db = await getMongoDb();
-    const rows = await db.collection("serviceRequests").find({ customerId: new ObjectId(session.id) }).sort({ createdAt: -1 }).limit(100).toArray();
+    const rows = await db.collection("serviceRequests").find({ customerId: new ObjectId(session.id) }).sort({ updatedAt: -1, createdAt: -1 }).limit(100).toArray();
     return Response.json({ data: rows.map(row => ({ ...row, whatsappNumber: undefined, _id: String(row._id), customerId: String(row.customerId), assignedProviderId: row.assignedProviderId ? String(row.assignedProviderId) : "", responses: Array.isArray(row.responses) ? row.responses.map((reply: Record<string, unknown>) => { const { providerWhatsApp: _privateNumber, ...safeReply } = reply; return { ...safeReply, providerId: String(reply.providerId ?? "") }; }) : [] })) });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load requests" }, { status: 500 }); }
 }
