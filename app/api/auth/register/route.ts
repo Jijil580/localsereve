@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (fullName.length < 2 || fullName.length > 80) return Response.json({ error: "Enter your full name" }, { status: 400 });
   if (!emailPattern.test(email)) return Response.json({ error: "Enter a valid email address" }, { status: 400 });
   if (!phonePattern.test(phone)) return Response.json({ error: "Enter a valid mobile number" }, { status: 400 });
-  if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) return Response.json({ error: "Password must be at least 8 characters with uppercase, lowercase and a number" }, { status: 400 });
+  if (password.length < 4) return Response.json({ error: "Password must be at least 4 characters" }, { status: 400 });
   if (!acceptedTerms) return Response.json({ error: "You must accept the User Terms and Privacy Notice to create an account" }, { status: 400 });
   try {
     const db = await getMongoDb();
