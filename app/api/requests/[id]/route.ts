@@ -16,7 +16,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const { id } = await context.params;
   if (!session || !ObjectId.isValid(session.id)) return Response.json({ error: "Sign in required" }, { status: 401 });
   if (!ObjectId.isValid(id)) return Response.json({ error: "Invalid request" }, { status: 400 });
-  const body = await request.json() as { action?: string; providerId?: string };
+  const body = await request.json() as { action?: string; providerId?: string; finalAmount?: unknown };
   const transition = body.action ? transitions[body.action] : null;
   if (!transition) return Response.json({ error: "Unsupported status update" }, { status: 400 });
 
@@ -50,14 +50,24 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
 
     const now = new Date();
+    const statusDetails: Record<string, unknown> = {};
+    if (body.action === "start") statusDetails.startedAt = now;
+    if (body.action === "complete") {
+      const selectedReply = Array.isArray(record.responses) ? record.responses.find((item: { providerId?: ObjectId; quoteAmount?: unknown }) => String(item.providerId ?? "") === String(assignedProviderId ?? "")) as { quoteAmount?: unknown } | undefined : null;
+      const submittedAmount = Number(body.finalAmount);
+      const quotedAmount = Number(selectedReply?.quoteAmount ?? 0);
+      statusDetails.startedAt = record.startedAt instanceof Date ? record.startedAt : now;
+      statusDetails.completedAt = now;
+      statusDetails.finalAmount = Number.isFinite(submittedAmount) && submittedAmount >= 0 && submittedAmount <= 10_000_000 ? submittedAmount : Number.isFinite(quotedAmount) && quotedAmount >= 0 ? quotedAmount : 0;
+    }
     const result = await db.collection("serviceRequests").findOneAndUpdate(
       { _id: requestId, status: { $in: transition.from } },
-      { $set: { status: transition.to, assignedProviderId, assignedProviderName, updatedAt: now }, $push: { statusHistory: { status: transition.to, changedAt: now, changedBy: userId } } as never },
+      { $set: { status: transition.to, assignedProviderId, assignedProviderName, updatedAt: now, ...statusDetails }, $push: { statusHistory: { status: transition.to, changedAt: now, changedBy: userId } } as never },
       { returnDocument: "after" },
     );
     if (!result) return Response.json({ error: "Request status changed. Refresh and try again." }, { status: 409 });
     if (transition.to === "completed" && assignedProviderId) await db.collection("providers").updateOne({ _id: assignedProviderId }, { $inc: { completedJobs: 1 } });
-    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName } });
+    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, startedAt: result.startedAt, completedAt: result.completedAt, finalAmount: Number(result.finalAmount ?? 0) } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to update request" }, { status: 500 });
   }
