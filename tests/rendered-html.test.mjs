@@ -552,7 +552,7 @@ test("provider profiles fall back to uploaded work imagery when no dedicated DP 
   assert.match(providersRoute, /row\.profilePhotoId \? `\/api\/providers\/photo\/\$\{row\._id\}` : Array\.isArray\(row\.portfolioImageIds\) && row\.portfolioImageIds\.length \? `\/api\/providers\/portfolio\/\$\{row\._id\}\/0`/);
 });
 
-test("homepage rotates an animated Kerala Onam Week greeting using India time", async () => {
+test("seasonal greetings remain available without crowding the current home header", async () => {
   const [app, styles, worker] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/globals.css"),
@@ -564,7 +564,7 @@ test("homepage rotates an animated Kerala Onam Week greeting using India time", 
   assert.match(app, /id:"onam-week",month:8,day:26/);
   assert.match(app, /Onam Week: celebrating Kerala together/);
   assert.match(app, /ഓണവാരം: കേരളം ഒന്നായി ആഘോഷിക്കാം/);
-  assert.match(app, /<SeasonalFestivalBanner compact language=\{language\}/);
+  assert.doesNotMatch(app, /<SeasonalFestivalBanner compact language=\{language\}/);
   assert.match(styles, /\.seasonal-banner/);
   assert.match(styles, /\.onam-pookalam/);
   assert.match(styles, /@keyframes onamPetalBloom/);
@@ -716,12 +716,12 @@ test("new customer requests carry location and are limited to nearby matching pr
   assert.match(providerRequests, /distanceKm\(profile\.location, row\.location\)/);
 });
 
-test("the customer inbox surfaces provider quotation messages", async () => {
+test("the customer messages workspace surfaces provider quotations", async () => {
   const app = await readSource("app/localserve-app.tsx");
-  assert.match(app, /function CleanMessagesView\(\{onFind,onRequests\}/);
-  assert.match(app, /fetch\("\/api\/requests",\{credentials:"include"\}\)/);
+  assert.match(app, /function CleanMessagesView\(\{user,onFind,onRequests/);
+  assert.match(app, /fetch\("\/api\/messages",\{credentials:"include"\}\)/);
   assert.match(app, /Provider replies/);
-  assert.match(app, /reply\.quoteAmount/);
+  assert.match(app, /selected\.quoteAmount/);
   assert.match(app, /onRequests=\{\(\)=>navigate\("requests"\)\}/);
 });
 
@@ -750,12 +750,12 @@ test("mobile Explore services cards automatically advance while preserving touch
   ]);
 
   assert.match(app, /const categoryRailRef=useRef<HTMLDivElement>\(null\)/);
-  assert.match(app, /initialTimer=window\.setTimeout\(advance,900\)/);
-  assert.match(app, /timer=window\.setInterval\(advance,1800\)/);
-  assert.match(app, /rail\.scrollTo\(\{left:atEnd\?0:rail\.scrollLeft\+138,behavior:"smooth"\}\)/);
+  assert.match(app, /frame=window\.requestAnimationFrame\(flow\)/);
+  assert.match(app, /categoryRailDirection\.current\*elapsed\*\.034/);
+  assert.match(app, /window\.cancelAnimationFrame\(frame\)/);
   assert.match(app, /onPointerDown=\{\(\)=>\{categoryRailPaused\.current=true\}\}/);
   assert.match(app, /prefers-reduced-motion: reduce/);
-  assert.match(app, /\{categories\.map\(\(\[icon,name\]\) => <button className="category-card/);
+  assert.match(app, /\{categories\.map\(\(\[,name\]\) => <button className="category-card/);
   assert.match(styles, /\.category-rail-shell:after/);
   assert.match(styles, /\.categories-section \.category-card:nth-child\(n\+11\)\{display:flex\}/);
   assert.match(styles, /\.hero-inline-motion/);
@@ -771,14 +771,32 @@ test("homepage puts search and service exploration before the animated worker mo
   assert.ok(search >= 0 && explore > search && montage > explore);
 });
 
-test("homepage keeps the seasonal greeting compact and moves trust guidance to the bottom", async () => {
+test("homepage keeps its header uncluttered and moves trust guidance to the bottom", async () => {
   const app = await readSource("app/localserve-app.tsx");
-  assert.match(app, /<SeasonalFestivalBanner compact language=\{language\}/);
-  assert.match(app, /header-festival-chip/);
+  assert.doesNotMatch(app, /<SeasonalFestivalBanner compact language=\{language\}/);
   const explore = app.indexOf('className="section categories-section"');
   const assurance = app.lastIndexOf('className="premium-assurance premium-assurance-bottom"');
   assert.ok(assurance > explore);
   assert.match(app, /premium-proof-row/);
+});
+
+test("mobile request steps keep fields clear of the submit controls", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /if\(step<3\)\{next\(\);return\}/);
+  assert.match(app, /className="request-form-body"/);
+  assert.match(app, /className="modal-actions request-form-actions"/);
+  assert.match(app, /"Submit request"/);
+  assert.match(styles, /\.request-modal \.request-form\{height:100%;display:grid;grid-template-rows:auto minmax\(0,1fr\) auto/);
+  assert.match(styles, /\.request-form-actions\{position:static/);
+});
+
+test("detailed footer stays on Home and the mobile menu exposes essential destinations", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  assert.match(app, /\{view==="home"&&<footer>/);
+  assert.match(app, /setModal\("about"\)/);
+  assert.match(app, /setRole\(currentUser\.role\),navigate\("dashboard"\)/);
+  assert.match(app, /openProtected\("requests"\)/);
+  assert.match(app, /Help &amp; support/);
 });
 
 test("mobile navigation uses browser history and offers an animated quick menu", async () => {
