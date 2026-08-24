@@ -811,3 +811,14 @@ test("mobile navigation uses browser history and offers an animated quick menu",
   assert.match(styles, /\.side-menu\{/);
   assert.match(styles, /@keyframes sideMenuIn/);
 });
+
+test("Messages navigation opens the conversation list while direct chat links stay targeted", async () => {
+  const app = await readSource("app/localserve-app.tsx");
+  assert.match(app, /function openMessages\(requestId="",providerId=""\)/);
+  assert.match(app, /setMessageViewKey\(current=>current\+1\)/);
+  assert.match(app, /id==="messages"\?openMessages\(\)/);
+  assert.match(app, /<CleanMessagesView key=\{messageViewKey\}/);
+  assert.match(app, /const \[selectedId,setSelectedId\]=useState\(""\)/);
+  assert.doesNotMatch(app, /useState\("__first__"\)/);
+  assert.match(app, /if\(requested\)return requested\.id/);
+});
