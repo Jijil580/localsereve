@@ -858,3 +858,19 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
   .request-modal .request-review .request-review-address button{grid-column:2;justify-self:start;min-height:34px;margin-top:3px}
   .request-form-actions{background:linear-gradient(135deg,#f8fbff,#f4efff)}
 }
+
+/* Delivery-style address choice for every service request. */
+.delivery-address-selector{overflow:hidden;border:1px solid #b9cfee;border-radius:17px;background:linear-gradient(145deg,#fff,#edf5ff);box-shadow:0 10px 24px rgba(23,74,143,.09)}
+.delivery-address-selector-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid #d7e4f5;background:linear-gradient(120deg,#eaf4ff,#f3eeff)}
+.delivery-address-selector-head>span{display:grid;gap:3px}.delivery-address-selector-head small{color:#1769e0;font-size:8px;font-weight:900;letter-spacing:.12em}.delivery-address-selector-head b{color:#102e59;font-size:12px}.delivery-address-selector-head em{padding:5px 8px;border-radius:999px;background:#dff7eb;color:#08734b;font-size:8px;font-style:normal;font-weight:900}
+.saved-address-card{display:grid;gap:12px;padding:14px;transition:border-color .18s ease,background .18s ease}.saved-address-card.selected{background:linear-gradient(145deg,#f6fffb,#e9f8f1)}
+.saved-address-main{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:start;gap:10px}.saved-address-main>svg,.no-saved-address>svg{width:22px;height:22px;padding:7px;border-radius:11px;background:#e1efff;color:#1769e0;box-sizing:content-box}.saved-address-main>span{display:grid;gap:4px;min-width:0}.saved-address-main small{color:#637b9b;font-size:8px;font-weight:800}.saved-address-main b{color:#152f55;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.saved-address-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}.saved-address-actions button,.no-saved-address button,.confirm-address-button{min-height:44px;border-radius:11px;font-size:10px;font-weight:900}.use-address-button{border:1px solid #1769e0;background:#1769e0;color:#fff;box-shadow:0 7px 16px rgba(23,105,224,.2)}.use-address-button.selected{border-color:#079364;background:#079364;box-shadow:0 7px 16px rgba(7,147,100,.18)}.add-address-button{border:1px solid #bbd0ed;background:#fff;color:#1762c1}
+.no-saved-address{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;gap:10px;padding:14px}.no-saved-address>span{display:grid;gap:3px}.no-saved-address b{color:#17345e;font-size:11px}.no-saved-address small{color:#6a7f9c;font-size:8px}.no-saved-address button{grid-column:1/-1;border:1px solid #1769e0;background:#1769e0;color:#fff}
+.new-address-editor{display:grid;gap:10px;padding:12px;border:1px solid #c8daf1;border-radius:16px;background:linear-gradient(145deg,#fbfdff,#f3f7ff)}
+.confirm-address-button{width:100%;border:1px solid #087f5b;background:linear-gradient(135deg,#079364,#087f5b);color:#fff;box-shadow:0 8px 18px rgba(7,137,95,.19)}
+@media(max-width:760px){
+  .delivery-address-selector-head{padding:12px}.delivery-address-selector-head b{font-size:11px}
+  .saved-address-card{padding:12px}.saved-address-actions{grid-template-columns:1fr}.saved-address-actions button,.no-saved-address button,.confirm-address-button{min-height:46px;font-size:10px}
+  .saved-address-main b{font-size:10px}.new-address-editor{padding:10px}
+}

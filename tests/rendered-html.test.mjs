@@ -927,20 +927,30 @@ test("mobile filters stay compact and minimum rating actively filters providers"
   assert.match(styles, /\.search-layout>\.filters\{display:flex;align-items:stretch;gap:7px;overflow-x:auto/);
 });
 
-test("service requests retain an editable exact address after map location selection", async () => {
+test("service requests require a saved or newly confirmed delivery-style address", async () => {
   const [app, route, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/api/users/location/route.ts"),
     readSource("app/globals.css"),
   ]);
-  assert.match(app, /customerLocation\?\.address\|\|customerLocation\?\.label/);
+  assert.match(app, /const exactSavedAddress=customerLocation\?\.address\?\.trim\(\)\|\|""/);
   assert.match(app, /nearleo-last-service-address/);
+  assert.match(app, /function useSavedAddress\(\)/);
+  assert.match(app, /function addNewAddress\(\)/);
+  assert.match(app, /function confirmNewAddress\(\)/);
+  assert.match(app, /step===2&&!addressConfirmed/);
+  assert.match(app, /Use this address/);
+  assert.match(app, /Add new address/);
+  assert.match(app, /No service address saved yet/);
   assert.match(app, /className="exact-service-address"/);
   assert.match(app, /House\/building number, street, locality, landmark and PIN code/);
-  assert.match(app, /const hasExactDetails=current\.address\.trim\(\)/);
-  assert.match(app, /address:hasExactDetails\?current\.address:next\.label\|\|current\.address/);
+  assert.match(app, /location:next/);
+  assert.doesNotMatch(app, /address:hasExactDetails\?current\.address:next\.label/);
   assert.match(route, /locationAddress/);
   assert.match(route, /if\(address\)updates\.locationAddress=address/);
+  assert.match(styles, /\.delivery-address-selector\{/);
+  assert.match(styles, /\.saved-address-actions\{/);
+  assert.match(styles, /\.confirm-address-button\{/);
   assert.match(styles, /\.exact-service-address\{/);
 });
 
