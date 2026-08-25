@@ -884,3 +884,15 @@ test("See all professionals skips the service catalogue and the mobile heading s
   assert.match(styles, /\.nearby-provider-rail>\.section-head \.kicker,\.nearby-provider-rail>\.section-head p\{display:none\}/);
   assert.match(styles, /\.nearby-provider-rail>\.section-head h2\{margin:0;font:500 22px/);
 });
+
+test("mobile filters stay compact and minimum rating actively filters providers", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /const \[minimumRating,setMinimumRating\]=useState\(0\)/);
+  assert.match(app, /!minimumRating \|\| p\.rating>=minimumRating/);
+  assert.match(app, /className=\{props\.minimumRating===rating\?"active":""\}/);
+  assert.match(app, /aria-pressed=\{props\.minimumRating===rating\}/);
+  assert.match(app, /props\.setMinimumRating\(props\.minimumRating===rating\?0:rating\)/);
+  assert.match(app, /props\.setMinimumRating\(0\)/);
+  assert.match(styles, /\.rating-filter button\.active\{/);
+  assert.match(styles, /\.search-layout>\.filters\{display:flex;align-items:stretch;gap:7px;overflow-x:auto/);
+});
