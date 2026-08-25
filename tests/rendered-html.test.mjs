@@ -853,3 +853,11 @@ test("request and account tiles use distinct coordinated colours", async () => {
   assert.match(styles, /\.premium-request-summary>button:nth-child\(3\).*#cdeede/);
   assert.match(styles, /\.stat-grid>\.stat-card:nth-child\(5\).*#f8d9e8/);
 });
+
+test("mobile request and account headings use minimal vertical space", async () => {
+  const styles = await readSource("app/globals.css");
+  assert.match(styles, /Compact mobile headers for Requests and Account; content tiles remain unchanged/);
+  assert.match(styles, /\.dash-page\{padding-top:10px\}/);
+  assert.match(styles, /\.dash-page>\.page-heading\{margin-bottom:12px\}/);
+  assert.match(styles, /\.dash-page>\.page-heading h1\{margin:4px 0 3px;font-size:26px/);
+});

@@ -748,3 +748,17 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
 .stat-grid>.stat-card:nth-child(5){border-color:#eda9c8;background:linear-gradient(145deg,#fff9fc,#f8d9e8)}
 .stat-grid>.stat-card:nth-child(5)>i{background:#f3c7dc;color:#a82f69}
 .stat-grid>.stat-card:nth-child(5)>small,.stat-grid>.stat-card:nth-child(5)>em{color:#a82f69}
+
+/* Compact mobile headers for Requests and Account; content tiles remain unchanged. */
+@media(max-width:760px){
+  .dash-page{padding-top:10px}
+  .dash-page>.page-heading{margin-bottom:12px}
+  .dash-page>.page-heading .kicker{font-size:7px;line-height:1}
+  .dash-page>.page-heading h1{margin:4px 0 3px;font-size:26px;line-height:1.02}
+  .dash-page>.page-heading p{margin:0;font-size:9px;line-height:1.3}
+  .dash-page>.page-heading>.primary-btn{min-height:40px;margin-top:9px}
+  .dash-page>.dashboard-detail-head{margin-bottom:12px;padding-bottom:10px}
+  .dash-page>.dashboard-detail-head>button{margin-bottom:9px}
+  .dash-page>.dashboard-detail-head h1{margin:3px 0;font-size:26px;line-height:1.02}
+  .dash-page>.dashboard-detail-head p{font-size:9px;line-height:1.3}
+}
