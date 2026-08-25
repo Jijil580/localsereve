@@ -943,3 +943,19 @@ test("service requests retain an editable exact address after map location selec
   assert.match(route, /if\(address\)updates\.locationAddress=address/);
   assert.match(styles, /\.exact-service-address\{/);
 });
+
+test("premium header and request review use clear colour-coded information groups", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /className="review-provider"/);
+  assert.match(app, /className="review-service"/);
+  assert.match(app, /className="review-schedule"/);
+  assert.match(app, /className="review-matching"/);
+  assert.match(app, /className="review-urgency"/);
+  assert.match(styles, /Premium mobile header and high-clarity request review/);
+  assert.match(styles, /\.account-chip>span,\.account-menu-head>span\{background:linear-gradient/);
+  assert.match(styles, /\.request-review \.review-service\{/);
+  assert.match(styles, /\.request-review \.request-review-address\{display:grid/);
+});
