@@ -482,6 +482,7 @@ test("provider banners show persistent likes, average rating or New, and complet
 
   assert.match(app, /profile-banner-metrics/);
   assert.match(app, /provider-card-metrics/);
+  assert.match(app, /className=\{`save \$\{p\.liked\?"saved":""\}`\} onClick=\{toggleLike\}/);
   assert.match(app, /provider-service-spotlight/);
   assert.match(app, /serviceLabel\(p\.service,language\)/);
   assert.match(app, /onLikeUpdate\(p\.id,Number\(result\.count\|\|0\),Boolean\(result\.liked\)\)/);
@@ -507,7 +508,7 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(likesRoute, /createIndex\(\{ userId: 1, providerId: 1 \}, \{ unique: true \}\)/);
   assert.match(likesRoute, /if \(!session \|\| !ObjectId\.isValid\(session\.id\)\)/);
   assert.match(likesRoute, /countDocuments\(\{ providerId \}\)/);
-  assert.match(likesRoute, /return Response\.json\(\{ count, liked: Boolean\(ownLike\) \}\)/);
+  assert.match(likesRoute, /return Response\.json\(\{ count, liked: Boolean\(ownLike\) \}, \{ headers: noStoreHeaders \}\)/);
   assert.match(likesRoute, /You cannot like your own provider profile/);
   assert.match(styles, /\.profile-banner-metrics/);
   assert.match(styles, /\.provider-card-metrics/);

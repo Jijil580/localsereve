@@ -3,6 +3,9 @@ import { getSession } from "../../../../../lib/auth";
 import { getMongoDb } from "../../../../../lib/mongodb";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const noStoreHeaders = { "Cache-Control": "private, no-store, max-age=0" };
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
@@ -18,7 +21,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       likes.countDocuments({ providerId }),
       session && ObjectId.isValid(session.id) ? likes.findOne({ providerId, userId: new ObjectId(session.id) }, { projection: { _id: 1 } }) : null,
     ]);
-    return Response.json({ count, liked: Boolean(ownLike) });
+    return Response.json({ count, liked: Boolean(ownLike) }, { headers: noStoreHeaders });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to load likes" }, { status: 500 });
   }
@@ -43,7 +46,7 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     else await likes.insertOne({ userId, providerId, createdAt: new Date() });
     const count = await likes.countDocuments({ providerId });
     await db.collection("providers").updateOne({ _id: providerId }, { $set: { likeCount: count, updatedAt: new Date() } });
-    return Response.json({ ok: true, liked: !existing, count });
+    return Response.json({ ok: true, liked: !existing, count }, { headers: noStoreHeaders });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to update like" }, { status: 500 });
   }

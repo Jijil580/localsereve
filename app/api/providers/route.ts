@@ -3,6 +3,7 @@ import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 function escapeRegex(value: string) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
@@ -79,7 +80,7 @@ export async function GET(request: Request) {
       facebookUrl: String(row.facebookUrl ?? ""),
       youtubeUrl: String(row.youtubeUrl ?? ""),
     }));
-    return Response.json({ data, meta: { limit, count: data.length } });
+    return Response.json({ data, meta: { limit, count: data.length } }, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load providers";
     return Response.json({ error: message }, { status: message.includes("MONGODB_URI") ? 503 : 500 });
