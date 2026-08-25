@@ -727,6 +727,20 @@ test("new customer requests carry location and are limited to nearby matching pr
   assert.match(providerRequests, /distanceKm\(profile\.location, row\.location\)/);
 });
 
+test("location selection requests permission, resolves an address and confirms before saving", async () => {
+  const [app, reverseRoute] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/location/reverse/route.ts"),
+  ]);
+  assert.match(app, /navigator\.permissions\.query\(\{name:"geolocation"\}\)/);
+  assert.match(app, /Allow and use my exact location/);
+  assert.match(app, /Review selected address/);
+  assert.match(app, /Continue with this address/);
+  assert.match(app, /Saved and recent addresses/);
+  assert.match(app, /Edit address/);
+  assert.match(reverseRoute, /photon\.komoot\.io\/reverse/);
+});
+
 test("the customer messages workspace surfaces provider quotations", async () => {
   const app = await readSource("app/localserve-app.tsx");
   assert.match(app, /function CleanMessagesView\(\{user,onFind,onRequests/);
@@ -815,7 +829,9 @@ test("mobile navigation uses browser history and offers an animated quick menu",
   assert.match(app, /window\.history\.pushState\(\{nearleoView:next\}/);
   assert.match(app, /window\.addEventListener\("popstate",onPopState\)/);
   assert.match(app, /nearleoAccountMenu:true/);
+  assert.match(app, /nearleoSideMenu:true/);
   assert.match(app, /onClick=\{toggleAccountMenuHistory\}/);
+  assert.match(app, /onClick=\{toggleSideMenuHistory\}/);
   assert.match(app, /replaceState\(currentPageState,"",window\.location\.href\)/);
   assert.match(app, /id="nearleo-side-menu"/);
   assert.match(app, /All services/);
