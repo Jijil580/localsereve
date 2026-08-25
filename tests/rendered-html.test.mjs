@@ -926,3 +926,20 @@ test("mobile filters stay compact and minimum rating actively filters providers"
   assert.match(styles, /\.rating-filter button\.active\{/);
   assert.match(styles, /\.search-layout>\.filters\{display:flex;align-items:stretch;gap:7px;overflow-x:auto/);
 });
+
+test("service requests retain an editable exact address after map location selection", async () => {
+  const [app, route, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/users/location/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /customerLocation\?\.address\|\|customerLocation\?\.label/);
+  assert.match(app, /nearleo-last-service-address/);
+  assert.match(app, /className="exact-service-address"/);
+  assert.match(app, /House\/building number, street, locality, landmark and PIN code/);
+  assert.match(app, /const hasExactDetails=current\.address\.trim\(\)/);
+  assert.match(app, /address:hasExactDetails\?current\.address:next\.label\|\|current\.address/);
+  assert.match(route, /locationAddress/);
+  assert.match(route, /if\(address\)updates\.locationAddress=address/);
+  assert.match(styles, /\.exact-service-address\{/);
+});

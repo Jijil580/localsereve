@@ -805,3 +805,13 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
   .nearby-provider-rail>.section-head h2{margin:0;font:500 22px/1.08 Georgia,"Times New Roman",serif;letter-spacing:-.025em}
   .nearby-provider-rail>.section-head>button{min-height:34px;padding:7px 9px;font-size:9px;white-space:nowrap}
 }
+
+/* Keep the map locality separate from the customer's exact work address. */
+.exact-service-address{padding:12px;border:1px solid #cbdcf2;border-radius:14px;background:linear-gradient(145deg,#fff,#f3f8ff);box-shadow:0 7px 18px rgba(26,75,139,.06)}
+.request-modal .exact-service-address textarea{min-height:94px;margin-top:7px;resize:vertical;background:#fff}
+.exact-service-address>small{display:block;margin-top:6px;color:#647b99!important;font-size:9px!important;line-height:1.45!important}
+@media(max-width:760px){
+  .request-modal .exact-service-address{padding:11px;font-size:11px}
+  .request-modal .exact-service-address textarea{min-height:90px}
+  .request-modal .exact-service-address>small{font-size:8px!important}
+}
