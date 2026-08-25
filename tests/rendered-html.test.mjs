@@ -862,12 +862,12 @@ test("mobile request and account headings use minimal vertical space", async () 
   assert.match(styles, /\.dash-page>\.page-heading h1\{margin:4px 0 3px;font-size:26px/);
 });
 
-test("nearby professionals follow View all services and auto-roll every loaded provider", async () => {
+test("nearby professionals follow the scrolling service tiles and auto-roll every loaded provider", async () => {
   const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
   const viewAll = app.indexOf('className="hero-view-all"');
   const nearby = app.indexOf('className="section provider-section nearby-provider-rail"');
   const categories = app.indexOf('className="section categories-section"');
-  assert.ok(viewAll >= 0 && nearby > viewAll && categories > nearby);
+  assert.ok(viewAll >= 0 && categories > viewAll && nearby > categories);
   assert.match(app, /providerRailRef=useRef<HTMLDivElement>/);
   assert.match(app, /providers\.map\(p => <ProviderCard/);
   assert.doesNotMatch(app, /providers\.slice\(0,3\)\.map/);
