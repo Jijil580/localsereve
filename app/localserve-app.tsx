@@ -165,6 +165,7 @@ export default function NearleoApp() {
   const [introVisible, setIntroVisible] = useState(true);
   const [view, setView] = useState<View>("home");
   const [query, setQuery] = useState("");
+  const [providerDirectoryOnly,setProviderDirectoryOnly]=useState(false);
   const [radius, setRadius] = useState(20);
   const [sort, setSort] = useState("recommended");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -344,14 +345,15 @@ export default function NearleoApp() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     const suggestedService = q.length >= 3 ? matchingServices(query,language)[0]||"" : "";
-    const list = providers.filter(p => (!q || `${p.name} ${p.business} ${p.service} ${serviceSearchLabels(p.service).join(" ")}`.toLocaleLowerCase().includes(q) || p.service===suggestedService) && (!customerLocation || p.distance === null || p.distance <= radius) && (!verifiedOnly || p.verified) && (!availableOnly || p.available));
+    const list = providers.filter(p => (!q || `${p.name} ${p.business} ${p.service} ${serviceSearchLabels(p.service).join(" ")}`.toLocaleLowerCase().includes(q) || p.service===suggestedService) && (providerDirectoryOnly || !customerLocation || p.distance === null || p.distance <= radius) && (!verifiedOnly || p.verified) && (!availableOnly || p.available));
     return [...list].sort((a,b) => sort === "nearest" ? (a.distance??Infinity)-(b.distance??Infinity) : sort === "rating" ? b.rating-a.rating : sort === "price" ? a.price-b.price : b.jobs-a.jobs);
-  }, [providers, query, radius, verifiedOnly, availableOnly, sort,language,customerLocation]);
+  }, [providers, query, radius, verifiedOnly, availableOnly, sort,language,customerLocation,providerDirectoryOnly]);
 
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2600); }
   function updateProviderLike(id:string,count:number,liked:boolean){setProviders(list=>list.map(provider=>provider.id===id?{...provider,likes:count,liked}:provider));setSelected(provider=>provider?.id===id?{...provider,likes:count,liked}:provider)}
   function navigate(next:View){if(next===view){setSideMenuOpen(false);return;}setSideMenuOpen(false);window.history.pushState({nearleoView:next},"",window.location.href);setView(next);window.scrollTo({top:0,behavior:"smooth"});}
-  function goSearch(service?: string) { if (service === "All services") { setQuery(""); navigate("search"); window.scrollTo({top:0,behavior:"smooth"}); return; } if (service) setQuery(service); navigate("search"); }
+  function goSearch(service?: string) { setProviderDirectoryOnly(false); if (service === "All services") { setQuery(""); navigate("search"); window.scrollTo({top:0,behavior:"smooth"}); return; } if (service) setQuery(service); navigate("search"); }
+  function showAllProfessionalProfiles(){setQuery("");setProviderDirectoryOnly(true);navigate("search");}
   function openProtected(nextView: View) { if (!currentUser) {setPostAuthAction(nextView);setModal("auth");return;} navigate(nextView); }
   function openMessages(requestId="",providerId=""){setMessageRequestId(requestId);setMessageProviderId(providerId);setMessageViewKey(current=>current+1);openProtected("messages")}
   function openRequest(){if(!currentUser){setPostAuthAction("request");setModal("auth");return;}setModal("request")}
@@ -414,7 +416,7 @@ export default function NearleoApp() {
           </section>
 
           <section className="section provider-section nearby-provider-rail">
-            <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={() => goSearch()}>{t.seeAllProfessionals} →</button></div>
+            <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={showAllProfessionalProfiles}>{t.seeAllProfessionals} →</button></div>
             {providers.length ? <div className="provider-grid" ref={providerRailRef} aria-label={t.topNearby} onPointerDown={()=>{providerRailPaused.current=true}} onPointerUp={()=>{window.setTimeout(()=>{providerRailPaused.current=false},2200)}} onMouseEnter={()=>{providerRailPaused.current=true}} onMouseLeave={()=>{providerRailPaused.current=false}} onFocus={()=>{providerRailPaused.current=true}} onBlur={()=>{providerRailPaused.current=false}}>{providers.map(p => <ProviderCard key={p.id} provider={p} user={currentUser} saved={saved.includes(p.id)} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => toggleSavedProvider(p.id)} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
           </section>
 
@@ -467,7 +469,7 @@ export default function NearleoApp() {
           </section>
         </>}
 
-        {view === "search" && <>{!query&&<AllServicesCatalogue onChoose={service=>{setQuery(service);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50)}} language={language}/>}<SearchView query={query} setQuery={setQuery} radius={radius} setRadius={setRadius} sort={sort} setSort={setSort} verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly} availableOnly={availableOnly} setAvailableOnly={setAvailableOnly} results={results} saved={saved} toggleSaved={toggleSavedProvider} setSelected={setSelected} setModal={setModal} currentUser={currentUser} openContactSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} locationLabel={customerLocation?.label||t.setLocation} openLocation={useLocation} onPostRequest={openRequest} language={language} copy={t} /></>}
+        {view === "search" && <>{!query&&!providerDirectoryOnly&&<AllServicesCatalogue onChoose={service=>{setQuery(service);setTimeout(()=>document.querySelector(".results")?.scrollIntoView({behavior:"smooth",block:"start"}),50)}} language={language}/>}<SearchView query={query} setQuery={(value:string)=>{setProviderDirectoryOnly(false);setQuery(value)}} radius={radius} setRadius={setRadius} sort={sort} setSort={setSort} verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly} availableOnly={availableOnly} setAvailableOnly={setAvailableOnly} results={results} saved={saved} toggleSaved={toggleSavedProvider} setSelected={setSelected} setModal={setModal} currentUser={currentUser} openContactSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} locationLabel={customerLocation?.label||t.setLocation} openLocation={useLocation} onPostRequest={openRequest} language={language} copy={t} /></>}
         {view === "requests" && currentUser && <RequestsView onPost={openRequest} onMessages={openMessages} />}
         {view === "messages" && currentUser && <CleanMessagesView key={messageViewKey} user={currentUser} onFind={goSearch} onRequests={()=>navigate("requests")} initialRequestId={messageRequestId} initialProviderId={messageProviderId} />}
         {view === "dashboard" && currentUser && (currentUser.role==="customer"?<CustomerDashboard user={currentUser} savedProviders={providers.filter(provider=>saved.includes(provider.id))} onProvider={setSelected} onRequest={openRequest} onRequests={()=>navigate("requests")} onMessages={openMessages}/>:<ProviderDashboard role={currentUser.role} user={currentUser} onAction={notify} onRequest={openRequest} onSetup={()=>setModal("profile")} onView={()=>setModal("profile-view")} onMessages={(requestId)=>openMessages(requestId)} />)}

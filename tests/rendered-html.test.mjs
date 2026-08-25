@@ -873,3 +873,14 @@ test("nearby professionals follow the scrolling service tiles and auto-roll ever
   assert.doesNotMatch(app, /providers\.slice\(0,3\)\.map/);
   assert.match(styles, /\.nearby-provider-rail \.provider-grid\{display:flex/);
 });
+
+test("See all professionals skips the service catalogue and the mobile heading stays compact", async () => {
+  const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
+  assert.match(app, /const \[providerDirectoryOnly,setProviderDirectoryOnly\]=useState\(false\)/);
+  assert.match(app, /function showAllProfessionalProfiles\(\)\{setQuery\(""\);setProviderDirectoryOnly\(true\);navigate\("search"\);\}/);
+  assert.match(app, /<button onClick=\{showAllProfessionalProfiles\}>/);
+  assert.match(app, /!query&&!providerDirectoryOnly&&<AllServicesCatalogue/);
+  assert.match(app, /providerDirectoryOnly \|\| !customerLocation/);
+  assert.match(styles, /\.nearby-provider-rail>\.section-head \.kicker,\.nearby-provider-rail>\.section-head p\{display:none\}/);
+  assert.match(styles, /\.nearby-provider-rail>\.section-head h2\{margin:0;font:500 22px/);
+});

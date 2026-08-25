@@ -774,3 +774,14 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
   .dash-page>.dashboard-detail-head h1{margin:3px 0;font-size:26px;line-height:1.02}
   .dash-page>.dashboard-detail-head p{font-size:9px;line-height:1.3}
 }
+
+/* Compact nearby-professionals heading; the service-tile rail above is unchanged. */
+.nearby-provider-rail{padding-top:42px;padding-bottom:52px}
+.nearby-provider-rail>.section-head{margin-bottom:18px}
+@media(max-width:760px){
+  .nearby-provider-rail{padding-top:14px!important;padding-bottom:24px!important}
+  .nearby-provider-rail>.section-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin-bottom:10px;padding-right:16px}
+  .nearby-provider-rail>.section-head .kicker,.nearby-provider-rail>.section-head p{display:none}
+  .nearby-provider-rail>.section-head h2{margin:0;font:500 22px/1.08 Georgia,"Times New Roman",serif;letter-spacing:-.025em}
+  .nearby-provider-rail>.section-head>button{min-height:34px;padding:7px 9px;font-size:9px;white-space:nowrap}
+}
