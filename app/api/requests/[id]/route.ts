@@ -45,11 +45,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     } else if (body.action === "cancel") {
       if (!isCustomer) return Response.json({ error: "Only the customer can perform this update" }, { status: 403 });
     } else {
-      if (!isCustomer) {
-        if (!assignedProviderId) return Response.json({ error: "No provider has been selected" }, { status: 409 });
-        const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: { $ne: "disabled" } });
-        if (!profile) return Response.json({ error: "Only the selected provider can update this job" }, { status: 403 });
-      }
+      if (isCustomer) return Response.json({ error: "Only the selected provider can start or complete this job" }, { status: 403 });
+      if (!assignedProviderId) return Response.json({ error: "No provider has been selected" }, { status: 409 });
+      const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: { $ne: "disabled" } });
+      if (!profile) return Response.json({ error: "Only the selected provider can update this job" }, { status: 403 });
     }
 
     const now = new Date();
@@ -58,12 +57,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (body.action === "confirm") statusDetails.confirmedAt = now;
     if (body.action === "start") statusDetails.startedAt = now;
     if (body.action === "complete") {
-      const selectedReply = Array.isArray(record.responses) ? record.responses.find((item: { providerId?: ObjectId; quoteAmount?: unknown }) => String(item.providerId ?? "") === String(assignedProviderId ?? "")) as { quoteAmount?: unknown } | undefined : null;
       const submittedAmount = Number(body.finalAmount);
-      const quotedAmount = Number(selectedReply?.quoteAmount ?? 0);
+      if (body.finalAmount === undefined || body.finalAmount === null || body.finalAmount === "" || !Number.isFinite(submittedAmount) || submittedAmount < 0 || submittedAmount > 10_000_000) {
+        return Response.json({ error: "Enter the final amount charged before completing this work" }, { status: 400 });
+      }
       statusDetails.startedAt = record.startedAt instanceof Date ? record.startedAt : now;
       statusDetails.completedAt = now;
-      statusDetails.finalAmount = Number.isFinite(submittedAmount) && submittedAmount >= 0 && submittedAmount <= 10_000_000 ? submittedAmount : Number.isFinite(quotedAmount) && quotedAmount >= 0 ? quotedAmount : 0;
+      statusDetails.finalAmount = submittedAmount;
     }
     const result = await db.collection("serviceRequests").findOneAndUpdate(
       { _id: requestId, status: { $in: transition.from } },

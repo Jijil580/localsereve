@@ -5,6 +5,7 @@ import { getMongoDb } from "../../../../../lib/mongodb";
 export const runtime = "nodejs";
 
 const trackableStatuses = new Set(["confirmed", "in_progress"]);
+const liveLocationFreshnessMs = 120_000;
 
 function coordinates(value: unknown) {
   if (!value || typeof value !== "object") return null;
@@ -42,7 +43,7 @@ async function access(id: string) {
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params; const result = await access(id); if (result.error) return result.error;
-    const { record, isCustomer } = result; const providerLocation = liveLocation(record.providerLiveLocation); const updatedAt = providerLocation?.updatedAt ? new Date(String(providerLocation.updatedAt)).getTime() : 0; const fresh = updatedAt > 0 && Date.now() - updatedAt < 60_000; const sharing = Boolean(record.providerLocationSharing) && trackableStatuses.has(String(record.status ?? "")) && fresh;
+    const { record, isCustomer } = result; const providerLocation = liveLocation(record.providerLiveLocation); const updatedAt = providerLocation?.updatedAt ? new Date(String(providerLocation.updatedAt)).getTime() : 0; const fresh = updatedAt > 0 && Date.now() - updatedAt < liveLocationFreshnessMs; const sharing = Boolean(record.providerLocationSharing) && trackableStatuses.has(String(record.status ?? "")) && fresh;
     return Response.json({ data: { status: String(record.status ?? ""), address: String(record.address ?? ""), targetLocation: coordinates(record.location), sharing, providerLocation: sharing || !isCustomer ? providerLocation : null } });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to load job tracking" }, { status: 500 }); }
 }
