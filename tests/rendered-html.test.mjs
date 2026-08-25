@@ -836,3 +836,11 @@ test("customer message lists and chat headers show provider profile photos", asy
   assert.match(app, /photoUrl=\{user\.role==="provider"\?"":selected\.providerPhotoUrl\}/);
   assert.match(styles, /\.conversation-avatar\.has-photo img\{width:100%;height:100%;display:block;object-fit:cover\}/);
 });
+
+test("premium colour refresh preserves the existing UI structure", async () => {
+  const styles = await readSource("app/globals.css");
+  assert.match(styles, /Premium colour depth: palette-only overrides; layout and interactions stay unchanged/);
+  assert.match(styles, /--green:#075ee8/);
+  assert.match(styles, /linear-gradient\(180deg,#dceaff 0%,#f7ebff 46%,#e4fff5 100%\)/);
+  assert.match(styles, /\.view-all-services-banner,\.view-all-services-link\{border-color:#4c73e8;background:linear-gradient\(112deg,#075ee8,#6944cf\)/);
+});
