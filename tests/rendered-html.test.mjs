@@ -844,3 +844,12 @@ test("premium colour refresh preserves the existing UI structure", async () => {
   assert.match(styles, /linear-gradient\(180deg,#dceaff 0%,#f7ebff 46%,#e4fff5 100%\)/);
   assert.match(styles, /\.view-all-services-banner,\.view-all-services-link\{border-color:#4c73e8;background:linear-gradient\(112deg,#075ee8,#6944cf\)/);
 });
+
+test("request and account tiles use distinct coordinated colours", async () => {
+  const styles = await readSource("app/globals.css");
+  assert.match(styles, /Distinct request and account tile colours; dimensions and layout are unchanged/);
+  assert.match(styles, /\.premium-request-summary>button:nth-child\(1\).*#cfe2ff/);
+  assert.match(styles, /\.premium-request-summary>button:nth-child\(2\).*#e5d5ff/);
+  assert.match(styles, /\.premium-request-summary>button:nth-child\(3\).*#cdeede/);
+  assert.match(styles, /\.stat-grid>\.stat-card:nth-child\(5\).*#f8d9e8/);
+});
