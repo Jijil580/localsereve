@@ -360,7 +360,7 @@ export default function NearleoApp() {
 
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2600); }
   function updateProviderLike(id:string,count:number,liked:boolean){setProviders(list=>list.map(provider=>provider.id===id?{...provider,likes:count,liked}:provider));setSelected(provider=>provider?.id===id?{...provider,likes:count,liked}:provider)}
-  function toggleAccountMenuHistory(){setSideMenuOpen(false);if(accountMenuOpen){if(window.history.state?.nearleoAccountMenu)window.history.back();else setAccountMenuOpen(false);return}window.history.pushState({...window.history.state,nearleoView:view,nearleoAccountMenu:true},"",window.location.href);setAccountMenuOpen(true)}
+  function toggleAccountMenuHistory(){setSideMenuOpen(false);if(accountMenuOpen){if(window.history.state?.nearleoAccountMenu)window.history.back();else setAccountMenuOpen(false);return}const currentPageState={...window.history.state,nearleoView:view};window.history.replaceState(currentPageState,"",window.location.href);window.history.pushState({...currentPageState,nearleoAccountMenu:true},"",window.location.href);setAccountMenuOpen(true)}
   function navigate(next:View){if(next===view){setSideMenuOpen(false);return;}setSideMenuOpen(false);window.history.pushState({nearleoView:next},"",window.location.href);setView(next);window.scrollTo({top:0,behavior:"smooth"});}
   function goSearch(service?: string) { setProviderDirectoryOnly(false); if (service === "All services") { setQuery(""); navigate("search"); window.scrollTo({top:0,behavior:"smooth"}); return; } if (service) setQuery(service); navigate("search"); }
   function showAllProfessionalProfiles(){setQuery("");setProviderDirectoryOnly(true);navigate("search");}
