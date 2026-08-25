@@ -499,12 +499,15 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(profilePage, /provider\.completedJobs/);
   assert.match(providerCard, /seo-provider-metrics/);
   assert.match(providerCard, /provider\.reviews>0\?provider\.rating\.toFixed\(1\):"New"/);
-  assert.match(providersRoute, /likes: Number\(row\.likeCount/);
+  assert.match(providersRoute, /likeCountByProviderId/);
+  assert.match(providersRoute, /likes: likeCountByProviderId\.get\(String\(row\._id\)\) \?\? 0/);
   assert.match(providersRoute, /liked: likedProviderIds\.has/);
-  assert.match(publicProviders, /likes: Math\.max\(0, Number\(row\.likeCount/);
+  assert.match(publicProviders, /actualLikeCount \?\? row\.likeCount/);
+  assert.match(publicProviders, /countDocuments\(\{ providerId: row\._id \}\)/);
   assert.match(likesRoute, /createIndex\(\{ userId: 1, providerId: 1 \}, \{ unique: true \}\)/);
   assert.match(likesRoute, /if \(!session \|\| !ObjectId\.isValid\(session\.id\)\)/);
   assert.match(likesRoute, /countDocuments\(\{ providerId \}\)/);
+  assert.match(likesRoute, /return Response\.json\(\{ count, liked: Boolean\(ownLike\) \}\)/);
   assert.match(likesRoute, /You cannot like your own provider profile/);
   assert.match(styles, /\.profile-banner-metrics/);
   assert.match(styles, /\.provider-card-metrics/);

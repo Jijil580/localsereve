@@ -13,8 +13,12 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     const provider = await db.collection("providers").findOne({ _id: providerId, status: { $ne: "disabled" }, published: { $ne: false } }, { projection: { likeCount: 1 } });
     if (!provider) return Response.json({ error: "Provider not found" }, { status: 404 });
     const session = await getSession();
-    const liked = Boolean(session && ObjectId.isValid(session.id) && await db.collection("providerLikes").findOne({ providerId, userId: new ObjectId(session.id) }, { projection: { _id: 1 } }));
-    return Response.json({ count: Math.max(0, Number(provider.likeCount ?? 0)), liked });
+    const likes = db.collection("providerLikes");
+    const [count, ownLike] = await Promise.all([
+      likes.countDocuments({ providerId }),
+      session && ObjectId.isValid(session.id) ? likes.findOne({ providerId, userId: new ObjectId(session.id) }, { projection: { _id: 1 } }) : null,
+    ]);
+    return Response.json({ count, liked: Boolean(ownLike) });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to load likes" }, { status: 500 });
   }

@@ -67,7 +67,7 @@ const publishedProviderFilter = {
 
 const kannurLocalityPattern = /kannur|mattannur|iritty|thalassery|payyannur|taliparamba|koothuparamba/i;
 
-function toPublicProvider(row: Document, emailFallback = ""): PublicProvider {
+function toPublicProvider(row: Document, emailFallback = "", actualLikeCount?: number): PublicProvider {
   const id = String(row._id);
   const name = String(row.name ?? "Local professional");
   const portfolioIds = Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0, 4) : [];
@@ -85,7 +85,7 @@ function toPublicProvider(row: Document, emailFallback = ""): PublicProvider {
     startingPrice: Math.max(0, Number(row.startingPrice ?? 0)),
     rating: Math.max(0, Number(row.averageRating ?? 0)),
     reviews: Math.max(0, Number(row.reviewCount ?? 0)),
-    likes: Math.max(0, Number(row.likeCount ?? 0)),
+    likes: Math.max(0, Number(actualLikeCount ?? row.likeCount ?? 0)),
     completedJobs: Math.max(0, Number(row.completedJobs ?? 0)),
     initials: String(row.initials ?? name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("") ?? "LS"),
     photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : portfolioIds.length ? `/api/providers/portfolio/${id}/0` : null,
@@ -119,7 +119,12 @@ export const getKannurProviders = cache(async (service?: string): Promise<Public
   };
   if (service) filter.service = service;
   const rows = await db.collection("providers").find(filter, { projection: publicProjection }).sort({ verified: -1, averageRating: -1, updatedAt: -1 }).limit(200).toArray();
-  return rows.map(row => toPublicProvider(row));
+  const likeCounts = rows.length ? await db.collection("providerLikes").aggregate([
+    { $match: { providerId: { $in: rows.map(row => row._id) } } },
+    { $group: { _id: "$providerId", count: { $sum: 1 } } },
+  ]).toArray() : [];
+  const likeCountByProviderId = new Map(likeCounts.map(item => [String(item._id), Math.max(0, Number(item.count ?? 0))]));
+  return rows.map(row => toPublicProvider(row, "", likeCountByProviderId.get(String(row._id)) ?? 0));
 });
 
 export const getPublicProvider = cache(async (id: string): Promise<PublicProvider | null> => {
@@ -128,5 +133,6 @@ export const getPublicProvider = cache(async (id: string): Promise<PublicProvide
   const row = await db.collection("providers").findOne({ ...publishedProviderFilter, _id: new ObjectId(id) }, { projection: publicProjection });
   if (!row) return null;
   const account = row.userId instanceof ObjectId ? await db.collection("users").findOne({ _id: row.userId }, { projection: { email: 1 } }) : null;
-  return toPublicProvider(row, String(account?.email ?? ""));
+  const likeCount = await db.collection("providerLikes").countDocuments({ providerId: row._id });
+  return toPublicProvider(row, String(account?.email ?? ""), likeCount);
 });

@@ -43,8 +43,14 @@ export async function GET(request: Request) {
     const userIds = revealContact ? rows.map(row => row.userId).filter((value): value is ObjectId => value instanceof ObjectId) : [];
     const users = userIds.length ? await db.collection("users").find({ _id: { $in: userIds } }, { projection: { email: 1 } }).toArray() : [];
     const emailByUserId = new Map(users.map(user => [String(user._id), String(user.email ?? "")]));
+    const providerIds = rows.map(row => row._id);
+    const likeCountRows = providerIds.length ? await db.collection("providerLikes").aggregate([
+      { $match: { providerId: { $in: providerIds } } },
+      { $group: { _id: "$providerId", count: { $sum: 1 } } },
+    ]).toArray() : [];
+    const likeCountByProviderId = new Map(likeCountRows.map(row => [String(row._id), Math.max(0, Number(row.count ?? 0))]));
     const viewerId = session && ObjectId.isValid(session.id) ? new ObjectId(session.id) : null;
-    const likedRows = viewerId && rows.length ? await db.collection("providerLikes").find({ userId: viewerId, providerId: { $in: rows.map(row => row._id) } }, { projection: { providerId: 1 } }).toArray() : [];
+    const likedRows = viewerId && providerIds.length ? await db.collection("providerLikes").find({ userId: viewerId, providerId: { $in: providerIds } }, { projection: { providerId: 1 } }).toArray() : [];
     const likedProviderIds = new Set(likedRows.map(row => String(row.providerId)));
     const data = rows.map(row => ({
       id: String(row._id),
@@ -53,7 +59,7 @@ export async function GET(request: Request) {
       service: String(row.service ?? "Local service"),
       rating: Number(row.averageRating ?? 0),
       reviews: Number(row.reviewCount ?? 0),
-      likes: Number(row.likeCount ?? 0),
+      likes: likeCountByProviderId.get(String(row._id)) ?? 0,
       liked: likedProviderIds.has(String(row._id)),
       distance: row.distanceMeters !== undefined ? Number((Number(row.distanceMeters) / 1000).toFixed(1)) : null,
       experience: Number(row.experienceYears ?? 0),
