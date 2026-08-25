@@ -814,6 +814,8 @@ test("mobile navigation uses browser history and offers an animated quick menu",
   const [app, styles] = await Promise.all([readSource("app/localserve-app.tsx"), readSource("app/globals.css")]);
   assert.match(app, /window\.history\.pushState\(\{nearleoView:next\}/);
   assert.match(app, /window\.addEventListener\("popstate",onPopState\)/);
+  assert.match(app, /nearleoAccountMenu:true/);
+  assert.match(app, /onClick=\{toggleAccountMenuHistory\}/);
   assert.match(app, /id="nearleo-side-menu"/);
   assert.match(app, /All services/);
   assert.match(app, /Help &amp; support/);
