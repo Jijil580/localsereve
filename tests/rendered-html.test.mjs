@@ -485,6 +485,12 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(app, /provider-service-spotlight/);
   assert.match(app, /serviceLabel\(p\.service,language\)/);
   assert.match(app, /onLikeUpdate\(p\.id,Number\(result\.count\|\|0\),Boolean\(result\.liked\)\)/);
+  assert.match(app, /const providerRefreshId=useRef\(0\)/);
+  assert.match(app, /credentials:"include",cache:"no-store"/);
+  assert.match(app, /if \(requestId!==providerRefreshId\.current\)return/);
+  assert.match(app, /setSelected\(current=>current\?nextProviders\.find\(provider=>provider\.id===current\.id\)\?\?current:current\)/);
+  assert.match(app, /onAuthenticated=\{async \(user\) => \{setCurrentUser\(user\);setRole\(user\.role\);await refreshProviders\(\)/);
+  assert.match(app, /problem instanceof Error\?problem\.message:"Unable to update like"/);
   assert.match(app, /p\.likes/);
   assert.match(app, /p\.reviews>0\?p\.rating\.toFixed\(1\):"New"/);
   assert.match(app, /Works done/);
@@ -497,6 +503,7 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(providersRoute, /liked: likedProviderIds\.has/);
   assert.match(publicProviders, /likes: Math\.max\(0, Number\(row\.likeCount/);
   assert.match(likesRoute, /createIndex\(\{ userId: 1, providerId: 1 \}, \{ unique: true \}\)/);
+  assert.match(likesRoute, /if \(!session \|\| !ObjectId\.isValid\(session\.id\)\)/);
   assert.match(likesRoute, /countDocuments\(\{ providerId \}\)/);
   assert.match(likesRoute, /You cannot like your own provider profile/);
   assert.match(styles, /\.profile-banner-metrics/);
