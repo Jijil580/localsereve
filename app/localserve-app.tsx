@@ -658,6 +658,51 @@ function MessageAvatar({name,photoUrl=""}:{name:string;photoUrl?:string}){
   return photoUrl?<span className="conversation-avatar has-photo"><img src={photoUrl} alt={`${name} profile`} loading="lazy"/></span>:<span className="conversation-avatar">{(name||"N").slice(0,1).toUpperCase()}</span>;
 }
 
+function NearleoLiveMap({provider,target}:{provider:MapLocation;target:MapLocation|null}){
+  const containerRef=useRef<HTMLDivElement|null>(null);
+  const mapRef=useRef<import("leaflet").Map|null>(null);
+  const providerMarkerRef=useRef<import("leaflet").Marker|null>(null);
+  const targetMarkerRef=useRef<import("leaflet").Marker|null>(null);
+  const journeyLineRef=useRef<import("leaflet").Polyline|null>(null);
+
+  useEffect(()=>{
+    let cancelled=false;
+    async function initialise(){
+      const leaflet=await import("leaflet");
+      if(cancelled||!containerRef.current||mapRef.current)return;
+      const providerPoint=leaflet.latLng(provider.latitude,provider.longitude);
+      const map=leaflet.map(containerRef.current,{zoomControl:true,attributionControl:true}).setView(providerPoint,16);
+      leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+      const vehicleIcon=leaflet.divIcon({className:"nearleo-vehicle-marker",html:'<span class="nearleo-map-vehicle"><b>N</b><i></i><em></em></span>',iconSize:[58,42],iconAnchor:[29,36]});
+      const destinationIcon=leaflet.divIcon({className:"nearleo-destination-marker",html:'<span class="nearleo-map-destination"><b>JOB</b></span>',iconSize:[42,48],iconAnchor:[21,44]});
+      providerMarkerRef.current=leaflet.marker(providerPoint,{icon:vehicleIcon,title:"Nearleo service provider"}).addTo(map);
+      if(target){
+        const destinationPoint=leaflet.latLng(target.latitude,target.longitude);
+        targetMarkerRef.current=leaflet.marker(destinationPoint,{icon:destinationIcon,title:"Customer service location"}).addTo(map);
+        journeyLineRef.current=leaflet.polyline([providerPoint,destinationPoint],{color:"#1769df",weight:4,opacity:.7,dashArray:"8 10"}).addTo(map);
+        map.fitBounds(leaflet.latLngBounds([providerPoint,destinationPoint]),{padding:[34,34],maxZoom:16});
+      }
+      mapRef.current=map;
+      window.requestAnimationFrame(()=>map.invalidateSize());
+    }
+    void initialise();
+    return()=>{cancelled=true;mapRef.current?.remove();mapRef.current=null;providerMarkerRef.current=null;targetMarkerRef.current=null;journeyLineRef.current=null};
+  },[]);
+
+  useEffect(()=>{
+    const providerPoint:[number,number]=[provider.latitude,provider.longitude];
+    providerMarkerRef.current?.setLatLng(providerPoint);
+    if(target){
+      const destinationPoint:[number,number]=[target.latitude,target.longitude];
+      targetMarkerRef.current?.setLatLng(destinationPoint);
+      journeyLineRef.current?.setLatLngs([providerPoint,destinationPoint]);
+    }
+    mapRef.current?.panTo(providerPoint,{animate:true,duration:.8});
+  },[provider.latitude,provider.longitude,target?.latitude,target?.longitude]);
+
+  return <div className="provider-live-map" ref={containerRef} role="img" aria-label="Live map showing the Nearleo provider travelling to the customer service location"/>;
+}
+
 function JobTrackingPanel({conversation,user}:{conversation:Conversation;user:SessionUser}){
   const [tracking,setTracking]=useState<JobTracking|null>(null);const [busy,setBusy]=useState(false);const [sharingDevice,setSharingDevice]=useState(false);const [error,setError]=useState("");const watchId=useRef<number|null>(null);const lastSentAt=useRef(0);
   const active=conversation.isSelected&&["confirmed","in_progress"].includes(conversation.status);
@@ -669,8 +714,8 @@ function JobTrackingPanel({conversation,user}:{conversation:Conversation;user:Se
   useEffect(()=>()=>{if(watchId.current!==null){navigator.geolocation.clearWatch(watchId.current);watchId.current=null;fetch(`/api/requests/${conversation.requestId}/tracking`,{method:"DELETE",credentials:"include",keepalive:true}).catch(()=>{})}},[conversation.requestId]);
   if(!active)return null;
   const providerPoint=tracking?.providerLocation||null;const distance=locationDistanceKm(providerPoint,tracking?.targetLocation);const arrival=distance===null?"Live journey":distance<=.15?"Provider has arrived":distance<=1?"Provider is nearby":`${distance.toFixed(distance<10?1:0)} km away`;const updatedAt=providerPoint?.updatedAt?new Date(providerPoint.updatedAt):null;const updatedLabel=updatedAt&&!Number.isNaN(updatedAt.getTime())?`Updated ${updatedAt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`:"Waiting for first update";
-  const navigationUrl=tracking?googleMapsDirectionsUrl(tracking.targetLocation,tracking.address):"";const mapUrl=providerPoint?`https://www.google.com/maps?q=${providerPoint.latitude},${providerPoint.longitude}&z=16&output=embed`:"";
-  return <section className={`job-tracking-panel ${user.role}`} aria-label="Job travel and location"><div className="job-tracking-head"><span><small>JOB TRAVEL</small><b>{user.role==="provider"?"Navigate and share journey":"Provider journey"}</b></span><i className={tracking?.sharing?"live":""}>{tracking?.sharing?"LIVE":"PRIVATE"}</i></div>{user.role==="provider"?<><div className="job-destination"><LocationPinIcon/><span><small>Customer service address</small><b>{tracking?.address||"Loading confirmed address…"}</b></span></div><div className="job-tracking-actions">{navigationUrl&&<a href={navigationUrl} target="_blank" rel="noreferrer">Open Google Maps navigation</a>}{sharingDevice?<button type="button" disabled={busy} onClick={()=>void stopSharing()}>{busy?"Stopping…":"Stop live sharing"}</button>:<button type="button" className="share-live-button" disabled={busy||!tracking} onClick={startSharing}>{busy?"Starting GPS…":tracking?.sharing?"Resume live sharing":"Share live journey"}</button>}</div><p className="tracking-privacy-note">Location is shared only with this customer for this active job. Keep Nearleo open while travelling; stop sharing whenever you want.</p></>:<>{tracking?.sharing&&providerPoint?<><div className={`provider-arrival-status ${distance!==null&&distance<=.15?"arrived":""}`}><span><b>{arrival}</b><small>{updatedLabel}</small></span><i>●</i></div><iframe className="provider-live-map" title="Provider live location on Google Maps" src={mapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"/><a className="open-live-map" href={`https://www.google.com/maps/search/?api=1&query=${providerPoint.latitude},${providerPoint.longitude}`} target="_blank" rel="noreferrer">View provider in Google Maps</a></>:<div className="tracking-waiting"><span>◉</span><div><b>Live location is not being shared</b><small>The selected provider can start sharing after the job is confirmed. Refreshes automatically.</small></div></div>}</>}{error&&<div className="conversation-error">{error}</div>}</section>;
+  const navigationUrl=tracking?googleMapsDirectionsUrl(tracking.targetLocation,tracking.address):"";
+  return <section className={`job-tracking-panel ${user.role}`} aria-label="Job travel and location"><div className="job-tracking-head"><span><small>JOB TRAVEL</small><b>{user.role==="provider"?"Navigate and share journey":"Provider journey"}</b></span><i className={tracking?.sharing?"live":""}>{tracking?.sharing?"LIVE":"PRIVATE"}</i></div>{user.role==="provider"?<><div className="job-destination"><LocationPinIcon/><span><small>Customer service address</small><b>{tracking?.address||"Loading confirmed address…"}</b></span></div><div className="job-tracking-actions">{navigationUrl&&<a href={navigationUrl} target="_blank" rel="noreferrer">Open Google Maps navigation</a>}{sharingDevice?<button type="button" disabled={busy} onClick={()=>void stopSharing()}>{busy?"Stopping…":"Stop live sharing"}</button>:<button type="button" className="share-live-button" disabled={busy||!tracking} onClick={startSharing}>{busy?"Starting GPS…":tracking?.sharing?"Resume live sharing":"Share live journey"}</button>}</div><p className="tracking-privacy-note">Location is shared only with this customer for this active job. Keep Nearleo open while travelling; stop sharing whenever you want.</p></>:<>{tracking?.sharing&&providerPoint?<><div className={`provider-arrival-status ${distance!==null&&distance<=.15?"arrived":""}`}><span><b>{arrival}</b><small>{updatedLabel}</small></span><i>●</i></div><NearleoLiveMap provider={providerPoint} target={tracking.targetLocation}/><div className="free-map-label"><b>Nearleo live map</b><span>Free map powered by OpenStreetMap</span></div><a className="open-live-map" href={`https://www.google.com/maps/search/?api=1&query=${providerPoint.latitude},${providerPoint.longitude}`} target="_blank" rel="noreferrer">View provider in Google Maps</a></>:<div className="tracking-waiting"><span>◉</span><div><b>Live location is not being shared</b><small>The selected provider can start sharing after the job is confirmed. Refreshes automatically.</small></div></div>}</>}{error&&<div className="conversation-error">{error}</div>}</section>;
 }
 
 function CleanMessagesView({user,onFind,onRequests,initialRequestId="",initialProviderId=""}:{user:SessionUser;onFind:()=>void;onRequests:()=>void;initialRequestId?:string;initialProviderId?:string}) {

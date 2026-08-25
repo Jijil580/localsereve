@@ -967,6 +967,10 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(app, /navigator\.geolocation\.watchPosition/);
   assert.match(app, /Open Google Maps navigation/);
   assert.match(app, /View provider in Google Maps/);
+  assert.match(app, /function NearleoLiveMap/);
+  assert.match(app, /tile\.openstreetmap\.org/);
+  assert.match(app, /Nearleo service provider/);
+  assert.match(app, /Free map powered by OpenStreetMap/);
   assert.match(app, /Keep Nearleo open while travelling/);
   assert.match(app, /<JobTrackingPanel conversation=\{selected\} user=\{user\}/);
   assert.match(providerRequests, /location: String\(row\.assignedProviderId/);
@@ -978,6 +982,7 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(statusRoute, /providerLocationSharing = false/);
   assert.match(styles, /\.job-tracking-panel\{/);
   assert.match(styles, /\.provider-live-map\{/);
+  assert.match(styles, /\.nearleo-map-vehicle\{/);
   assert.match(styles, /\.google-navigation-btn\{/);
 });
 
