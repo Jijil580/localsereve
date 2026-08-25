@@ -954,6 +954,33 @@ test("service requests require a saved or newly confirmed delivery-style address
   assert.match(styles, /\.exact-service-address\{/);
 });
 
+test("confirmed jobs support private Google Maps navigation and live provider tracking", async () => {
+  const [app, trackingRoute, providerRequests, statusRoute, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/requests/[id]/tracking/route.ts"),
+    readSource("app/api/provider/requests/route.ts"),
+    readSource("app/api/requests/[id]/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /function googleMapsDirectionsUrl/);
+  assert.match(app, /function JobTrackingPanel/);
+  assert.match(app, /navigator\.geolocation\.watchPosition/);
+  assert.match(app, /Open Google Maps navigation/);
+  assert.match(app, /View provider in Google Maps/);
+  assert.match(app, /Keep Nearleo open while travelling/);
+  assert.match(app, /<JobTrackingPanel conversation=\{selected\} user=\{user\}/);
+  assert.match(providerRequests, /location: String\(row\.assignedProviderId/);
+  assert.match(trackingRoute, /trackableStatuses = new Set\(\["confirmed", "in_progress"\]\)/);
+  assert.match(trackingRoute, /Only this job's customer and selected provider can view tracking/);
+  assert.match(trackingRoute, /providerLocationSharing: true/);
+  assert.match(trackingRoute, /Date\.now\(\) - updatedAt < 60_000/);
+  assert.match(trackingRoute, /export async function DELETE/);
+  assert.match(statusRoute, /providerLocationSharing = false/);
+  assert.match(styles, /\.job-tracking-panel\{/);
+  assert.match(styles, /\.provider-live-map\{/);
+  assert.match(styles, /\.google-navigation-btn\{/);
+});
+
 test("premium header and request review use clear colour-coded information groups", async () => {
   const [app, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),

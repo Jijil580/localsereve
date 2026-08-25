@@ -53,6 +53,7 @@ export async function GET() {
         service: row.service,
         description: row.description,
         address: row.address,
+        location: String(row.assignedProviderId ?? "") === String(profile._id) && Array.isArray(row.location?.coordinates) ? { latitude: Number(row.location.coordinates[1]), longitude: Number(row.location.coordinates[0]), label: String(row.location.label ?? row.address ?? "") } : null,
         preferredDate: row.preferredDate,
         preferredTime: row.preferredTime,
         urgency: row.urgency,

@@ -54,6 +54,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     const now = new Date();
     const statusDetails: Record<string, unknown> = {};
+    if (body.action === "cancel" || body.action === "complete") statusDetails.providerLocationSharing = false;
     if (body.action === "confirm") statusDetails.confirmedAt = now;
     if (body.action === "start") statusDetails.startedAt = now;
     if (body.action === "complete") {
