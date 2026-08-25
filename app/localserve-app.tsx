@@ -193,6 +193,9 @@ export default function NearleoApp() {
   const categoryRailRef=useRef<HTMLDivElement>(null);
   const categoryRailPaused=useRef(false);
   const categoryRailDirection=useRef<1|-1>(1);
+  const providerRailRef=useRef<HTMLDivElement>(null);
+  const providerRailPaused=useRef(false);
+  const providerRailDirection=useRef<1|-1>(1);
   const t = translations[language];
 
   function refreshCommunity(){fetch("/api/platform/experience",{credentials:"include"}).then(response=>response.json()).then(result=>{if(result.data)setCommunityStats(result.data)}).catch(()=>{})}
@@ -224,6 +227,25 @@ export default function NearleoApp() {
     frame=window.requestAnimationFrame(flow);
     return()=>window.cancelAnimationFrame(frame);
   },[view]);
+
+  useEffect(()=>{
+    if(view!=="home"||providers.length<2||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    const rail=providerRailRef.current;if(!rail)return;
+    let frame=0;
+    let previous=performance.now();
+    const roll=(now:number)=>{
+      const elapsed=Math.min(now-previous,40);previous=now;
+      if(!providerRailPaused.current){
+        const maxScroll=Math.max(0,rail.scrollWidth-rail.clientWidth);
+        if(rail.scrollLeft>=maxScroll-1)providerRailDirection.current=-1;
+        else if(rail.scrollLeft<=1)providerRailDirection.current=1;
+        rail.scrollLeft+=providerRailDirection.current*elapsed*.026;
+      }
+      frame=window.requestAnimationFrame(roll);
+    };
+    frame=window.requestAnimationFrame(roll);
+    return()=>window.cancelAnimationFrame(frame);
+  },[view,providers.length]);
 
   useEffect(()=>{
     if(!currentUser){setNotificationCount(0);return}
@@ -386,6 +408,11 @@ export default function NearleoApp() {
             </div>
           </section>
 
+          <section className="section provider-section nearby-provider-rail">
+            <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={() => goSearch()}>{t.seeAllProfessionals} →</button></div>
+            {providers.length ? <div className="provider-grid" ref={providerRailRef} aria-label={t.topNearby} onPointerDown={()=>{providerRailPaused.current=true}} onPointerUp={()=>{window.setTimeout(()=>{providerRailPaused.current=false},2200)}} onMouseEnter={()=>{providerRailPaused.current=true}} onMouseLeave={()=>{providerRailPaused.current=false}} onFocus={()=>{providerRailPaused.current=true}} onBlur={()=>{providerRailPaused.current=false}}>{providers.map(p => <ProviderCard key={p.id} provider={p} user={currentUser} saved={saved.includes(p.id)} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => toggleSavedProvider(p.id)} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
+          </section>
+
           <section className="section categories-section">
             <div className="section-head"><div><span className="kicker">{t.exploreServices}</span><h2>{t.needHelp}</h2></div></div>
             <div className="category-rail-shell"><div className="category-grid" ref={categoryRailRef} aria-label={t.exploreServices} onPointerDown={()=>{categoryRailPaused.current=true}} onPointerUp={()=>{window.setTimeout(()=>{categoryRailPaused.current=false},2200)}} onFocus={()=>{categoryRailPaused.current=true}} onBlur={()=>{categoryRailPaused.current=false}}>{categories.map(([,name]) => <button className="category-card category-card-visual" key={name} onClick={() => goSearch(name)}><Image className="category-image" src={serviceTilePhoto(name==="All services"?"Other local services":name)} alt="" fill sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 20vw"/><span className="category-card-shade"/><b>{serviceLabel(name,language)}</b><small>{name==="All services"?t.exploreCategories:t.browseService}</small><i>›</i></button>)}</div></div>
@@ -423,11 +450,6 @@ export default function NearleoApp() {
               <button className="mobile-auth-create" onClick={() => {setAuthMode("register");setModal("auth")}}>{t.createAccount}</button>
             </div>
           </section>}
-
-          <section className="section provider-section">
-            <div className="section-head"><div><span className="kicker">{t.approvedProfiles}</span><h2>{t.topNearby}</h2><p>{t.realProfessionals}</p></div><button onClick={() => goSearch()}>{t.seeAllProfessionals} →</button></div>
-            {providers.length ? <div className="provider-grid">{providers.slice(0,3).map(p => <ProviderCard key={p.id} provider={p} user={currentUser} saved={saved.includes(p.id)} onSignIn={openContactSignIn} onLikeUpdate={updateProviderLike} onSave={() => toggleSavedProvider(p.id)} onView={() => setSelected(p)} onBook={() => {setSelected(p);setModal("booking")}} language={language} />)}</div> : <div className="provider-empty"><span>⌕</span><h3>{t.noProviders}</h3><p>{t.providersSoon}</p><button className="primary-btn" onClick={() => {setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>{t.firstProfessional}</button></div>}
-          </section>
 
           <section className="how-section"><div className="how-copy"><span className="kicker light">{t.simpleSecure}</span><h2>{t.easyTitle}</h2><p>{t.easyDescription}</p><button className="light-btn" onClick={openRequest}>{t.postRequest}</button></div><div className="steps">{[["01",t.step1Title,t.step1Body],["02",t.step2Title,t.step2Body],["03",t.step3Title,t.step3Body]].map(([n,h,p]) => <div className="step" key={n}><span>{n}</span><div><h3>{h}</h3><p>{p}</p></div></div>)}</div></section>
 

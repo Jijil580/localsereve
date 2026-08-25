@@ -84,6 +84,18 @@ html{-webkit-text-size-adjust:100%}body{-webkit-font-smoothing:antialiased;text-
   .provider-drawer{top:auto;height:94dvh;border-radius:22px 22px 0 0}.provider-drawer:before{content:"";position:absolute;z-index:4;top:8px;left:50%;width:38px;height:4px;border-radius:99px;background:rgba(255,255,255,.8);transform:translateX(-50%)}.drawer-cover{height:210px}.drawer-actions{padding:10px 10px calc(10px + env(safe-area-inset-bottom))}.drawer-actions button,.drawer-actions a{min-height:46px;display:grid;place-items:center}
 }
 
+/* Nearby professionals sit below View all services and roll horizontally. */
+.nearby-provider-rail{overflow:hidden}
+.nearby-provider-rail .provider-grid{display:flex;max-width:1180px;margin:0 auto;padding:4px 2px 14px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:none}
+.nearby-provider-rail .provider-grid::-webkit-scrollbar{display:none}
+.nearby-provider-rail .provider-card{width:350px;min-width:350px;scroll-snap-align:start}
+@media(max-width:760px){
+  .nearby-provider-rail{padding-top:24px;padding-bottom:26px}
+  .nearby-provider-rail .section-head{margin-bottom:16px}
+  .nearby-provider-rail .provider-grid{padding-bottom:8px}
+  .nearby-provider-rail .provider-card{width:84%;min-width:84%}
+}
+
 @media(max-width:390px){.topbar{padding-inline:10px}.brand{font-size:17px}.header-actions .primary-btn.small{padding-inline:10px}.hero-reference .hero-copy{padding-inline:14px}.hero-reference h1{font-size:35px}.hero-collage{min-height:350px}.filters{grid-template-columns:1fr}.filters .filter-title{grid-column:auto}.request-summary,.stat-grid{grid-template-columns:1fr 1fr}}
 
 .search-location-mobile{display:none}
