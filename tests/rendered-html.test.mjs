@@ -822,3 +822,17 @@ test("Messages navigation opens the conversation list while direct chat links st
   assert.doesNotMatch(app, /useState\("__first__"\)/);
   assert.match(app, /if\(requested\)return requested\.id/);
 });
+
+test("customer message lists and chat headers show provider profile photos", async () => {
+  const [app, route, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/messages/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(route, /providerPhotoUrl:providersWithPhotos\.has\(providerId\)\?`\/api\/providers\/photo\/\$\{providerId\}`/);
+  assert.match(route, /projection:\{_id:1,profilePhotoId:1\}/);
+  assert.match(app, /function MessageAvatar\(\{name,photoUrl=""\}/);
+  assert.match(app, /photoUrl=\{user\.role==="provider"\?"":item\.providerPhotoUrl\}/);
+  assert.match(app, /photoUrl=\{user\.role==="provider"\?"":selected\.providerPhotoUrl\}/);
+  assert.match(styles, /\.conversation-avatar\.has-photo img\{width:100%;height:100%;display:block;object-fit:cover\}/);
+});
