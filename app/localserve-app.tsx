@@ -680,7 +680,10 @@ function NearleoLiveMap({provider,target}:{provider:MapLocation;target:MapLocati
         const destinationPoint=leaflet.latLng(target.latitude,target.longitude);
         targetMarkerRef.current=leaflet.marker(destinationPoint,{icon:destinationIcon,title:"Customer service location"}).addTo(map);
         journeyLineRef.current=leaflet.polyline([providerPoint,destinationPoint],{color:"#1769df",weight:4,opacity:.7,dashArray:"8 10"}).addTo(map);
-        map.fitBounds(leaflet.latLngBounds([providerPoint,destinationPoint]),{padding:[34,34],maxZoom:16});
+        const journeyBounds=leaflet.latLngBounds([providerPoint,destinationPoint]);
+        map.fitBounds(journeyBounds,{padding:[34,34],maxZoom:16});
+        window.requestAnimationFrame(()=>{if(cancelled)return;map.invalidateSize();map.fitBounds(journeyBounds,{padding:[34,34],maxZoom:16})});
+        window.setTimeout(()=>{if(cancelled)return;map.invalidateSize();map.fitBounds(journeyBounds,{padding:[34,34],maxZoom:16})},240);
       }
       mapRef.current=map;
       window.requestAnimationFrame(()=>map.invalidateSize());
@@ -696,8 +699,10 @@ function NearleoLiveMap({provider,target}:{provider:MapLocation;target:MapLocati
       const destinationPoint:[number,number]=[target.latitude,target.longitude];
       targetMarkerRef.current?.setLatLng(destinationPoint);
       journeyLineRef.current?.setLatLngs([providerPoint,destinationPoint]);
+      mapRef.current?.fitBounds([providerPoint,destinationPoint],{padding:[34,34],maxZoom:16,animate:true,duration:.8});
+    }else{
+      mapRef.current?.panTo(providerPoint,{animate:true,duration:.8});
     }
-    mapRef.current?.panTo(providerPoint,{animate:true,duration:.8});
   },[provider.latitude,provider.longitude,target?.latitude,target?.longitude]);
 
   return <div className="provider-live-map" ref={containerRef} role="img" aria-label="Live map showing the Nearleo provider travelling to the customer service location"/>;

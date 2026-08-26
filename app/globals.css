@@ -887,3 +887,15 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
 @media(max-width:760px){
   .job-tracking-panel{margin:8px 9px 0;border-radius:13px}.job-tracking-actions{grid-template-columns:1fr}.job-tracking-actions a,.job-tracking-actions button,.open-live-map{min-height:44px;font-size:9px}.provider-live-map{height:150px}.tracking-privacy-note{padding-bottom:10px}
 }
+
+/* Keep live tracking, its external-map action, and chat visible together. */
+.conversation-thread{display:flex;flex-direction:column}
+.conversation-thread>header,.conversation-quote,.conversation-lifecycle,.job-tracking-panel,.conversation-composer,.conversation-error{flex:none}
+.conversation-messages{min-height:110px;flex:1}
+.nearleo-vehicle-marker{transition:transform .8s linear!important}
+.open-live-map{background:linear-gradient(135deg,#1769df,#344bc6)!important;color:#fff!important;border-color:#1769df!important;box-shadow:0 8px 18px rgba(23,105,223,.2)}
+@media(max-width:760px){
+  .conversation-thread{display:flex;flex-direction:column}
+  .job-tracking-panel{max-height:none}
+  .open-live-map{margin:9px 12px 12px;min-height:46px}
+}

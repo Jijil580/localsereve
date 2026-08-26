@@ -976,6 +976,8 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(app, /Keep Nearleo visible while travelling/);
   assert.match(app, /window\.setInterval\(heartbeat,15000\)/);
   assert.match(app, /Live tracking is active/);
+  assert.match(app, /providerMarkerRef\.current\?\.setLatLng\(providerPoint\)/);
+  assert.match(app, /fitBounds\(\[providerPoint,destinationPoint\]/);
   assert.match(app, /<JobTrackingPanel conversation=\{selected\} user=\{user\}/);
   assert.match(providerRequests, /location: String\(row\.assignedProviderId/);
   assert.match(trackingRoute, /trackableStatuses = new Set\(\["confirmed", "in_progress"\]\)/);
@@ -991,6 +993,9 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(styles, /\.provider-live-map\{/);
   assert.match(styles, /\.nearleo-map-vehicle\{/);
   assert.match(styles, /\.google-navigation-btn\{/);
+  assert.match(styles, /\.nearleo-vehicle-marker\{transition:transform \.8s linear!important\}/);
+  assert.match(styles, /\.open-live-map\{background:linear-gradient/);
+  assert.match(styles, /\.job-tracking-panel\{max-height:none\}/);
 });
 
 test("premium header and request review use clear colour-coded information groups", async () => {
