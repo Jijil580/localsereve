@@ -45,6 +45,6 @@ npm run mobile:sync
 npm run mobile:android
 ```
 
-The Android project requires Android Studio with Java 21 and Android SDK 36. Every mobile-source push also creates a downloadable test APK in the GitHub Actions workflow named **Build Nearleo Android APK**.
+The Android project requires Android Studio with Java 21 and Android SDK 36.
 
 For iPhone, run `npm run mobile:ios` on macOS and complete signing in Xcode with an Apple Developer account. Apple devices use an IPA/App Store build rather than an APK.

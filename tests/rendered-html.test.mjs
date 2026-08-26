@@ -1052,11 +1052,10 @@ test("gold notification control and live unread message badge use persisted mess
 });
 
 test("Nearleo ships synchronized Android and iPhone app projects", async () => {
-  const [config, androidManifest, iosInfo, workflow] = await Promise.all([
+  const [config, androidManifest, iosInfo] = await Promise.all([
     readSource("capacitor.config.ts"),
     readSource("android/app/src/main/AndroidManifest.xml"),
     readSource("ios/App/App/Info.plist"),
-    readSource(".github/workflows/mobile-build.yml"),
   ]);
   assert.match(config, /appId: "com\.nearleo\.app"/);
   assert.match(config, /appName: "Nearleo"/);
@@ -1065,6 +1064,4 @@ test("Nearleo ships synchronized Android and iPhone app projects", async () => {
   assert.match(androidManifest, /android\.permission\.INTERNET/);
   assert.match(androidManifest, /android\.permission\.ACCESS_FINE_LOCATION/);
   assert.match(iosInfo, /NSLocationWhenInUseUsageDescription/);
-  assert.match(workflow, /\.\/gradlew assembleDebug/);
-  assert.match(workflow, /Nearleo-Android\.apk/);
 });
