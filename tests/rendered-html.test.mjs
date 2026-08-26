@@ -1031,3 +1031,22 @@ test("premium header and request review use clear colour-coded information group
   assert.match(styles, /\.request-review \.review-service\{/);
   assert.match(styles, /\.request-review \.request-review-address\{display:grid/);
 });
+
+test("gold notification control and live unread message badge use persisted message state", async () => {
+  const [app, notifications, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/notifications/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(notifications, /messageCount/);
+  assert.match(notifications, /readByProvider/);
+  assert.match(notifications, /readByCustomer/);
+  assert.match(app, /const \[messageNotificationCount,setMessageNotificationCount\]=useState\(0\)/);
+  assert.match(app, /className="mobile-message-badge"/);
+  assert.match(app, /nearleo:messages-read/);
+  assert.match(app, /unread message/);
+  assert.match(styles, /Gold alerts and a persistent unread count/);
+  assert.match(styles, /\.notification-button\{overflow:visible;border-color:#e0b54b/);
+  assert.match(styles, /\.mobile-message-badge\{/);
+  assert.match(styles, /\.has-unread-messages/);
+});

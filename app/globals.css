@@ -833,6 +833,14 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
 .request-review>div{min-width:0;align-items:center;padding:13px 14px!important;border:1px solid transparent!important;border-radius:13px;font-size:11px;box-shadow:0 5px 15px rgba(30,70,125,.055)}
 .request-review>div>span{color:#536b8d;font-size:9px;font-weight:800;letter-spacing:.015em}
 .request-review>div>b{max-width:66%;color:#102d59;font-size:11px;line-height:1.45}
+
+/* Gold alerts and a persistent unread count on the mobile Messages action. */
+.notification-button{overflow:visible;border-color:#e0b54b!important;background:linear-gradient(145deg,#fff8c9 0%,#ffd95a 46%,#e9a814 100%)!important;color:#6c4500!important;box-shadow:0 8px 20px rgba(179,119,0,.28),inset 0 1px rgba(255,255,255,.85)!important}
+.notification-button:before{content:"";position:absolute;inset:2px;border-radius:10px;background:linear-gradient(125deg,rgba(255,255,255,.7),transparent 38%);pointer-events:none}
+.notification-button.has-alert{box-shadow:0 9px 23px rgba(184,118,0,.36),0 0 0 3px rgba(255,205,51,.16)!important}
+.premium-mobile-nav button>span{position:relative}
+.mobile-message-badge{position:absolute;z-index:3;right:-7px;top:-7px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px;border:2px solid #fff;border-radius:999px;background:linear-gradient(145deg,#ff4d65,#c9183a);color:#fff;font-size:8px;font-weight:950;line-height:1;box-shadow:0 4px 10px rgba(177,18,51,.34)}
+.premium-mobile-nav button.has-unread-messages>span{box-shadow:0 0 0 3px rgba(227,69,82,.12),inset 0 0 0 1px rgba(255,255,255,.72)}
 .request-review .review-provider{border-color:#b9d5ff!important;background:linear-gradient(135deg,#edf6ff,#dceaff)}
 .request-review .review-service{border-color:#cabfff!important;background:linear-gradient(135deg,#f4f0ff,#e7dfff)}
 .request-review .review-schedule{border-color:#a9dec8!important;background:linear-gradient(135deg,#effcf7,#dbf4e9)}
