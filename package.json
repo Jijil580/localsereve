@@ -11,9 +11,16 @@
     "start": "next start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "mobile:sync": "cap sync",
+    "mobile:android": "cap open android",
+    "mobile:ios": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@types/leaflet": "^1.9.22",
     "@vercel/functions": "^3.7.7",
     "drizzle-orm": "0.45.2",
