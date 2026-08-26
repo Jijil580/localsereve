@@ -1032,7 +1032,7 @@ test("premium header and request review use clear colour-coded information group
   assert.match(styles, /\.request-review \.request-review-address\{display:grid/);
 });
 
-test("dark notification control and live unread message badge use persisted message state", async () => {
+test("gold notification control and live unread message badge use persisted message state", async () => {
   const [app, notifications, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/api/notifications/route.ts"),
@@ -1045,18 +1045,8 @@ test("dark notification control and live unread message badge use persisted mess
   assert.match(app, /className="mobile-message-badge"/);
   assert.match(app, /nearleo:messages-read/);
   assert.match(app, /unread message/);
-  assert.match(styles, /Premium midnight-and-white visual system/);
-  assert.match(styles, /\.menu-toggle,\.notification-button\{border-color:rgba\(255,255,255,.48\)!important;background:linear-gradient/);
+  assert.match(styles, /Gold alerts and a persistent unread count/);
+  assert.match(styles, /\.notification-button\{overflow:visible;border-color:#e0b54b/);
   assert.match(styles, /\.mobile-message-badge\{/);
   assert.match(styles, /\.has-unread-messages/);
-});
-
-test("premium dark and white theme keeps cards, tiles and mobile navigation coherent", async () => {
-  const styles = await readSource("app/globals.css");
-  assert.match(styles, /--nearleo-midnight:#061426/);
-  assert.match(styles, /\.categories-section,\.provider-section,\.all-services-catalogue/);
-  assert.match(styles, /\.provider-card,\.panel,\.filters,\.saved-request-card,\.request-card/);
-  assert.match(styles, /\.stat-grid>\.stat-card:nth-child\(4n\+1\)/);
-  assert.match(styles, /\.premium-mobile-nav\{border-color:rgba\(255,255,255,.25\)!important;background:rgba\(4,16,32,.96\)!important/);
-  assert.match(styles, /\.premium-mobile-nav button\.active\{background:#fff!important;color:#071b36!important/);
 });
