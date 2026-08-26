@@ -899,3 +899,14 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
   .job-tracking-panel{max-height:none}
   .open-live-map{margin:9px 12px 12px;min-height:46px}
 }
+
+/* Locked journey states and safe cancellation controls. */
+.arrived-button{border-color:#087d5c!important;background:linear-gradient(135deg,#0a966c,#087d5c)!important;color:#fff!important}
+.job-tracking-panel.journey-ended{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:11px;padding:13px 14px;overflow:visible;background:linear-gradient(135deg,#e9f8f2,#f5fbff)}
+.job-tracking-panel.journey-ended.cancelled{border-color:#e9c7cc;background:linear-gradient(135deg,#fff1f2,#fff8f5)}
+.journey-ended-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#0a966c;color:#fff;font-size:18px;font-weight:900}.journey-ended.cancelled .journey-ended-icon{background:#c94b5c}
+.journey-ended>span{display:grid;gap:3px}.journey-ended>span small{color:#1769df;font-size:7px;font-weight:900;letter-spacing:.13em}.journey-ended>span b{color:#15355f;font-size:11px}.journey-ended>span p{margin:0;color:#6a7d96;font-size:8px;line-height:1.4}.journey-ended>button{min-height:38px;padding:8px 11px;border:1px solid #cad5e3;border-radius:10px;background:#edf1f6;color:#718096;font-size:8px;font-weight:900;cursor:not-allowed}
+.conversation-cancel-job{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 18px;background:#fff7f7;border-bottom:1px solid #f1d8dc}.conversation-cancel-job span{color:#7d5960;font-size:8px}.conversation-cancel-job button,.cancel-job-button{min-height:36px;padding:8px 12px;border:1px solid #e2aeb7;border-radius:9px;background:#fff;color:#b22f43;font-size:8px;font-weight:900}.conversation-lifecycle.cancelled{border-color:#e8c4ca;background:linear-gradient(90deg,#fff0f2,#fff8f7)}.conversation-lifecycle.cancelled b{color:#a62b3e}
+@media(max-width:760px){
+  .job-tracking-panel.journey-ended{grid-template-columns:38px minmax(0,1fr);padding:12px}.journey-ended-icon{width:36px;height:36px}.journey-ended>button{grid-column:1/-1;width:100%}.conversation-cancel-job{padding:8px 10px}
+}

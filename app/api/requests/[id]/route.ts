@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 const transitions: Record<string, { from: string[]; to: string }> = {
   accept: { from: ["open", "quoted"], to: "accepted" },
   confirm: { from: ["accepted"], to: "confirmed" },
-  cancel: { from: ["open", "quoted", "accepted", "confirmed"], to: "cancelled" },
+  cancel: { from: ["open", "quoted", "accepted", "confirmed", "in_progress"], to: "cancelled" },
   start: { from: ["confirmed"], to: "in_progress" },
   complete: { from: ["in_progress"], to: "completed" },
 };
@@ -43,7 +43,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       if (!isCustomer) return Response.json({ error: "Only the customer can confirm the selected provider" }, { status: 403 });
       if (!assignedProviderId) return Response.json({ error: "Select a provider before confirming the job" }, { status: 409 });
     } else if (body.action === "cancel") {
-      if (!isCustomer) return Response.json({ error: "Only the customer can perform this update" }, { status: 403 });
+      if (!isCustomer) {
+        if (!assignedProviderId) return Response.json({ error: "Only the customer can cancel an unassigned request" }, { status: 403 });
+        const profile = await db.collection("providers").findOne({ userId, _id: assignedProviderId, status: { $ne: "disabled" } });
+        if (!profile) return Response.json({ error: "Only this job's customer or selected provider can cancel it" }, { status: 403 });
+      }
     } else {
       if (isCustomer) return Response.json({ error: "Only the selected provider can start or complete this job" }, { status: 403 });
       if (!assignedProviderId) return Response.json({ error: "No provider has been selected" }, { status: 409 });
@@ -53,9 +57,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     const now = new Date();
     const statusDetails: Record<string, unknown> = {};
-    if (body.action === "cancel" || body.action === "complete") statusDetails.providerLocationSharing = false;
+    if (["cancel", "start", "complete"].includes(String(body.action))) {
+      statusDetails.providerLocationSharing = false;
+      statusDetails.providerTrackingStoppedAt = now;
+    }
     if (body.action === "confirm") statusDetails.confirmedAt = now;
-    if (body.action === "start") statusDetails.startedAt = now;
+    if (body.action === "start") {
+      statusDetails.startedAt = now;
+      statusDetails.arrivedAt = record.arrivedAt instanceof Date ? record.arrivedAt : now;
+    }
+    if (body.action === "cancel") {
+      statusDetails.cancelledAt = now;
+      statusDetails.cancelledByRole = session.role;
+    }
     if (body.action === "complete") {
       const submittedAmount = Number(body.finalAmount);
       if (body.finalAmount === undefined || body.finalAmount === null || body.finalAmount === "" || !Number.isFinite(submittedAmount) || submittedAmount < 0 || submittedAmount > 10_000_000) {
@@ -75,7 +89,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       const completedJobs = await db.collection("serviceRequests").countDocuments({ assignedProviderId, status: "completed" });
       await db.collection("providers").updateOne({ _id: assignedProviderId }, { $set: { completedJobs, updatedAt: now } });
     }
-    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, confirmedAt: result.confirmedAt, startedAt: result.startedAt, completedAt: result.completedAt, finalAmount: Number(result.finalAmount ?? 0) } });
+    return Response.json({ data: { _id: id, status: result.status, assignedProviderId: assignedProviderId ? String(assignedProviderId) : "", assignedProviderName, confirmedAt: result.confirmedAt, arrivedAt: result.arrivedAt, startedAt: result.startedAt, completedAt: result.completedAt, cancelledAt: result.cancelledAt, cancelledByRole: result.cancelledByRole, finalAmount: Number(result.finalAmount ?? 0) } });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unable to update request" }, { status: 500 });
   }

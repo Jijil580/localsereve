@@ -147,6 +147,8 @@ test("production request workflow persists quotes and status transitions", async
   assert.match(statusRoute, /in_progress/);
   assert.match(statusRoute, /confirm: \{ from: \["accepted"\], to: "confirmed" \}/);
   assert.match(statusRoute, /complete: \{ from: \["in_progress"\], to: "completed" \}/);
+  assert.match(statusRoute, /cancel: \{ from: \["open", "quoted", "accepted", "confirmed", "in_progress"\], to: "cancelled" \}/);
+  assert.match(statusRoute, /Only this job's customer or selected provider can cancel it/);
   assert.match(statusRoute, /assignedProviderId/);
   assert.match(responseRoute, /quoteAmount/);
   assert.match(responseRoute, /availability/);
@@ -973,20 +975,24 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(app, /tile\.openstreetmap\.org/);
   assert.match(app, /Nearleo service provider/);
   assert.match(app, /Free map powered by OpenStreetMap/);
-  assert.match(app, /Keep Nearleo visible while travelling/);
+  assert.match(app, /within 150 metres of the service location/);
   assert.match(app, /window\.setInterval\(heartbeat,15000\)/);
   assert.match(app, /Live tracking is active/);
   assert.match(app, /providerMarkerRef\.current\?\.setLatLng\(providerPoint\)/);
   assert.match(app, /fitBounds\(\[providerPoint,destinationPoint\]/);
   assert.match(app, /<JobTrackingPanel conversation=\{selected\} user=\{user\}/);
   assert.match(providerRequests, /location: String\(row\.assignedProviderId/);
-  assert.match(trackingRoute, /trackableStatuses = new Set\(\["confirmed", "in_progress"\]\)/);
+  assert.match(trackingRoute, /trackableStatuses = new Set\(\["confirmed"\]\)/);
+  assert.match(trackingRoute, /arrivalDistanceKm = 0\.15/);
+  assert.match(trackingRoute, /export async function PATCH/);
+  assert.match(trackingRoute, /arrivedAt: now/);
   assert.match(trackingRoute, /Only this job's customer and selected provider can view tracking/);
   assert.match(trackingRoute, /providerLocationSharing: true/);
   assert.match(trackingRoute, /liveLocationFreshnessMs = 120_000/);
   assert.match(trackingRoute, /Date\.now\(\) - updatedAt < liveLocationFreshnessMs/);
   assert.match(trackingRoute, /export async function DELETE/);
   assert.match(statusRoute, /providerLocationSharing = false/);
+  assert.match(statusRoute, /providerTrackingStoppedAt = now/);
   assert.match(statusRoute, /Only the selected provider can start or complete this job/);
   assert.match(statusRoute, /Enter the final amount charged before completing this work/);
   assert.match(styles, /\.job-tracking-panel\{/);
@@ -996,6 +1002,10 @@ test("confirmed jobs support private Google Maps navigation and live provider tr
   assert.match(styles, /\.nearleo-vehicle-marker\{transition:transform \.8s linear!important\}/);
   assert.match(styles, /\.open-live-map\{background:linear-gradient/);
   assert.match(styles, /\.job-tracking-panel\{max-height:none\}/);
+  assert.match(styles, /\.job-tracking-panel\.journey-ended\{/);
+  assert.match(styles, /\.conversation-cancel-job\{/);
+  assert.match(app, /I’ve arrived · End travel/);
+  assert.match(app, /Live travel and job actions are now closed/);
 });
 
 test("premium header and request review use clear colour-coded information groups", async () => {
