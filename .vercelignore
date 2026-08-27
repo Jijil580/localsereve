@@ -1,0 +1,9 @@
+.toolchains/
+android/
+ios/
+.next/
+dist/
+outputs/
+work/
+.sites-stage/
+localserve-sites.tar.gz
