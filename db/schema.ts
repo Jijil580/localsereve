@@ -32,7 +32,7 @@ export const providerProfiles = sqliteTable("provider_profiles", {
   languages: text("languages", { mode: "json" }).$type<string[]>().notNull().default([]), verified: integer("verified", { mode: "boolean" }).notNull().default(false),
   verificationStatus: text("verification_status").notNull().default("pending"), availableNow: integer("available_now", { mode: "boolean" }).notNull().default(false),
   emergencyService: integer("emergency_service", { mode: "boolean" }).notNull().default(false), homeVisit: integer("home_visit", { mode: "boolean" }).notNull().default(true),
-  averageRating: real("average_rating").notNull().default(0), reviewCount: integer("review_count").notNull().default(0), completedJobs: integer("completed_jobs").notNull().default(0), ...timestamps,
+  averageRating: real("average_rating").notNull().default(0), reviewCount: integer("review_count").notNull().default(0), completedJobs: integer("completed_jobs").notNull().default(0), requestsReceived: integer("requests_received").notNull().default(0), ...timestamps,
 }, t => [uniqueIndex("idx_provider_user").on(t.userId), index("idx_provider_geo").on(t.latitude,t.longitude), index("idx_provider_rating").on(t.averageRating)]);
 
 export const providerServices = sqliteTable("provider_services", {

@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { ObjectId, type Document } from "mongodb";
 import { getMongoDb } from "./mongodb";
+import { getProviderRequestCounts } from "./provider-request-receipts";
 
 export type PublicProvider = {
   id: string;
@@ -20,6 +21,7 @@ export type PublicProvider = {
   reviews: number;
   likes: number;
   completedJobs: number;
+  requestsReceived: number;
   initials: string;
   photoUrl: string | null;
   portfolioUrls: string[];
@@ -46,6 +48,7 @@ const publicProjection = {
   reviewCount: 1,
   likeCount: 1,
   completedJobs: 1,
+  requestsReceived: 1,
   initials: 1,
   profilePhotoId: 1,
   portfolioImageIds: 1,
@@ -67,7 +70,7 @@ const publishedProviderFilter = {
 
 const kannurLocalityPattern = /kannur|mattannur|iritty|thalassery|payyannur|taliparamba|koothuparamba/i;
 
-function toPublicProvider(row: Document, emailFallback = "", actualLikeCount?: number): PublicProvider {
+function toPublicProvider(row: Document, emailFallback = "", actualLikeCount?: number, actualRequestCount?: number): PublicProvider {
   const id = String(row._id);
   const name = String(row.name ?? "Local professional");
   const portfolioIds = Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0, 4) : [];
@@ -87,6 +90,7 @@ function toPublicProvider(row: Document, emailFallback = "", actualLikeCount?: n
     reviews: Math.max(0, Number(row.reviewCount ?? 0)),
     likes: Math.max(0, Number(actualLikeCount ?? row.likeCount ?? 0)),
     completedJobs: Math.max(0, Number(row.completedJobs ?? 0)),
+    requestsReceived: Math.max(0, Number(actualRequestCount ?? row.requestsReceived ?? 0)),
     initials: String(row.initials ?? name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("") ?? "LS"),
     photoUrl: row.profilePhotoId ? `/api/providers/photo/${id}` : portfolioIds.length ? `/api/providers/portfolio/${id}/0` : null,
     portfolioUrls: portfolioIds.map((_imageId: unknown, index: number) => `/api/providers/portfolio/${id}/${index}`),
@@ -124,7 +128,8 @@ export const getKannurProviders = cache(async (service?: string): Promise<Public
     { $group: { _id: "$providerId", count: { $sum: 1 } } },
   ]).toArray() : [];
   const likeCountByProviderId = new Map(likeCounts.map(item => [String(item._id), Math.max(0, Number(item.count ?? 0))]));
-  return rows.map(row => toPublicProvider(row, "", likeCountByProviderId.get(String(row._id)) ?? 0));
+  const requestCounts = await getProviderRequestCounts(db, rows.map(row => row._id));
+  return rows.map(row => toPublicProvider(row, "", likeCountByProviderId.get(String(row._id)) ?? 0, requestCounts.get(String(row._id)) ?? Number(row.requestsReceived ?? 0)));
 });
 
 export const getPublicProvider = cache(async (id: string): Promise<PublicProvider | null> => {
@@ -134,5 +139,6 @@ export const getPublicProvider = cache(async (id: string): Promise<PublicProvide
   if (!row) return null;
   const account = row.userId instanceof ObjectId ? await db.collection("users").findOne({ _id: row.userId }, { projection: { email: 1 } }) : null;
   const likeCount = await db.collection("providerLikes").countDocuments({ providerId: row._id });
-  return toPublicProvider(row, String(account?.email ?? ""), likeCount);
+  const requestCounts = await getProviderRequestCounts(db, [row._id]);
+  return toPublicProvider(row, String(account?.email ?? ""), likeCount, requestCounts.get(String(row._id)) ?? Number(row.requestsReceived ?? 0));
 });

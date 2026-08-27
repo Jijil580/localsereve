@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
+import { getProviderRequestCounts } from "../../../lib/provider-request-receipts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
     const users = userIds.length ? await db.collection("users").find({ _id: { $in: userIds } }, { projection: { email: 1 } }).toArray() : [];
     const emailByUserId = new Map(users.map(user => [String(user._id), String(user.email ?? "")]));
     const providerIds = rows.map(row => row._id);
+    const requestCountByProviderId = await getProviderRequestCounts(db, providerIds);
     const likeCountRows = providerIds.length ? await db.collection("providerLikes").aggregate([
       { $match: { providerId: { $in: providerIds } } },
       { $group: { _id: "$providerId", count: { $sum: 1 } } },
@@ -71,7 +73,7 @@ export async function GET(request: Request) {
       image: String(row.initials ?? "LS"),
       cover: row.profilePhotoId ? `/api/providers/photo/${row._id}` : Array.isArray(row.portfolioImageIds) && row.portfolioImageIds.length ? `/api/providers/portfolio/${row._id}/0` : "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=900&q=80",
       description: String(row.description ?? "Local service professional."),
-      jobs: Number(row.completedJobs ?? 0),
+      requests: requestCountByProviderId.get(String(row._id)) ?? Number(row.requestsReceived ?? 0),
       locality: String(row.locality ?? "Kochi"),
       portfolio: Array.isArray(row.portfolioImageIds) ? row.portfolioImageIds.slice(0,4).map((_id: unknown,index: number) => `/api/providers/portfolio/${row._id}/${index}`) : [],
       phone: revealContact ? String(row.phone ?? "") : "",

@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
+import { recordProviderRequestReceipts } from "../../../lib/provider-request-receipts";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,14 @@ function requestLocation(value: unknown) {
   const latitude = Number(point.latitude); const longitude = Number(point.longitude);
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
   return { type: "Point" as const, coordinates: [longitude, latitude] as [number, number], label: text(point.label, 120) };
+}
+function distanceKm(left: unknown, right: unknown) {
+  const a = (left as { coordinates?: unknown })?.coordinates; const b = (right as { coordinates?: unknown })?.coordinates;
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length < 2 || b.length < 2 || !a.every(Number.isFinite) || !b.every(Number.isFinite)) return null;
+  const [leftLng,leftLat]=a as number[]; const [rightLng,rightLat]=b as number[]; const radians=(value:number)=>value*Math.PI/180;
+  const latitudeDelta=radians(rightLat-leftLat),longitudeDelta=radians(rightLng-leftLng);
+  const h=Math.sin(latitudeDelta/2)**2+Math.cos(radians(leftLat))*Math.cos(radians(rightLat))*Math.sin(longitudeDelta/2)**2;
+  return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
 }
 
 export async function GET() {
@@ -61,6 +70,12 @@ export async function POST(request: Request) {
     await db.collection("serviceRequests").createIndex({ customerId: 1, createdAt: -1 });
     await db.collection("serviceRequests").createIndex({ location: "2dsphere" });
     const result = await db.collection("serviceRequests").insertOne(record);
+    const escapedService = service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const candidateProviders = preferredProviderId
+      ? await db.collection("providers").find({ _id: preferredProviderId, status: { $ne: "disabled" } }, { projection: { _id: 1 } }).toArray()
+      : await db.collection("providers").find({ service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $ne: "disabled" } }, { projection: { _id: 1, location: 1 } }).toArray();
+    const recipients = candidateProviders.filter(provider => preferredProviderId || !location || distanceKm(provider.location, location) === null || Number(distanceKm(provider.location, location)) <= 35);
+    await recordProviderRequestReceipts(db, recipients.map(provider => ({ providerId: provider._id, requestId: result.insertedId })));
     return Response.json({ data: { ...record, _id: String(result.insertedId), customerId: session.id } }, { status: 201 });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to post request" }, { status: 500 }); }
 }

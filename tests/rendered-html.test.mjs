@@ -480,14 +480,17 @@ test("customers can leave one-to-five-star provider reviews and providers can ad
   assert.match(await readSource("public/sw.js"), /nearleo-shell-v24/);
 });
 
-test("provider banners show persistent likes, average rating or New, and completed works", async () => {
-  const [app, profilePage, providerCard, providersRoute, publicProviders, likesRoute, styles] = await Promise.all([
+test("provider banners show persistent likes, ratings and requests received", async () => {
+  const [app, profilePage, providerCard, providersRoute, publicProviders, likesRoute, receiptStore, providerRequests, requestRoute, styles] = await Promise.all([
     readSource("app/localserve-app.tsx"),
     readSource("app/professionals/[id]/page.tsx"),
     readSource("app/seo-provider-card.tsx"),
     readSource("app/api/providers/route.ts"),
     readSource("lib/public-providers.ts"),
     readSource("app/api/providers/[id]/likes/route.ts"),
+    readSource("lib/provider-request-receipts.ts"),
+    readSource("app/api/provider/requests/route.ts"),
+    readSource("app/api/requests/route.ts"),
     readSource("app/globals.css"),
   ]);
 
@@ -505,17 +508,25 @@ test("provider banners show persistent likes, average rating or New, and complet
   assert.match(app, /problem instanceof Error\?problem\.message:"Unable to update like"/);
   assert.match(app, /p\.likes/);
   assert.match(app, /p\.reviews>0\?p\.rating\.toFixed\(1\):"New"/);
-  assert.match(app, /Works done/);
+  assert.match(app, /Requests received/);
+  assert.match(app, /profile\.requestsReceived/);
   assert.match(profilePage, /public-profile-banner-metrics/);
   assert.match(profilePage, /provider\.likes/);
-  assert.match(profilePage, /provider\.completedJobs/);
+  assert.match(profilePage, /provider\.requestsReceived/);
   assert.match(providerCard, /seo-provider-metrics/);
   assert.match(providerCard, /provider\.reviews>0\?provider\.rating\.toFixed\(1\):"New"/);
   assert.match(providersRoute, /likeCountByProviderId/);
   assert.match(providersRoute, /likes: likeCountByProviderId\.get\(String\(row\._id\)\) \?\? 0/);
   assert.match(providersRoute, /liked: likedProviderIds\.has/);
+  assert.match(providersRoute, /requests: requestCountByProviderId\.get/);
   assert.match(publicProviders, /actualLikeCount \?\? row\.likeCount/);
   assert.match(publicProviders, /countDocuments\(\{ providerId: row\._id \}\)/);
+  assert.match(publicProviders, /getProviderRequestCounts/);
+  assert.match(receiptStore, /providerRequestReceipts/);
+  assert.match(receiptStore, /createIndex\(\{ providerId: 1, requestId: 1 \}, \{ unique: true \}\)/);
+  assert.match(receiptStore, /requestsReceived/);
+  assert.match(providerRequests, /recordProviderRequestReceipts/);
+  assert.match(requestRoute, /recordProviderRequestReceipts/);
   assert.match(likesRoute, /createIndex\(\{ userId: 1, providerId: 1 \}, \{ unique: true \}\)/);
   assert.match(likesRoute, /if \(!session \|\| !ObjectId\.isValid\(session\.id\)\)/);
   assert.match(likesRoute, /countDocuments\(\{ providerId \}\)/);
@@ -557,7 +568,7 @@ test("provider profiles support authenticated social sharing with rich preview b
   assert.match(socialImage, /s-maxage=86400/);
   assert.match(socialImage, /provider\.photoUrl/);
   assert.match(socialImage, /provider\.service/);
-  assert.match(socialImage, /provider\.completedJobs/);
+  assert.match(socialImage, /provider\.requestsReceived/);
   assert.match(app, /profileUrl=\{`\$\{window\.location\.origin\}\/professionals\/\$\{p\.id\}`\}/);
   assert.match(app, /nearleo-share-after-login/);
   assert.match(styles, /\.profile-share-options/);

@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { getSession } from "../../../../lib/auth";
 import { getMongoDb } from "../../../../lib/mongodb";
+import { recordProviderRequestReceipts } from "../../../../lib/provider-request-receipts";
 
 export const runtime = "nodejs";
 
@@ -42,6 +43,7 @@ export async function GET() {
       const distance = distanceKm(profile.location, row.location);
       return distance === null || distance <= MAX_MATCH_DISTANCE_KM;
     });
+    await recordProviderRequestReceipts(db, nearbyRows.map(row => ({ providerId: profile._id, requestId: row._id })));
 
     return Response.json({
       profileReady: true,

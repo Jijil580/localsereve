@@ -91,7 +91,7 @@ export async function PUT(request: Request) {
       { userId },
       {
         $set: { name: session.fullName, businessName, service, locality, location: { type: "Point", coordinates: [longitude, latitude] }, description, phone, contactEmail: session.email, instagramUrl, facebookUrl, youtubeUrl, experienceYears, startingPrice, available: body.get("available") === "on", emergency: body.get("emergency") === "on", ...fileUpdates, ...(portfolioImageIds!==undefined?{portfolioImageIds}:{}), published: true, status: "active", submittedAt: now, initials, updatedAt: now },
-        $setOnInsert: { userId, verified: false, verificationStatus: "unverified", rejectionReason: "", averageRating: 0, reviewCount: 0, likeCount: 0, completedJobs: 0, distanceKm: 5, createdAt: now },
+        $setOnInsert: { userId, verified: false, verificationStatus: "unverified", rejectionReason: "", averageRating: 0, reviewCount: 0, likeCount: 0, completedJobs: 0, requestsReceived: 0, distanceKm: 5, createdAt: now },
       },
       { upsert: true },
     );
