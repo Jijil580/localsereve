@@ -1076,3 +1076,18 @@ test("Nearleo ships synchronized Android and iPhone app projects", async () => {
   assert.match(androidManifest, /android\.permission\.ACCESS_FINE_LOCATION/);
   assert.match(iosInfo, /NSLocationWhenInUseUsageDescription/);
 });
+
+test("provider profile and work photos offer camera and gallery choices", async () => {
+  const [app, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /function CameraUploadField/);
+  assert.match(app, /input\.setAttribute\("capture",cameraFacing\)/);
+  assert.match(app, /name="profilePhoto"[^>]+cameraFacing="user"/);
+  assert.match(app, /name="recentWork"[^>]+multiple/);
+  assert.match(app, />Take photo</);
+  assert.match(app, /Choose from gallery/);
+  assert.match(styles, /\.camera-upload-actions/);
+  assert.match(styles, /\.camera-action/);
+});
