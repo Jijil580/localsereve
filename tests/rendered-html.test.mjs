@@ -1091,3 +1091,31 @@ test("provider profile and work photos offer camera and gallery choices", async 
   assert.match(styles, /\.camera-upload-actions/);
   assert.match(styles, /\.camera-action/);
 });
+
+test("signed-in users can permanently delete their account and related data", async () => {
+  const [app, route, mongo, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/auth/delete-account/route.ts"),
+    readSource("lib/mongodb.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /Delete account/);
+  assert.match(app, /setModal\("delete-account"\)/);
+  assert.match(app, /Type <b>DELETE<\/b> to confirm/);
+  assert.match(app, /method:"DELETE"/);
+  assert.match(app, /It cannot be recovered/);
+  assert.match(route, /confirmation !== "DELETE"/);
+  assert.match(route, /verifyPassword\(password, account\.passwordHash\)/);
+  assert.match(route, /withTransaction/);
+  assert.match(route, /collection\("users"\)\.deleteOne/);
+  assert.match(route, /collection\("serviceRequests"\)\.deleteMany/);
+  assert.match(route, /collection\("providerUploads\.files"\)/);
+  assert.match(route, /collection\("providerUploads\.chunks"\)/);
+  for (const collection of ["providers", "providerLikes", "providerReviews", "platformReviews", "providerRequestReceipts", "bookings"]) {
+    assert.match(route, new RegExp(`collection\\(\\"${collection}\\"\\)`));
+  }
+  assert.match(route, /clearSession\(\)/);
+  assert.match(mongo, /export async function getMongoClient/);
+  assert.match(styles, /\.delete-account-modal/);
+  assert.match(styles, /\.delete-account-confirm/);
+});

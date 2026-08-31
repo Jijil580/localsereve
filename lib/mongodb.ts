@@ -9,7 +9,7 @@ declare global {
   var localServeMongoClient: Promise<MongoClient> | undefined;
 }
 
-export async function getMongoDb(): Promise<Db> {
+export async function getMongoClient(): Promise<MongoClient> {
   if (!uri) throw new Error("MONGODB_URI is not configured");
   const clientPromise = global.localServeMongoClient ?? (() => {
     const client = new MongoClient(uri, { maxPoolSize: 10, maxIdleTimeMS: 5000, serverSelectionTimeoutMS: 5000, appName: "localserve-vercel" });
@@ -17,5 +17,9 @@ export async function getMongoDb(): Promise<Db> {
     return client.connect();
   })();
   if (process.env.NODE_ENV !== "production") global.localServeMongoClient = clientPromise;
-  return (await clientPromise).db(databaseName);
+  return clientPromise;
+}
+
+export async function getMongoDb(): Promise<Db> {
+  return (await getMongoClient()).db(databaseName);
 }
