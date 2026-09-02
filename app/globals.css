@@ -927,3 +927,21 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
 .account-menu .account-delete{margin-top:4px;border-top:1px solid #f2dfe2;border-radius:0 0 11px 11px;color:#a22d40}.account-menu .account-delete>span{background:#fff0f2;color:#bd3249}.account-menu .account-delete:hover{background:#fff5f6}
 .delete-account-overlay{background:rgba(24,28,42,.72);backdrop-filter:blur(8px)}.delete-account-modal{width:min(560px,calc(100% - 28px));padding:0;overflow:hidden;border:1px solid #efc5cc;border-radius:22px;background:#fff;box-shadow:0 28px 90px rgba(76,16,28,.28)}.delete-account-form{display:grid;gap:15px;padding:34px}.delete-account-warning-mark{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#d8495e,#a82238);box-shadow:0 10px 24px rgba(173,34,57,.22);color:#fff;font-size:25px;font-weight:950}.delete-account-form .kicker{color:#b52c43}.delete-account-form h2{margin:0;color:#28131a;font-family:Georgia,"Times New Roman",serif;font-size:31px;font-weight:500}.delete-account-form>p{margin:0;color:#6c5660;font-size:12px;line-height:1.65}.delete-account-data{padding:16px 18px;border:1px solid #efced4;border-radius:15px;background:linear-gradient(145deg,#fff7f8,#fff)}.delete-account-data>b{color:#8e2538;font-size:11px}.delete-account-data ul{display:grid;gap:7px;margin:11px 0 0;padding-left:18px;color:#6b4c56;font-size:10px;line-height:1.45}.delete-account-form>label{display:grid;gap:7px;color:#4d3039;font-size:10px;font-weight:850}.delete-account-form>label input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #dfbdc4;border-radius:11px;background:#fff;font:inherit;color:#28131a;outline:none}.delete-account-form>label input:focus{border-color:#bd3249;box-shadow:0 0 0 4px rgba(189,50,73,.1)}.delete-account-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:10px;margin-top:3px}.delete-account-actions button{min-height:49px;padding:12px;border:1px solid #d8dce3;border-radius:12px;background:#fff;color:#344158;font-size:10px;font-weight:900}.delete-account-actions .delete-account-confirm{border-color:#a92339;background:linear-gradient(135deg,#d8465c,#a92339);color:#fff;box-shadow:0 9px 20px rgba(169,35,57,.18)}.delete-account-actions button:disabled{cursor:not-allowed;opacity:.5;box-shadow:none}.delete-account-form>small{color:#8a757c;font-size:8px;line-height:1.5;text-align:center}
 @media(max-width:760px){.delete-account-modal{width:calc(100% - 20px);max-height:calc(100dvh - 24px);overflow:auto;border-radius:18px}.delete-account-form{gap:12px;padding:26px 18px 20px}.delete-account-form h2{font-size:26px}.delete-account-warning-mark{width:46px;height:46px;border-radius:14px}.delete-account-actions{grid-template-columns:1fr}.delete-account-actions button{min-height:50px}.delete-account-actions .delete-account-confirm{order:-1}}
+
+/* Keep the real chat immediately visible before and after provider selection. */
+.replied-provider-actions .chat-first-btn{border-color:#1769df;background:linear-gradient(135deg,#edf5ff,#e4edff);color:#135cbd;box-shadow:0 6px 15px rgba(23,105,223,.1)}
+.replied-provider-actions .chat-first-btn:hover{border-color:#0d58c2;background:#e1edff}
+.conversation-thread{overflow-y:auto}
+.conversation-thread>header{order:0}
+.conversation-thread>.conversation-quote{order:1}
+.conversation-thread>.conversation-messages{order:2;min-height:240px;max-height:42dvh;flex:none}
+.conversation-thread>.conversation-error{order:3}
+.conversation-thread>.conversation-composer{order:4}
+.conversation-thread>.conversation-lifecycle{order:5}
+.conversation-thread>.conversation-cancel-job{order:6}
+.conversation-thread>.job-tracking-panel{order:7}
+@media(max-width:760px){
+  .conversation-thread{overflow-y:auto;padding-bottom:88px}
+  .conversation-thread>.conversation-messages{min-height:210px;max-height:38dvh;padding:15px 12px}
+  .conversation-thread>.conversation-composer{padding:8px 10px 10px}
+}

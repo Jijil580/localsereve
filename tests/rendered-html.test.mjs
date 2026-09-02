@@ -1119,3 +1119,18 @@ test("signed-in users can permanently delete their account and related data", as
   assert.match(styles, /\.delete-account-modal/);
   assert.match(styles, /\.delete-account-confirm/);
 });
+
+test("provider chat remains available in the same place before and after selection", async () => {
+  const [app, messagesRoute, styles] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/messages/route.ts"),
+    readSource("app/globals.css"),
+  ]);
+  assert.match(app, /selected\?"Open chat":"Chat before selecting"/);
+  assert.match(app, /className="ghost-btn chat-first-btn"/);
+  assert.match(messagesRoute, /if\(!messages\.length\)for\(const reply of replies\)messages\.push/);
+  assert.match(styles, /Keep the real chat immediately visible before and after provider selection/);
+  assert.match(styles, /\.conversation-thread>\.conversation-messages\{order:2/);
+  assert.match(styles, /\.conversation-thread>\.conversation-composer\{order:4\}/);
+  assert.match(styles, /\.conversation-thread>\.job-tracking-panel\{order:7\}/);
+});
