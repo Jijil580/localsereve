@@ -955,3 +955,6 @@ footer{background:linear-gradient(135deg,#071b3d,#102c65 60%,#24308d);color:#fff
   .auth-modal{width:min(560px,calc(100% - 18px));max-height:calc(100dvh - 18px);overflow:auto;padding:25px 17px}.account-role-picker{grid-template-columns:1fr;gap:9px;margin-top:14px}.account-role-picker label{min-height:92px;padding:13px}.account-role-picker strong{font-size:14px}.account-role-picker small{font-size:11px}.auth-form>label{font-size:12px}.auth-form input{font-size:16px}
 }
 @media(max-width:390px){.guest-auth-dock button{font-size:12px}}
+
+/* Google account access keeps the existing Nearleo form layout while making the trusted provider action unmistakable. */
+.google{min-height:48px;display:flex;align-items:center;justify-content:center;gap:11px;border-color:#cbd8e9;border-radius:11px;padding:10px 14px;color:#193153;box-shadow:0 6px 18px rgba(24,66,126,.07);cursor:pointer}.google:hover{border-color:#8eb3e6;background:#f8fbff}.google:focus-visible{outline:3px solid rgba(23,105,224,.22);outline-offset:2px}.google-mark{width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 0 50%,#fbbc05 0 75%,#ea4335 0);color:#fff;font:900 16px/1 Arial,sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.2)}.auth-divider{margin:22px 0 20px}

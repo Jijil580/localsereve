@@ -349,6 +349,31 @@ test("registration uses clear customer and service-provider tiles instead of a r
   assert.match(styles, /\.account-role-picker\{display:grid/);
 });
 
+test("customers and providers can securely sign in or sign up with Google", async () => {
+  const [app, start, callback, oauth, env] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/auth/google/start/route.ts"),
+    readSource("app/api/auth/google/callback/route.ts"),
+    readSource("lib/google-oauth.ts"),
+    readSource(".env.example"),
+  ]);
+
+  assert.match(app, /Sign in with Google/);
+  assert.match(app, /Sign up with Google/);
+  assert.match(app, /\/api\/auth\/google\/start\?mode=/);
+  assert.match(app, /Accept the User Terms and Privacy Notice before continuing with Google/);
+  assert.match(start, /randomBytes\(32\)/);
+  assert.match(start, /accounts\.google\.com\/o\/oauth2\/v2\/auth/);
+  assert.match(callback, /oauth2\.googleapis\.com\/token/);
+  assert.match(callback, /openidconnect\.googleapis\.com\/v1\/userinfo/);
+  assert.match(callback, /profile\.email_verified !== true/);
+  assert.match(callback, /await createSession\(user\)/);
+  assert.match(oauth, /Date\.now\(\) - intent\.createdAt > 10 \* 60 \* 1000/);
+  assert.match(env, /GOOGLE_CLIENT_ID=/);
+  assert.match(env, /GOOGLE_CLIENT_SECRET=/);
+  assert.match(env, /GOOGLE_REDIRECT_URI=https:\/\/www\.nearleo\.com\/api\/auth\/google\/callback/);
+});
+
 test("empty service selection lists every published provider", async () => {
   const [app, providersRoute] = await Promise.all([
     readSource("app/localserve-app.tsx"),
