@@ -326,12 +326,14 @@ test("logged-out mobile visitors immediately get login and sign-up actions", asy
   ]);
 
   assert.match(app, /!currentUser&&!modal&&<aside className="guest-auth-dock"/);
-  assert.match(app, /view === "dashboard" && !currentUser && <GuestAccountView/);
+  assert.doesNotMatch(app, /GuestAccountView/);
+  assert.match(app, /className="guest-auth-signup"/);
   assert.match(app, /setAuthMode\("login"\);setModal\("auth"\)/);
   assert.match(app, /setAuthMode\("register"\);setModal\("auth"\)/);
   assert.match(app, /initialMode=\{authMode\}/);
   assert.match(styles, /\.guest-auth-dock\{display:none\}/);
   assert.match(styles, /@media\(max-width:760px\)[\s\S]*\.guest-auth-dock\{position:fixed/);
+  assert.match(styles, /\.guest-auth-dock\{position:fixed[\s\S]*grid-template-columns:1fr 1fr/);
 });
 
 test("registration uses clear customer and service-provider tiles instead of a role dropdown", async () => {
@@ -376,7 +378,7 @@ test("Nearleo uses a premium blue and white visual identity", async () => {
   assert.match(styles, /2026 premium product polish/);
   assert.match(styles, /\.hero-reference\{background:linear-gradient\(112deg,#fff 0%,#f9fbff/);
   assert.match(styles, /footer\{background:linear-gradient\(135deg,#06152f,#0a2e68\)/);
-  assert.match(styles, /\.guest-account-page\{min-height:/);
+  assert.match(styles, /\.account-role-picker\{display:grid/);
   assert.match(app, /className="premium-assurance premium-assurance-bottom"/);
   assert.match(i18n, /privacyFirst: "Privacy-first contact"/);
   assert.match(i18n, /Clear verification status/);
