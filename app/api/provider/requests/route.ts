@@ -34,7 +34,7 @@ export async function GET() {
 
     const escapedService = profile.service.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const rows = await db.collection("serviceRequests").find({ $or: [
-      { service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $in: ["open", "quoted"] }, $or: [{ preferredProviderId: profile._id }, { preferredProviderId: null }, { preferredProviderId: { $exists: false } }] },
+      { customerId: { $ne: new ObjectId(session.id) }, service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $in: ["open", "quoted"] }, $or: [{ preferredProviderId: profile._id }, { preferredProviderId: null }, { preferredProviderId: { $exists: false } }] },
       { assignedProviderId: profile._id, status: { $in: ["accepted", "confirmed", "in_progress", "completed", "cancelled"] } },
     ] }).sort({ createdAt: -1 }).limit(100).toArray();
     const nearbyRows = rows.filter(row => {

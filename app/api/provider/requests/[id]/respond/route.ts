@@ -23,7 +23,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const servicePattern = new RegExp(`^${profile.service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
     const now = new Date();
     const result = await db.collection("serviceRequests").findOneAndUpdate(
-      { _id: new ObjectId(id), service: servicePattern, status: { $in: ["open", "quoted"] }, "responses.providerId": { $ne: profile._id } },
+      { _id: new ObjectId(id), customerId: { $ne: new ObjectId(session.id) }, service: servicePattern, status: { $in: ["open", "quoted"] }, "responses.providerId": { $ne: profile._id } },
       { $push: { responses: { providerId: profile._id, providerName: session.fullName, providerBusiness: String(profile.businessName ?? session.fullName), message, quoteAmount, availability, createdAt: now }, messages: { _id: new ObjectId(), providerId: profile._id, senderUserId: new ObjectId(session.id), senderRole: "provider", senderName: String(profile.businessName ?? session.fullName), text: message, createdAt: now, readByCustomer: false, readByProvider: true } } as never, $set: { status: "quoted", updatedAt: now }, $inc: { quoteCount: 1 } },
       { returnDocument: "after", projection: { responses: 1, quoteCount: 1, status: 1 } },
     );

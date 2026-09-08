@@ -925,8 +925,8 @@ test("customer message lists and chat headers show provider profile photos", asy
   assert.match(route, /providerPhotoUrl:providersWithPhotos\.has\(providerId\)\?`\/api\/providers\/photo\/\$\{providerId\}`/);
   assert.match(route, /projection:\{_id:1,profilePhotoId:1\}/);
   assert.match(app, /function MessageAvatar\(\{name,photoUrl=""\}/);
-  assert.match(app, /photoUrl=\{user\.role==="provider"\?"":item\.providerPhotoUrl\}/);
-  assert.match(app, /photoUrl=\{user\.role==="provider"\?"":selected\.providerPhotoUrl\}/);
+  assert.match(app, /const participantPhoto=\(item:Conversation\)=>item\.viewerRole==="customer"\?item\.providerPhotoUrl:""/);
+  assert.match(app, /<MessageAvatar name=\{participantName\(selected\)\} photoUrl=\{participantPhoto\(selected\)\}/);
   assert.match(styles, /\.conversation-avatar\.has-photo img\{width:100%;height:100%;display:block;object-fit:cover\}/);
 });
 
@@ -1101,6 +1101,25 @@ test("gold notification control and live unread message badge use persisted mess
   assert.match(styles, /\.notification-button\{overflow:visible;border-color:#e0b54b/);
   assert.match(styles, /\.mobile-message-badge\{/);
   assert.match(styles, /\.has-unread-messages/);
+});
+
+test("provider accounts can request services and chat as the request customer", async () => {
+  const [app, messages, notifications, providerRequests, requestCreation] = await Promise.all([
+    readSource("app/localserve-app.tsx"),
+    readSource("app/api/messages/route.ts"),
+    readSource("app/api/notifications/route.ts"),
+    readSource("app/api/provider/requests/route.ts"),
+    readSource("app/api/requests/route.ts"),
+  ]);
+  assert.match(messages, /const viewerRole=String\(row\.customerId\|\|""\)===session\.id\?"customer":"provider"/);
+  assert.match(messages, /if\(isCustomer\).*viewerRole="customer"/s);
+  assert.match(messages, /senderRole:viewerRole/);
+  assert.match(app, /item\.viewerRole==="customer"\?"My request":"Customer request"/);
+  assert.match(app, /const mine=item\.senderUserId===user\.id/);
+  assert.match(app, /Request a service/);
+  assert.match(notifications, /const customerMessageCount=/);
+  assert.match(providerRequests, /customerId: \{ \$ne: new ObjectId\(session\.id\) \}/);
+  assert.match(requestCreation, /userId: \{ \$ne: new ObjectId\(session\.id\) \}/);
 });
 
 test("Nearleo ships synchronized Android and iPhone app projects", async () => {

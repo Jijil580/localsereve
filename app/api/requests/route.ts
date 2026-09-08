@@ -72,8 +72,8 @@ export async function POST(request: Request) {
     const result = await db.collection("serviceRequests").insertOne(record);
     const escapedService = service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const candidateProviders = preferredProviderId
-      ? await db.collection("providers").find({ _id: preferredProviderId, status: { $ne: "disabled" } }, { projection: { _id: 1 } }).toArray()
-      : await db.collection("providers").find({ service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $ne: "disabled" } }, { projection: { _id: 1, location: 1 } }).toArray();
+      ? await db.collection("providers").find({ _id: preferredProviderId, userId: { $ne: new ObjectId(session.id) }, status: { $ne: "disabled" } }, { projection: { _id: 1 } }).toArray()
+      : await db.collection("providers").find({ userId: { $ne: new ObjectId(session.id) }, service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $ne: "disabled" } }, { projection: { _id: 1, location: 1 } }).toArray();
     const recipients = candidateProviders.filter(provider => preferredProviderId || !location || distanceKm(provider.location, location) === null || Number(distanceKm(provider.location, location)) <= 35);
     await recordProviderRequestReceipts(db, recipients.map(provider => ({ providerId: provider._id, requestId: result.insertedId })));
     return Response.json({ data: { ...record, _id: String(result.insertedId), customerId: session.id } }, { status: 201 });
