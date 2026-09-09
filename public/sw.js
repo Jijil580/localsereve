@@ -1,5 +1,25 @@
-const CACHE_NAME = "nearleo-shell-v24";
+const CACHE_NAME = "nearleo-shell-v25";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.ico", "/nearleo-favicon-96.png", "/favicon.svg", "/nearleo-logo.svg", "/app-icon-192.png", "/app-icon-512.png", "/near-lio-carpenter.jpg", "/near-lio-tile-worker.jpg", "/near-lio-plastering-worker.jpg", "/near-lio-photographer.jpg"];
+
+self.addEventListener("push", event => {
+  let data = {};
+  try { data = event.data?.json() || {}; } catch {}
+  event.waitUntil(self.registration.showNotification(data.title || "Nearleo", {
+    body: data.body || "You have a new update on Nearleo.",
+    icon: "/app-icon-192.png", badge: "/nearleo-favicon-96.png",
+    tag: data.tag || "nearleo-update", data: { url: data.url || "/?notification=messages" },
+  }));
+});
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const destination = new URL(event.notification.data?.url || "/", self.location.origin);
+  if (destination.origin !== self.location.origin) return;
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async clients => {
+    const existing = clients.find(client => new URL(client.url).origin === self.location.origin);
+    if (existing) { await existing.navigate(destination.href); return existing.focus(); }
+    return self.clients.openWindow(destination.href);
+  }));
+});
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));

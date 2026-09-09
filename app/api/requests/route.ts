@@ -1,4 +1,6 @@
 import { ObjectId } from "mongodb";
+import { waitUntil } from "@vercel/functions";
+import { notifyPhones } from "../../../lib/web-push";
 import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
 import { recordProviderRequestReceipts } from "../../../lib/provider-request-receipts";
@@ -76,6 +78,10 @@ export async function POST(request: Request) {
       : await db.collection("providers").find({ userId: { $ne: new ObjectId(session.id) }, service: { $regex: `^${escapedService}$`, $options: "i" }, status: { $ne: "disabled" } }, { projection: { _id: 1, location: 1 } }).toArray();
     const recipients = candidateProviders.filter(provider => preferredProviderId || !location || distanceKm(provider.location, location) === null || Number(distanceKm(provider.location, location)) <= 35);
     await recordProviderRequestReceipts(db, recipients.map(provider => ({ providerId: provider._id, requestId: result.insertedId })));
+    waitUntil((async () => {
+      const profiles = await db.collection("providers").find({ _id: { $in: recipients.map(provider => provider._id) } }, { projection: { userId: 1 } }).toArray();
+      await notifyPhones(profiles.map(provider => String(provider.userId || "")), { title: "New service request", body: `A customer is looking for ${service}. Open Nearleo to view and reply.`, url: "/?notification=dashboard", tag: `request-${result.insertedId}` });
+    })().catch(() => { console.warn("Request notification unavailable"); }));
     return Response.json({ data: { ...record, _id: String(result.insertedId), customerId: session.id } }, { status: 201 });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Unable to post request" }, { status: 500 }); }
 }

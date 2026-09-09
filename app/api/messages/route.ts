@@ -1,4 +1,6 @@
 import { ObjectId } from "mongodb";
+import { waitUntil } from "@vercel/functions";
+import { notifyPhones } from "../../../lib/web-push";
 import { getSession } from "../../../lib/auth";
 import { getMongoDb } from "../../../lib/mongodb";
 
@@ -58,6 +60,8 @@ export async function POST(request:Request){
     if(!allowedProviderId||!viewerRole)return Response.json({error:"You cannot message this conversation"},{status:403});
     const message={_id:new ObjectId(),providerId:allowedProviderId,senderUserId:new ObjectId(session.id),senderRole:viewerRole,senderName:session.fullName,text,createdAt:new Date(),readByCustomer:viewerRole==="customer",readByProvider:viewerRole==="provider"};
     await db.collection("serviceRequests").updateOne({_id:new ObjectId(requestId)},{$push:{messages:message} as never,$set:{updatedAt:new Date()}});
+    const recipient = viewerRole === "customer" ? await db.collection("providers").findOne({ _id: allowedProviderId }, { projection: { userId: 1 } }) : null;
+    waitUntil(notifyPhones([String(viewerRole === "customer" ? recipient?.userId || "" : record.customerId)], { title: "New Nearleo message", body: `${session.fullName} sent you a message about ${record.service}.`, url: `/?notification=messages&requestId=${requestId}&providerId=${providerId}`, tag: `chat-${requestId}-${providerId}` }));
     return Response.json({data:serializeMessage(message)},{status:201});
   }catch(error){return Response.json({error:error instanceof Error?error.message:"Unable to send message"},{status:500})}
 }

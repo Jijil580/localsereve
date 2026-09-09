@@ -79,6 +79,7 @@ async function permanentlyDeleteAccount(db: Db, userId: ObjectId, mongoSession: 
   await db.collection("providerLikes").deleteMany({ $or: [{ userId }, ...(providerIds.length ? [{ providerId: { $in: providerIds } }] : [])] }, options);
   await db.collection("providerReviews").deleteMany({ $or: [{ customerId: userId }, ...(providerIds.length ? [{ providerId: { $in: providerIds } }] : [])] }, options);
   await db.collection("platformReviews").deleteMany({ userId }, options);
+  await db.collection("pushSubscriptions").deleteMany({ userId }, options);
   await db.collection("bookings").deleteMany({
     $or: [
       { customerId: String(userId) }, { customerId: userId },

@@ -7,6 +7,7 @@ import LocationPinIcon from "./location-pin";
 import { TERMS_VERSION } from "../lib/terms";
 import { seoServices } from "../lib/seo-services";
 import ShareProfile from "./share-profile";
+import PhoneNotifications, { disconnectPhoneNotifications } from "./phone-notifications";
 
 const GpsPinIcon = LocationPinIcon;
 
@@ -268,6 +269,18 @@ export default function NearleoApp() {
 
   useEffect(()=>{refreshCommunity()},[currentUser?.id]);
 
+  useEffect(() => {
+    if (!currentUser) return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("notification");
+    if (!target) return;
+    setIntroVisible(false);
+    if (target === "messages") openMessages(params.get("requestId") || "", params.get("providerId") || "");
+    else if (target === "dashboard") navigate("dashboard");
+    params.delete("notification"); params.delete("requestId"); params.delete("providerId");
+    window.history.replaceState(window.history.state, "", "/" + (params.size ? `?${params}` : ""));
+  }, [currentUser?.id]);
+
   useEffect(()=>{if(!currentUser){setSaved([]);return}try{const stored=JSON.parse(window.localStorage.getItem(`nearleo-saved-${currentUser.id}`)||"[]");setSaved(Array.isArray(stored)?stored.filter(id=>typeof id==="string"):[])}catch{setSaved([])}},[currentUser?.id]);
 
   useEffect(()=>{
@@ -391,6 +404,7 @@ export default function NearleoApp() {
   function openRequest(){if(!currentUser){setPostAuthAction("request");setModal("auth");return;}setModal("request")}
   function openContactSignIn(){notify("Please log in to call, WhatsApp or mail this provider.");setAuthMode("login");setPostAuthAction("contact");setModal("auth")}
   async function signOut() {
+    try { await disconnectPhoneNotifications(); } catch { notify("Unable to disconnect phone notifications. Please try signing out again."); return; }
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     setAccountMenuOpen(false); setCurrentUser(null); navigate("home"); await refreshProviders(null); notify("You have been signed out.");
   }
@@ -427,6 +441,7 @@ export default function NearleoApp() {
           {currentUser ? <><button type="button" className={`notification-button ${notificationCount?"has-alert":""}`} aria-label={`${notificationCount} new notifications`} onClick={async()=>{await fetch("/api/notifications",{method:"POST",credentials:"include"});setNotificationCount(0);if(notificationTarget==="messages")openMessages();else navigate(notificationTarget)}}><span aria-hidden="true">♢</span>{notificationCount>0&&<b>{notificationCount>99?"99+":notificationCount}</b>}</button><div className="account-menu-wrap"><button className="account-chip" aria-expanded={accountMenuOpen} aria-haspopup="menu" onClick={toggleAccountMenuHistory}><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><b>{currentUser.fullName.split(" ")[0]}</b><i>⌄</i></button>{accountMenuOpen&&<div className="account-menu" role="menu"><div className="account-menu-head"><span>{currentUser.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><div><b>{currentUser.fullName}</b><small>{currentUser.role} account</small></div></div><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);setRole(currentUser.role);navigate("dashboard")}}><span>◉</span><div><b>{t.profileDashboard}</b><small>{t.manageAccount}</small></div></button><button role="menuitem" onClick={()=>{setAccountMenuOpen(false);useLocation()}}><span>⌖</span><div><b>{t.changeLocation}</b><small>{customerLocation?.label||t.chooseSearchArea}</small></div></button><button role="menuitem" className="account-logout" onClick={signOut}><span>↪</span><div><b>{t.logOut}</b><small>{t.endSession}</small></div></button><button role="menuitem" className="account-delete" onClick={openDeleteAccount}><span>×</span><div><b>Delete account</b><small>Permanently erase your Nearleo data</small></div></button></div>}</div></> : <button className="primary-btn small" onClick={() => setModal("auth")}>{t.signIn}</button>}
         </div>
       </header>
+      {currentUser && <div hidden={view !== "dashboard" && view !== "home"}><PhoneNotifications key={currentUser.id} userId={currentUser.id}/></div>}
       {sideMenuOpen&&<><button type="button" className="side-menu-backdrop" aria-label="Close navigation menu" onClick={toggleSideMenuHistory}/><aside id="nearleo-side-menu" className="side-menu" aria-label="Nearleo quick navigation"><div className="side-menu-head"><div className="side-menu-brand"><span className="brand-mark">N</span><span><b>Nearleo</b></span></div><button type="button" aria-label="Close menu" onClick={toggleSideMenuHistory}>×</button></div><nav aria-label="Quick links"><span className="side-menu-section-label">Menu</span><button type="button" onClick={()=>navigate("home")}><span>⌂</span><div><b>{t.home}</b><small>Return to the Nearleo home page</small></div><i>›</i></button><button type="button" onClick={()=>goSearch("All services")}><span>▦</span><div><b>{t.allServices}</b><small>Browse every local service</small></div><i>›</i></button><button type="button" onClick={()=>{removeSideMenuHistoryMarker();currentUser?(setRole(currentUser.role),navigate("dashboard")):(setAuthMode("login"),setModal("auth"))}}><span>○</span><div><b>{currentUser?t.profileDashboard:t.signIn}</b><small>{currentUser?t.manageAccount:"Access your account or create one"}</small></div><i>›</i></button><button type="button" onClick={()=>{removeSideMenuHistoryMarker();openProtected("requests")}}><span>＋</span><div><b>{t.myRequests}</b><small>Track requests, replies and jobs</small></div><i>›</i></button><button type="button" onClick={()=>{removeSideMenuHistoryMarker();setModal("about")}}><span>i</span><div><b>{t.about}</b><small>How Nearleo helps local customers</small></div><i>›</i></button><button type="button" onClick={()=>{removeSideMenuHistoryMarker();setModal("provider-help")}}><span>?</span><div><b>Help &amp; support</b><small>Simple help and safety guidance</small></div><i>›</i></button><button type="button" onClick={()=>{removeSideMenuHistoryMarker();setModal("contact")}}><span>@</span><div><b>{t.contact}</b><small>support@nealeo.com</small></div><i>›</i></button></nav><button type="button" className="side-menu-listing" onClick={()=>{removeSideMenuHistoryMarker();setRole("provider");currentUser?navigate("dashboard"):setModal("auth")}}>List your service <span>→</span></button></aside></>}
 
       <main>
