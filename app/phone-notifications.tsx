@@ -11,7 +11,7 @@ export async function disconnectPhoneNotifications() {
   await subscription.unsubscribe();
 }
 
-export default function PhoneNotifications({ userId }: { userId: string }) {
+export default function PhoneNotifications({ userId, compact = false, onDone }: { userId: string; compact?: boolean; onDone?: () => void }) {
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
@@ -42,10 +42,15 @@ export default function PhoneNotifications({ userId }: { userId: string }) {
     prepare().catch(error => { if (active) setHint(error.message || "Please reload to enable notifications."); });
     return () => { active = false; };
   }, [userId]);
+  useEffect(() => {
+    const sync = (event: Event) => setEnabled(Boolean((event as CustomEvent<{ enabled: boolean }>).detail?.enabled));
+    window.addEventListener("nearleo:phone-notifications-changed", sync);
+    return () => window.removeEventListener("nearleo:phone-notifications-changed", sync);
+  }, []);
   async function toggle() {
     setBusy(true); setHint("");
     try {
-      if (enabled) { await disconnectPhoneNotifications(); setEnabled(false); return; }
+      if (enabled) { await disconnectPhoneNotifications(); setEnabled(false); window.dispatchEvent(new CustomEvent("nearleo:phone-notifications-changed", { detail: { enabled: false } })); onDone?.(); return; }
       const permission = await Notification.requestPermission();
       if (permission !== "granted") { setHint("Enable notifications in your browser’s site settings, then try again."); return; }
       const registration = await navigator.serviceWorker.ready;
@@ -53,9 +58,10 @@ export default function PhoneNotifications({ userId }: { userId: string }) {
       const subscription = await registration.pushManager.getSubscription() || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytes });
       const response = await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(subscription) });
       if (!response.ok) { await subscription.unsubscribe(); throw new Error("Could not save notifications. Please try again."); }
-      setEnabled(true); setHint("You’ll receive new requests, replies and messages on this phone.");
+      setEnabled(true); setHint("You’ll receive new requests, replies and messages on this phone."); window.dispatchEvent(new CustomEvent("nearleo:phone-notifications-changed", { detail: { enabled: true } })); onDone?.();
     } catch (error) { setHint(error instanceof Error ? error.message : "Could not enable notifications."); }
     finally { setBusy(false); }
   }
-  return <section className="phone-notifications" aria-label="Phone notifications"><div><strong>Phone notifications</strong><small>{enabled ? "Enabled on this device" : "Get alerts for requests, replies and messages"}</small></div>{supported && <button type="button" disabled={busy || !publicKey} onClick={toggle}>{busy ? "Please wait…" : enabled ? "Turn off" : "Enable notifications"}</button>}{hint && <p role="status">{hint}</p>}</section>;
+  if (compact) return <section className="side-notification-setting" aria-label="Phone notification settings"><span aria-hidden="true">◇</span><div><strong>Phone notifications</strong><small>{enabled ? "Enabled on this device" : "Alerts are off on this device"}</small>{hint && <p role="status">{hint}</p>}</div>{supported && <button type="button" disabled={busy || (!enabled && !publicKey)} onClick={toggle}>{busy ? "Wait…" : enabled ? "Disable" : "Enable"}</button>}</section>;
+  return <section className="phone-notifications" aria-label="Phone notifications"><button className="phone-notifications-close" type="button" aria-label="Hide notification prompt" onClick={onDone}>×</button><div><strong>Turn on phone notifications?</strong><small>{enabled ? "Notifications are enabled on this device" : "Get alerts for requests, replies and messages"}</small></div>{supported && <button type="button" disabled={busy || (!enabled && !publicKey)} onClick={toggle}>{busy ? "Please wait…" : enabled ? "Turn off" : "Enable notifications"}</button>}{hint && <p role="status">{hint}</p>}</section>;
 }
